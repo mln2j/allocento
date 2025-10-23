@@ -31,3 +31,8 @@ Thumbs.db
 
 # Misc
 *.swp
+
+# TypeScript
+*.tsbuildinfo
+# Angular
+.angular/
