@@ -60,4 +60,23 @@ class AccountService
         ];
     }
 
+    public function listWithBalancesForUser(User $user): array
+    {
+        return Account::query()
+            ->where('household_id', $user->household_id)
+            ->get()
+            ->map(function (Account $account) use ($user) {
+                $balance = $this->transactions
+                    ->balanceForAccount($account->id, $user->id);
+
+                return [
+                    'id'      => $account->id,
+                    'name'    => $account->name,
+                    'balance' => (float) $balance,
+                ];
+            })
+            ->all();
+    }
+
+
 }

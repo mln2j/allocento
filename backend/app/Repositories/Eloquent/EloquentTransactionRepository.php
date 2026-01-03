@@ -51,4 +51,22 @@ class EloquentTransactionRepository implements TransactionRepositoryInterface
         return (float) $query->sum('amount');
     }
 
+    public function balanceForAccount(int $accountId, int $userId): float
+    {
+        $income = Transaction::query()
+            ->where('account_id', $accountId)
+            ->where('user_id', $userId)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        $expense = Transaction::query()
+            ->where('account_id', $accountId)
+            ->where('user_id', $userId)
+            ->where('type', 'expense')
+            ->sum('amount');
+
+        return (float) $income - (float) $expense;
+    }
+
+
 }
