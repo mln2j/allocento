@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,7 +14,6 @@ class TransactionController extends Controller
     public function __construct(
         private readonly TransactionService $transactionService
     ) {
-
     }
 
     public function index(int $accountId)
@@ -34,12 +34,44 @@ class TransactionController extends Controller
             'amount'      => ['required', 'numeric'],
             'date'        => ['required', 'date'],
             'description' => ['nullable', 'string'],
-            'category_id' => ['nullable', 'integer'],
-            'project_id'  => ['nullable', 'integer'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'project_id'  => ['nullable', 'exists:projects,id'],
         ]);
 
         $transaction = $this->transactionService->createForAccount($user, $accountId, $data);
 
         return response()->json($transaction, Response::HTTP_CREATED);
+    }
+
+    public function update(Request $request, int $accountId, int $transactionId)
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'type'        => ['sometimes', 'in:income,expense'],
+            'amount'      => ['sometimes', 'numeric'],
+            'date'        => ['sometimes', 'date'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'category_id' => ['sometimes', 'nullable', 'exists:categories,id'],
+            'project_id'  => ['sometimes', 'nullable', 'exists:projects,id'],
+        ]);
+
+        $transaction = $this->transactionService->updateForAccount(
+            $user,
+            $accountId,
+            $transactionId,
+            $data
+        );
+
+        return response()->json($transaction);
+    }
+
+    public function destroy(int $accountId, int $transactionId)
+    {
+        $user = Auth::user();
+
+        $this->transactionService->deleteForAccount($user, $accountId, $transactionId);
+
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 }

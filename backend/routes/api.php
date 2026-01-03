@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AccountController;
@@ -11,12 +12,21 @@ use App\Http\Controllers\Api\CategoryController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('accounts', AccountController::class)->only(['index', 'store', 'show']);
+    Route::put('accounts/{account}', [AccountController::class, 'update']);
+    Route::delete('accounts/{account}', [AccountController::class, 'destroy']);
     Route::get('household/summary', [HouseholdController::class, 'summary']);
+    Route::delete('households/{household}', [HouseholdController::class, 'destroy']);
     Route::get('accounts/{account}/transactions', [TransactionController::class, 'index']);
     Route::post('accounts/{account}/transactions', [TransactionController::class, 'store']);
+    Route::put('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update']);
+    Route::delete('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'destroy']);
+
 
     Route::get('projects', [ProjectController::class, 'index']);
     Route::post('projects', [ProjectController::class, 'store']);
+    Route::get('projects/{project}/summary', [ProjectController::class, 'summary']);
+
+    Route::put('projects/{project}', [ProjectController::class, 'update']);
     Route::get('projects/{project}/summary', [ProjectController::class, 'summary']);
 
     Route::get('dashboard', DashboardController::class);
@@ -26,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('categories/{category}', [CategoryController::class, 'update']);
     Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
     Route::post('categories/{from}/merge-into/{to}', [CategoryController::class,'merge']);
+
+    Route::get('reports/spending-by-category', [ReportController::class, 'spendingByCategory']);
 });
 
 

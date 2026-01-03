@@ -49,4 +49,37 @@ class AccountController extends Controller
     {
         return response()->json($account);
     }
+
+    public function update(Request $request, int $id)
+    {
+        $user = Auth::user();
+
+        $account = Account::query()
+            ->where('id', $id)
+            ->where('household_id', $user->household_id)
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+        ]);
+
+        $account->update($data);
+
+        return response()->json($account);
+    }
+
+    public function destroy(int $id)
+    {
+        $user = Auth::user();
+
+        $account = Account::query()
+            ->where('id', $id)
+            ->where('household_id', $user->household_id)
+            ->firstOrFail();
+
+        $account->delete();
+
+        return response()->json([], Response::HTTP_NO_CONTENT);
+    }
+
 }
