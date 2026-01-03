@@ -14,4 +14,6 @@ interface TransactionRepositoryInterface
     public function sumForAccount(int $accountId, int $userId, ?string $type = null): float;
 
     public function sumForProject(int $projectId, int $userId, ?string $type = null): float;
+
+    public function balanceForAccount(int $accountId, int $userId): float;
 }

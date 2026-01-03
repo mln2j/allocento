@@ -42,4 +42,31 @@ class ProjectService
         ];
     }
 
+    public function listWithSummaryForUser(User $user): array
+    {
+        return Project::query()
+            ->where('organization_id', $user->organization_id)
+            ->get()
+            ->map(function (Project $project) use ($user) {
+                $income  = $this->transactions->sumForProject($project->id, $user->id, 'income');
+                $expense = $this->transactions->sumForProject($project->id, $user->id, 'expense');
+
+                $remaining = null;
+                if (! is_null($project->planned_budget)) {
+                    $remaining = max(0, (float) $project->planned_budget - $expense);
+                }
+
+                return [
+                    'id'               => $project->id,
+                    'name'             => $project->name,
+                    'planned_budget'   => $project->planned_budget,
+                    'total_income'     => (float) $income,
+                    'total_expense'    => (float) $expense,
+                    'remaining_budget' => $remaining,
+                ];
+            })
+            ->all();
+    }
+
+
 }
