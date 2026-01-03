@@ -7,17 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     protected $fillable = [
-        'organization_id', 'name', 'description',
-        'planned_budget', 'start_date', 'end_date',
+        'organization_id',
+        'name',
+        'description',
+        'planned_budget',
+        'start_date',
+        'end_date',
+        'status',
     ];
 
-    public function organization()
+    public function scopeActive($query)
     {
-        return $this->belongsTo(Organization::class);
+        return $query->whereIn('status', ['planned', 'active']);
     }
 
-    public function transactions()
+    public function scopeArchived($query)
     {
-        return $this->hasMany(Transaction::class);
+        return $query->where('status', 'archived');
     }
 }

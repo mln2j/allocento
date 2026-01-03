@@ -58,4 +58,27 @@ class ProjectController extends Controller
 
         return response()->json($summary);
     }
+
+    public function update(Request $request, int $id)
+    {
+        $user = Auth::user();
+
+        $project = Project::query()
+            ->where('id', $id)
+            ->where('organization_id', $user->organization_id)
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'name'           => ['sometimes', 'string', 'max:255'],
+            'planned_budget' => ['sometimes', 'numeric'],
+            'start_date'     => ['sometimes', 'date'],
+            'end_date'       => ['sometimes', 'nullable', 'date'],
+            'status'         => ['sometimes', 'in:planned,active,completed,archived'],
+        ]);
+
+        $project->update($data);
+
+        return response()->json($project);
+    }
+
 }
