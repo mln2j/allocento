@@ -37,4 +37,18 @@ class EloquentTransactionRepository implements TransactionRepositoryInterface
 
         return (float) $query->sum('amount');
     }
+
+    public function sumForProject(int $projectId, int $userId, ?string $type = null): float
+    {
+        $query = Transaction::query()
+            ->where('project_id', $projectId)
+            ->where('user_id', $userId);
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        return (float) $query->sum('amount');
+    }
+
 }
