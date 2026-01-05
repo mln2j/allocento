@@ -17,36 +17,77 @@ class AccountController extends Controller
 
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        $accounts = $this->accountService->listForUser($user);
+        $accounts = Account::query()
+            ->where(function ($q) use ($user) {
+                $q->where(function ($q) use ($user) {
+                    $q->where('type', 'personal')
+                        ->where('owner_user_id', $user->id);
+                })
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('type', 'household')
+                            ->where('household_id', $user->household_id);
+                    })
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('type', 'organization')
+                            ->where('organization_id', $user->organization_id);
+                    });
+            })
+            ->orderBy('name')
+            ->get();
 
         return response()->json($accounts);
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-
         $data = $request->validate([
-            'name'            => ['required', 'string', 'max:255'],
-            'type'            => ['required', 'in:personal,household,organization'],
-            'currency'        => ['nullable', 'string', 'size:3'],
-            'opening_balance' => ['nullable', 'numeric'],
-            'budget_limit'    => ['nullable', 'numeric'],
-            'household_id'    => ['nullable', 'integer'],
-            'organization_id' => ['nullable', 'integer'],
-        ]);
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'in:personal,household,organization'],
+            'currency' => ['required', 'string', 'size:3'],
+            'opening_balance' => ['required', 'numeric'],
+            'budget_limit' => ['nullable', 'numeric'],
+        ]); // [web:143][web:141]
 
-        $account = $this->accountService->createForUser($user, $data);
+        $user = $request->user();
 
-        return response()->json($account, Response::HTTP_CREATED);
+        // Po defaultu sve null
+        $data['owner_user_id'] = null;
+        $data['household_id'] = null;
+        $data['organization_id'] = null;
+
+        if ($data['type'] === 'personal') {
+            $data['owner_user_id'] = $user->id;
+        } elseif ($data['type'] === 'household') {
+            $data['household_id'] = $user->household_id;
+        } elseif ($data['type'] === 'organization') {
+            $data['organization_id'] = $user->organization_id;
+        }
+
+        $account = Account::create($data); // fillable već pokriva sve te kolone
+
+        return response()->json($account, 201);
     }
 
-    public function show(Account $account)
+    public function show(Request $request, Account $account)
     {
+        $user = $request->user();
+
+        $authorized =
+            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
+            ($account->type === 'household' && $account->household_id === $user->household_id) ||
+            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
+
+        if (! $authorized) {
+            return response()->json([
+                'message' => 'Forbidden',
+                'error' => 'You do not have access to this account.',
+            ], 403);
+        }
+
         return response()->json($account);
     }
 
@@ -54,10 +95,19 @@ class AccountController extends Controller
     {
         $user = Auth::user();
 
-        $account = Account::query()
-            ->where('id', $id)
-            ->where('household_id', $user->household_id)
-            ->firstOrFail();
+        $account = Account::findOrFail($id);
+
+        $authorized =
+            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
+            ($account->type === 'household' && $account->household_id === $user->household_id) ||
+            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
+
+        if (! $authorized) {
+            return response()->json([
+                'message' => 'Forbidden',
+                'error' => 'You do not have access to this account.',
+            ], 403);
+        }
 
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
@@ -72,14 +122,24 @@ class AccountController extends Controller
     {
         $user = Auth::user();
 
-        $account = Account::query()
-            ->where('id', $id)
-            ->where('household_id', $user->household_id)
-            ->firstOrFail();
+        $account = Account::findOrFail($id);
+
+        $authorized =
+            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
+            ($account->type === 'household' && $account->household_id === $user->household_id) ||
+            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
+
+        if (! $authorized) {
+            return response()->json([
+                'message' => 'Forbidden',
+                'error' => 'You do not have access to this account.',
+            ], 403);
+        }
 
         $account->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
+
 
 }
