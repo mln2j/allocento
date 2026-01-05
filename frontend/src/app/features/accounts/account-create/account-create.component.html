@@ -1,0 +1,109 @@
+<div class="account-create-container">
+  <div class="header">
+    <button mat-icon-button (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>New Account</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <!-- Name full width -->
+    <div class="form-group full-width">
+      <label for="name">Account Name</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        placeholder="e.g., Daily Expenses, Emergency Fund">
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <span class="error">Name must be at least 2 characters.</span>
+      }
+    </div>
+
+    <!-- Type + Currency row -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="type">Account Type</label>
+        <div class="type-options" id="type">
+          <button
+            type="button"
+            class="type-option"
+            [class.selected]="form.get('type')?.value === 'personal'"
+            (click)="form.get('type')?.setValue('personal')">
+            <mat-icon>person</mat-icon>
+            <span>Personal</span>
+          </button>
+          <button
+            type="button"
+            class="type-option"
+            [class.selected]="form.get('type')?.value === 'household'"
+            (click)="form.get('type')?.setValue('household')">
+            <mat-icon>home</mat-icon>
+            <span>Household</span>
+          </button>
+          <button
+            type="button"
+            class="type-option"
+            [class.selected]="form.get('type')?.value === 'organization'"
+            (click)="form.get('type')?.setValue('organization')">
+            <mat-icon>business</mat-icon>
+            <span>Organization</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="form-group">
+        <label for="currency">Currency</label>
+        <select id="currency" formControlName="currency">
+          <option value="EUR">EUR (€)</option>
+          <option value="USD">USD ($)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="HRK">HRK (kn)</option>
+          <option value="CHF">CHF (Fr)</option>
+          <option value="CAD">CAD (C$)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="JPY">JPY (¥)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Balance + Budget row -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="openingBalance">Opening Balance</label>
+        <input
+          id="openingBalance"
+          type="number"
+          formControlName="openingBalance"
+          placeholder="0.00"
+          step="0.01">
+      </div>
+
+      <div class="form-group">
+        <label for="budgetLimit">Budget Limit (optional)</label>
+        <input
+          id="budgetLimit"
+          type="number"
+          formControlName="budgetLimit"
+          placeholder="No limit"
+          step="0.01">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitting">
+        @if (isSubmitting) {
+          <mat-spinner diameter="16"></mat-spinner>
+          <span>Creating...</span>
+        } @else {
+          <span>Create Account</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

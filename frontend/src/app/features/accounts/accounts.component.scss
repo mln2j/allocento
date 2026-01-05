@@ -1,0 +1,241 @@
+.accounts-container {
+  padding: 16px; // mobile default
+}
+
+.accounts-header {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .add-account-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-inline: 10px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  padding: 40px 16px;
+  font-size: 14px;
+}
+
+.accounts-list {
+  flex: 1;
+  min-width: 0;
+}
+
+.accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+
+  thead {
+    background: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  th,
+  td {
+    padding: 8px 6px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  th {
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--duration-fast) var(--ease-standard);
+    cursor: pointer;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  tbody tr.row-clickable {
+    cursor: pointer;
+  }
+
+  td {
+    vertical-align: middle;
+
+    &.name {
+      font-weight: 500;
+      color: var(--color-text);
+      font-size: 14px;
+      text-align: left;       // Name lijevo i na mobu
+    }
+
+    &.type {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      text-transform: capitalize;
+
+      .type-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+      }
+
+      .type-icon {
+        font-size: 20px;
+        display: block;
+      }
+
+      .type-label {
+        text-transform: capitalize;
+      }
+    }
+
+    &.balance {
+      text-align: center;
+
+      .balance-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    &.positive {
+      color: #22c55e;
+      font-weight: 450;
+    }
+
+    &.negative {
+      color: #ef4444;
+      font-weight: 500;
+    }
+
+    &.actions {
+      text-align: center;
+
+      button {
+        margin: 0 auto;
+        opacity: 0.8;
+        transition: opacity var(--duration-fast);
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  th:nth-child(1) {
+    text-align: left; // header "Name" lijevo
+  }
+
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 40px;
+  }
+
+  mat-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* DESKTOP / TABLET: ≥ 576px */
+@media (min-width: 576px) {
+  .accounts-container {
+    padding: 24px;
+  }
+
+  .accounts-header {
+    margin-bottom: 24px;
+
+    h2 {
+      font-size: 28px;
+    }
+
+    .add-account-btn {
+      padding-inline: 16px;
+    }
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    font-size: 16px;
+  }
+
+  .accounts-table {
+    th,
+    td {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    /* Name kolona lijevo, ostali default u sredini */
+    th:nth-child(1),
+    td.name {
+      text-align: left;
+      font-size: 15px;
+    }
+
+    /* Type i Balance eksplicitno centrirani na desktopu */
+    th:nth-child(2),
+    td.type {
+      text-align: center;
+    }
+
+    th:nth-child(3),
+    td.balance {
+      text-align: center;
+    }
+
+    td.type {
+      .type-wrapper {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .type-icon {
+        font-size: 18px;
+      }
+    }
+
+    td.balance {
+      .balance-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* actions ostaje centriran, ne desno */
+    th:nth-child(4),
+    td.actions {
+      text-align: center;
+    }
+  }
+}

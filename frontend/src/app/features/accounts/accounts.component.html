@@ -1,0 +1,70 @@
+<div class="accounts-container">
+  <div class="accounts-header">
+    <h2>Accounts</h2>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="goToCreate()"
+      class="add-account-btn">
+      <mat-icon>add</mat-icon>
+      New Account
+    </button>
+  </div>
+
+  @if (loading) {
+    <mat-spinner></mat-spinner>
+  } @else if (accounts.length === 0) {
+    <p class="empty-state">No accounts yet. Create one to get started.</p>
+  } @else {
+    <div class="accounts-list">
+      <table class="accounts-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Balance</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (account of accounts; track account.id) {
+            <tr (click)="goToDetail(account)" class="row-clickable">
+              <td class="name">
+
+                  {{ account.name }}
+
+              </td>
+              <td class="type">
+                <div class="type-wrapper">
+                  <mat-icon class="type-icon">
+                    @switch (account.type) {
+                      @case ('personal') { person }
+                      @case ('household') { home }
+                      @case ('organization') { business }
+                      @default { account_balance_wallet }
+                    }
+                  </mat-icon>
+                  <span class="type-label">{{ account.type }}</span>
+                </div>
+              </td>
+              <td [ngClass]="account.currentBalance < 0 ? 'negative' : 'positive'" class="balance">
+                <div class="balance-wrapper">
+                  {{ account.currentBalance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+                </div>
+              </td>
+              <td class="actions">
+                <button
+                  mat-icon-button
+                  [routerLink]="['/accounts', account.id]"
+                  (click)="$event.stopPropagation()"
+                  [attr.aria-label]="'View ' + account.name">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
