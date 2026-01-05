@@ -7,8 +7,8 @@ use App\Repositories\Contracts\AccountRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAccountRepository;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentTransactionRepository;
-
-
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Eloquent\EloquentUserRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(AccountRepositoryInterface::class, EloquentAccountRepository::class);
         $this->app->bind(TransactionRepositoryInterface::class, EloquentTransactionRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
     }
 
     /**
