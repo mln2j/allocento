@@ -1,0 +1,43 @@
+.app-shell {
+  height: 100vh;
+}
+
+.app-sidenav {
+  width: 240px;
+}
+
+.app-title {
+  margin-left: 8px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.menu-button {
+  margin-right: 8px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.app-main {
+  padding: 16px;
+}
+
+a.active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+/* Globalni FAB */
+.add-transaction-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+
+  @media (min-width: 768px) {
+    right: 24px;
+    bottom: 24px;
+  }
+}

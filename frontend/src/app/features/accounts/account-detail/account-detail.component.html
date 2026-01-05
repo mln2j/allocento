@@ -1,0 +1,152 @@
+<div class="account-detail-container">
+  @if (loadingAccount) {
+    <mat-spinner></mat-spinner>
+  } @else if (!account) {
+    <p>Account not found.</p>
+  } @else {
+    <div class="account-detail">
+      <div class="detail-header">
+        <button mat-icon-button (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h3>{{ account.name }}</h3>
+        <div class="detail-actions">
+          <button mat-icon-button (click)="onEditAccount()">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDeleteAccount()">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-content">
+        <!-- Info grid -->
+        <div class="account-info-table">
+          <!-- Type + icon -->
+          <div class="info-cell type-cell">
+            <div class="info-label">Type</div>
+            <div class="info-value type-value">
+              <mat-icon class="type-icon">
+                @switch (account.type) {
+                  @case ('personal') {
+                    person
+                  }
+                  @case ('household') {
+                    home
+                  }
+                  @case ('organization') {
+                    business
+                  }
+                  @default {
+                    account_balance_wallet
+                  }
+                }
+              </mat-icon>
+              <span class="type-label">{{ account.type }}</span>
+            </div>
+          </div>
+
+          <!-- Currency -->
+          <div class="info-cell currency-cell">
+            <div class="info-label">Currency</div>
+            <div class="info-value">
+              {{ account.currency }} {{ getCurrencySymbol(account.currency) }}
+            </div>
+          </div>
+
+          <!-- Current balance (sredina, preko 2 kolone na desktopu) -->
+          <div class="info-cell balance-cell">
+            <div class="info-label">Current Balance</div>
+            <div
+              class="info-value balance-value"
+              [ngClass]="account.currentBalance < 0 ? 'negative' : 'positive'">
+              {{ account.currentBalance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+            </div>
+          </div>
+
+          <!-- Income -->
+          <div class="info-cell income-cell">
+            <div class="info-label">Income</div>
+            <div class="info-value income-value">
+              <mat-icon class="income-icon">trending_up</mat-icon>
+              <span class="amount positive">
+                {{ account.totalIncome | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Expenses -->
+          <div class="info-cell expenses-cell">
+            <div class="info-label">Expenses</div>
+            <div class="info-value expenses-value">
+              <mat-icon class="expenses-icon">trending_down</mat-icon>
+              <span class="amount negative">
+                {{ account.totalExpense | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Budget row (optional) -->
+        @if (account.budgetLimit) {
+          <div class="budget-row">
+            <div class="budget-item">
+              <div class="info-label">Budget Limit</div>
+              <div class="info-value">
+                {{ account.budgetLimit | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+              </div>
+            </div>
+            <div class="budget-item">
+              <div class="info-label">Budget Remaining</div>
+              <div
+                class="info-value"
+                [ngClass]="account.remainingBudget! < 0 ? 'negative' : 'positive'">
+                {{ account.remainingBudget | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="info-divider"></div>
+        <h4>Transactions</h4>
+
+        @if (loadingTransactions) {
+          <mat-progress-spinner diameter="24"></mat-progress-spinner>
+        } @else if (transactions.length === 0) {
+          <p class="transactions-placeholder">No transactions yet.</p>
+        } @else {
+          <table class="accounts-table">
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (tx of transactions; track tx.id) {
+                <tr>
+                  <td>{{ tx.date | date:'yyyy-MM-dd' }}</td>
+                  <td>{{ tx.type }}</td>
+                  <td [ngClass]="tx.type === 'expense' ? 'negative' : 'positive'">
+                    {{ tx.amount | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+                  </td>
+                  <td>{{ tx.description }}</td>
+                  <td class="actions">
+                    <button mat-icon-button (click)="onDeleteTransaction(tx)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+</div>
