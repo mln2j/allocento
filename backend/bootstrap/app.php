@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,8 +16,18 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(
-            prepend: [EnsureFrontendRequestsAreStateful::class,],
+            prepend: [
+                HandleCors::class,
+                EnsureFrontendRequestsAreStateful::class,
+            ],
             append: [SubstituteBindings::class,],
+        );
+
+        $middleware->validateCsrfTokens(
+            except: [
+                'api/login',
+                'api/register',
+            ]
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
