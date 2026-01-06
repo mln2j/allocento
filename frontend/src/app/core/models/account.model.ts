@@ -1,14 +1,9 @@
+export type AccountType = 'personal' | 'household' | 'organization';
+
 export interface Account {
   id: number;
   name: string;
-  type: string;
+  type: AccountType;
   currency: string;
-  openingBalance: number;
-  currentBalance: number;
-  budgetLimit: number | null;
-  remainingBudget: number | null;
-  totalIncome: number;
-  totalExpense: number;
-  createdAt: string;
-  updatedAt: string;
+  balance: number;
 }

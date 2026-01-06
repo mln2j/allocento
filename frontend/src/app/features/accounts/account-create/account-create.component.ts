@@ -5,14 +5,15 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AccountRepository } from '../../../core/repositories/account.repository';
+import { AccountRepository, AccountCreatePayload } from '../../../core/repositories/account.repository';
+
+type AccountType = 'personal' | 'household' | 'organization';
 
 interface AccountCreateForm {
   name: string;
-  type: 'personal' | 'household' | 'organization';
+  type: AccountType;
   currency: string;
-  openingBalance: number;
-  budgetLimit: number | null;
+  balance: number;
 }
 
 @Component({
@@ -41,8 +42,7 @@ export class AccountCreateComponent {
       name: ['', [Validators.required, Validators.minLength(2)]],
       type: ['personal', Validators.required],
       currency: ['EUR', Validators.required],
-      openingBalance: [0, [Validators.required]],
-      budgetLimit: [null],
+      balance: [0, [Validators.required]],
     });
   }
 
@@ -55,12 +55,11 @@ export class AccountCreateComponent {
     this.isSubmitting = true;
     const value = this.form.value as AccountCreateForm;
 
-    const payload = {
+    const payload: AccountCreatePayload = {
       name: value.name,
       type: value.type,
       currency: value.currency,
-      opening_balance: value.openingBalance ?? 0,
-      budget_limit: value.budgetLimit ?? null,
+      balance: Number(value.balance ?? 0),
     };
 
     this.accountRepo.create(payload).subscribe({

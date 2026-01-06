@@ -30,9 +30,7 @@
           @for (account of accounts; track account.id) {
             <tr (click)="goToDetail(account)" class="row-clickable">
               <td class="name">
-
-                  {{ account.name }}
-
+                {{ account.name }}
               </td>
               <td class="type">
                 <div class="type-wrapper">
@@ -47,9 +45,12 @@
                   <span class="type-label">{{ account.type }}</span>
                 </div>
               </td>
-              <td [ngClass]="account.currentBalance < 0 ? 'negative' : 'positive'" class="balance">
+              <td
+                [ngClass]="account.balance < 0 ? 'negative' : 'positive'"
+                class="balance">
                 <div class="balance-wrapper">
-                  {{ account.currentBalance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+                  {{ account.balance | number:'1.2-2' }}
+                  {{ getCurrencySymbol(account.currency) }}
                 </div>
               </td>
               <td class="actions">

@@ -4,19 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
-    public function __construct(
-        private readonly AccountService $accountService
-    ) {
-
-    }
-
     public function index(Request $request)
     {
         $user = $request->user();
@@ -45,18 +38,16 @@ class AccountController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:personal,household,organization'],
-            'currency' => ['required', 'string', 'size:3'],
-            'opening_balance' => ['required', 'numeric'],
-            'budget_limit' => ['nullable', 'numeric'],
-        ]); // [web:143][web:141]
+            'name'    => ['required', 'string', 'max:255'],
+            'type'    => ['required', 'in:personal,household,organization'],
+            'currency'=> ['required', 'string', 'size:3'],
+            'balance' => ['required', 'numeric'],
+        ]);
 
         $user = $request->user();
 
-        // Po defaultu sve null
-        $data['owner_user_id'] = null;
-        $data['household_id'] = null;
+        $data['owner_user_id']   = null;
+        $data['household_id']    = null;
         $data['organization_id'] = null;
 
         if ($data['type'] === 'personal') {
@@ -67,7 +58,7 @@ class AccountController extends Controller
             $data['organization_id'] = $user->organization_id;
         }
 
-        $account = Account::create($data); // fillable već pokriva sve te kolone
+        $account = Account::create($data);
 
         return response()->json($account, 201);
     }
@@ -84,7 +75,7 @@ class AccountController extends Controller
         if (! $authorized) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error' => 'You do not have access to this account.',
+                'error'   => 'You do not have access to this account.',
             ], 403);
         }
 
@@ -105,22 +96,20 @@ class AccountController extends Controller
         if (! $authorized) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error' => 'You do not have access to this account.',
+                'error'   => 'You do not have access to this account.',
             ], 403);
         }
 
         $data = $request->validate([
-            'name'            => ['sometimes', 'string', 'max:255'],
-            'type'            => ['sometimes', 'in:personal,household,organization'],
-            'currency'        => ['sometimes', 'string', 'size:3'],
-            'opening_balance' => ['sometimes', 'numeric'],
-            'budget_limit'    => ['sometimes', 'nullable', 'numeric'],
+            'name'     => ['sometimes', 'string', 'max:255'],
+            'type'     => ['sometimes', 'in:personal,household,organization'],
+            'currency' => ['sometimes', 'string', 'size:3'],
+            'balance'  => ['sometimes', 'numeric'],
         ]);
 
-        // Ako mijenjaš type, trebaš opet postaviti owner/household/organization ID-eve
         if (array_key_exists('type', $data)) {
-            $data['owner_user_id'] = null;
-            $data['household_id'] = null;
+            $data['owner_user_id']   = null;
+            $data['household_id']    = null;
             $data['organization_id'] = null;
 
             if ($data['type'] === 'personal') {
@@ -151,7 +140,7 @@ class AccountController extends Controller
         if (! $authorized) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error' => 'You do not have access to this account.',
+                'error'   => 'You do not have access to this account.',
             ], 403);
         }
 
@@ -159,6 +148,4 @@ class AccountController extends Controller
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
-
-
 }

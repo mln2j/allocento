@@ -1,7 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiHttpService } from '../services/api-http.service';
-import { Account } from '../models/account.model';
+import { Account, AccountType } from '../models/account.model';
+
+export interface AccountCreatePayload {
+  name: string;
+  type: AccountType;
+  currency: string;
+  balance: number;
+}
+
+export interface AccountUpdatePayload {
+  name?: string;
+  type?: AccountType;
+  currency?: string;
+  balance?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +25,7 @@ export class AccountRepository {
 
   listForCurrentUser(): Observable<Account[]> {
     return this.api.get<any[]>('/accounts').pipe(
-      map(accounts => accounts.map(acc => this.mapApiToAccount(acc)))
+      map(accounts => accounts.map(acc => this.mapApiToAccount(acc))),
     );
   }
 
@@ -21,14 +35,14 @@ export class AccountRepository {
     );
   }
 
-
-  create(data: any): Observable<Account> {
-    return this.api.post<any>('/accounts', data).pipe(
-      map(acc => this.mapApiToAccount(acc))
+  create(payload: AccountCreatePayload): Observable<Account> {
+    // backend očekuje: name, type, currency, balance
+    return this.api.post<any>('/accounts', payload).pipe(
+      map(acc => this.mapApiToAccount(acc)),
     );
   }
 
-  update(id: number, payload: Partial<Account>) {
+  update(id: number, payload: AccountUpdatePayload): Observable<Account> {
     const apiPayload: any = {};
 
     if (payload.name !== undefined) {
@@ -40,11 +54,8 @@ export class AccountRepository {
     if (payload.currency !== undefined) {
       apiPayload.currency = payload.currency;
     }
-    if (payload.openingBalance !== undefined) {
-      apiPayload.opening_balance = payload.openingBalance;
-    }
-    if (payload.budgetLimit !== undefined) {
-      apiPayload.budget_limit = payload.budgetLimit;
+    if (payload.balance !== undefined) {
+      apiPayload.balance = payload.balance;
     }
 
     return this.api.put<any>(`/accounts/${id}`, apiPayload).pipe(
@@ -52,36 +63,17 @@ export class AccountRepository {
     );
   }
 
-
   delete(id: number) {
     return this.api.delete<void>(`/accounts/${id}`);
   }
 
   private mapApiToAccount(apiData: any): Account {
-    const opening = Number(apiData.opening_balance ?? 0);
-    const budget = apiData.budget_limit !== null && apiData.budget_limit !== undefined
-      ? Number(apiData.budget_limit)
-      : null;
-
-    const current = apiData.current_balance !== undefined && apiData.current_balance !== null
-      ? Number(apiData.current_balance)
-      : opening; // fallback ako backend još ne šalje
-
     return {
       id: apiData.id,
       name: apiData.name,
       type: apiData.type,
       currency: apiData.currency,
-      openingBalance: opening,
-      currentBalance: current,
-      budgetLimit: budget,
-      remainingBudget: budget !== null ? budget - current : null,
-      totalIncome: 0,
-      totalExpense: 0,
-      createdAt: apiData.created_at,
-      updatedAt: apiData.updated_at,
+      balance: Number(apiData.balance ?? 0),
     };
   }
-
-
 }
