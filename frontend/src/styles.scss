@@ -3,21 +3,11 @@
 html, body {
   height: 100%;
   margin: 0;
+  padding: 0;
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
-}
-
-.app-main {
-  padding: 16px;
-}
-
-.auth-wrapper {
-  min-height: calc(100vh - 64px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .full-width {

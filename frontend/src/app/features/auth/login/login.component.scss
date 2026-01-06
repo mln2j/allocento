@@ -1,0 +1,78 @@
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: var(--color-bg, #f3f4f6);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 16px 20px;
+
+  h2 {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.error {
+  margin: 4px 0 8px;
+  font-size: 13px;
+  color: #ef4444;
+}
+
+.auth-footer {
+  margin-top: 12px;
+  font-size: 13px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+
+  a {
+    color: var(--color-primary, #3b82f6);
+    text-decoration: none;
+    font-weight: 500;
+  }
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
+  background: var(--color-bg, #f3f4f6);
+  box-sizing: border-box;
+  overflow: hidden; // spriječi scroll
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 16px 20px;
+  box-sizing: border-box;
+}
+
+.auth-wrapper {
+  overflow-y: auto;
+}
+
+.auth-card {
+  margin: 24px 0; // da ne zalijepi na rub
+}
+
+
