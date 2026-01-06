@@ -1,11 +1,14 @@
 <mat-sidenav-container class="app-shell">
-  <mat-sidenav #drawer mode="side" class="app-sidenav">
+  <mat-sidenav
+    #sidenav
+    mode="over"
+    class="app-sidenav">
     <mat-nav-list>
       <a
         mat-list-item
         routerLink="/dashboard"
         routerLinkActive="active"
-        (click)="drawer.close()">
+        (click)="sidenav.close()">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
@@ -14,21 +17,22 @@
         mat-list-item
         routerLink="/accounts"
         routerLinkActive="active"
-        (click)="drawer.close()">
-        <mat-icon>account_balance</mat-icon>
+        (click)="sidenav.close()">
+        <mat-icon>account_balance_wallet</mat-icon>
         <span>Accounts</span>
       </a>
     </mat-nav-list>
-
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="drawer.toggle()" class="menu-button">
+    <mat-toolbar color="primary" class="app-toolbar">
+      <button mat-icon-button class="menu-button" (click)="sidenav.open()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span class="app-title">{{ title }}</span>
+
+      <span class="toolbar-title">Allocento</span>
       <span class="spacer"></span>
+
       <button mat-icon-button>
         <mat-icon>account_circle</mat-icon>
       </button>
@@ -38,10 +42,9 @@
       <router-outlet></router-outlet>
     </main>
 
-    <!-- Globalni + gumb za dodavanje transakcije -->
     <button
       mat-fab
-      color="accent"
+      color="primary"
       class="add-transaction-fab"
       (click)="onAddTransaction()">
       <mat-icon>add</mat-icon>

@@ -2,12 +2,18 @@
 
 html, body {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  overflow: hidden;
+}
+
+.app-main {
+  padding: 16px;
 }
 
 .full-width {

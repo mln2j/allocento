@@ -2,34 +2,81 @@
   height: 100vh;
 }
 
-.app-sidenav {
-  width: 240px;
+/* Toolbar */
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.app-title {
-  margin-left: 8px;
+.toolbar-title {
   font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.menu-button {
-  margin-right: 8px;
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
+/* Sidenav – full height, svijetla pozadina */
+.app-sidenav {
+  width: 75vw;
+  max-width: 320px;
+  height: 100%;
+  background: #e5e7eb;  // svijetlo siva, malo tamnija od bodyja
+  color: #111827;
+  border-right: 1px solid #d1d5db;
+}
+
+/* Nav list items */
+a.mat-mdc-list-item {
+  color: #111827;
+  height: 48px;
+  display: flex;
+  align-items: center;   // centriraj ikonu + tekst
+  gap: 10px;
+  position: relative;
+}
+
+a.mat-mdc-list-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  color: #6b7280;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+a.mat-mdc-list-item span {
+  line-height: 1.2;
+  margin-left: 26px;
+}
+
+a.mat-mdc-list-item.active {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1f2937;
+
+  mat-icon {
+    color: #3b82f6;
+  }
+}
+
+
+/* Backdrop malo posvijetli */
+.mat-drawer-backdrop.mat-drawer-shown {
+  background-color: rgba(15, 23, 42, 0.35);
+}
+
+/* Main content */
 .app-main {
   padding: 16px;
+  min-height: calc(100vh - 56px);
+  box-sizing: border-box;
+  background: #f3f4f6;
 }
 
-a.active {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-
-/* Globalni FAB */
+/* FAB */
 .add-transaction-fab {
   position: fixed;
   right: 16px;

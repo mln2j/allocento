@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ import {NgIf} from '@angular/common';
     MatButtonModule,
     MatCardModule,
     NgIf,
+    RouterLink,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
