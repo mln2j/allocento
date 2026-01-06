@@ -1,0 +1,46 @@
+<div class="auth-wrapper">
+  <mat-card class="auth-card">
+    <h2>Create account</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" type="text" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirm password</mat-label>
+        <input matInput formControlName="passwordConfirm" type="password" />
+      </mat-form-field>
+
+      <div class="error" *ngIf="errorMessage || form.hasError('passwordsMismatch')">
+        {{ errorMessage || 'Passwords do not match.' }}
+      </div>
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="full-width"
+        type="submit"
+        [disabled]="form.invalid || loading"
+      >
+        {{ loading ? 'Creating account...' : 'Register' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>Already have an account?</span>
+      <a routerLink="/auth/login">Login</a>
+    </div>
+  </mat-card>
+</div>

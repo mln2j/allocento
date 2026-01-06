@@ -3,7 +3,7 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:4200', 'localhost:4200'],
+    'allowed_origins' => ['http://localhost:4200', 'localhost:4200', 'http://192.168.0.75:4200', '192.168.0.75:4200'],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
