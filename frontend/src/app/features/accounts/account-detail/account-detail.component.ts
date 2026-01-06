@@ -4,10 +4,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
 import { Account } from '../../../core/models/account.model';
 import { Transaction } from '../../../core/models/transaction.model';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-account-detail',
@@ -17,6 +22,7 @@ import { Transaction } from '../../../core/models/transaction.model';
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
   ],
   templateUrl: './account-detail.component.html',
   styleUrl: './account-detail.component.scss',
@@ -28,11 +34,14 @@ export class AccountDetailComponent implements OnInit {
   transactions: Transaction[] = [];
   loadingTransactions = true;
 
+  private accountId!: number;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private accountRepo: AccountRepository,
     private txRepo: TransactionRepository,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +51,7 @@ export class AccountDetailComponent implements OnInit {
       return;
     }
 
+    this.accountId = id;
     this.loadAccount(id);
     this.loadTransactions(id);
   }
@@ -69,7 +79,9 @@ export class AccountDetailComponent implements OnInit {
     this.loadingTransactions = true;
     this.txRepo.listForAccount(accountId).subscribe({
       next: txs => {
-        this.transactions = txs;
+        this.transactions = [...txs].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
         this.loadingTransactions = false;
       },
       error: err => {
@@ -100,33 +112,65 @@ export class AccountDetailComponent implements OnInit {
   onDeleteAccount(): void {
     if (!this.account) return;
 
-    const confirmed = confirm(`Delete account "${this.account.name}"?`);
-    if (!confirmed) return;
+    const data: ConfirmDialogData = {
+      title: 'Delete account',
+      message: `Are you sure you want to delete account "${this.account.name}"?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    };
 
-    this.accountRepo.delete(this.account.id).subscribe({
-      next: () => {
-        this.router.navigate(['/accounts']);
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      {
+        maxWidth: '400px',
+        data,
       },
-      error: err => console.error('Error deleting account', err),
+    );
+
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.accountRepo.delete(this.account!.id).subscribe({
+        next: () => {
+          this.router.navigate(['/accounts']);
+        },
+        error: err => console.error('Error deleting account', err),
+      });
     });
   }
 
   onDeleteTransaction(tx: Transaction): void {
     if (!this.account) return;
 
-    const confirmed = confirm('Delete this transaction?');
-    if (!confirmed) return;
+    const data: ConfirmDialogData = {
+      title: 'Delete transaction',
+      message: 'Are you sure you want to delete this transaction?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    };
 
-    this.txRepo.delete(this.account.id, tx.id).subscribe({
-      next: () => {
-        this.transactions = this.transactions.filter(t => t.id !== tx.id);
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      {
+        maxWidth: '400px',
+        data,
       },
-      error: err => console.error('Error deleting transaction', err),
+    );
+
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.txRepo.delete(this.account!.id, tx.id).subscribe({
+        next: () => {
+          this.loadAccount(this.accountId);
+          this.loadTransactions(this.accountId);
+        },
+        error: err => console.error('Error deleting transaction', err),
+      });
     });
   }
 
   onEditAccount(): void {
-    // kasnije: /accounts/:id/edit
     this.router.navigate(['/accounts', this.account!.id, 'edit']);
   }
 }
