@@ -15,6 +15,13 @@ export class AccountRepository {
     );
   }
 
+  getById(id: number): Observable<Account> {
+    return this.api.get<any>(`/accounts/${id}`).pipe(
+      map(acc => this.mapApiToAccount(acc)),
+    );
+  }
+
+
   create(data: any): Observable<Account> {
     return this.api.post<any>('/accounts', data).pipe(
       map(acc => this.mapApiToAccount(acc))
@@ -22,7 +29,25 @@ export class AccountRepository {
   }
 
   update(id: number, payload: Partial<Account>) {
-    return this.api.put<any>(`/accounts/${id}`, payload).pipe(
+    const apiPayload: any = {};
+
+    if (payload.name !== undefined) {
+      apiPayload.name = payload.name;
+    }
+    if (payload.type !== undefined) {
+      apiPayload.type = payload.type;
+    }
+    if (payload.currency !== undefined) {
+      apiPayload.currency = payload.currency;
+    }
+    if (payload.openingBalance !== undefined) {
+      apiPayload.opening_balance = payload.openingBalance;
+    }
+    if (payload.budgetLimit !== undefined) {
+      apiPayload.budget_limit = payload.budgetLimit;
+    }
+
+    return this.api.put<any>(`/accounts/${id}`, apiPayload).pipe(
       map(acc => this.mapApiToAccount(acc)),
     );
   }
@@ -38,20 +63,25 @@ export class AccountRepository {
       ? Number(apiData.budget_limit)
       : null;
 
+    const current = apiData.current_balance !== undefined && apiData.current_balance !== null
+      ? Number(apiData.current_balance)
+      : opening; // fallback ako backend još ne šalje
+
     return {
       id: apiData.id,
       name: apiData.name,
-      type: apiData.type, // 'personal' | 'household' | 'organization'
+      type: apiData.type,
       currency: apiData.currency,
       openingBalance: opening,
-      currentBalance: opening, // dok ne dođu transakcije/aggregate
+      currentBalance: current,
       budgetLimit: budget,
-      remainingBudget: budget !== null ? budget - opening : null,
+      remainingBudget: budget !== null ? budget - current : null,
       totalIncome: 0,
       totalExpense: 0,
       createdAt: apiData.created_at,
       updatedAt: apiData.updated_at,
     };
   }
+
 
 }
