@@ -127,6 +127,6 @@ export class AccountDetailComponent implements OnInit {
 
   onEditAccount(): void {
     // kasnije: /accounts/:id/edit
-    // this.router.navigate(['/accounts', this.account!.id, 'edit']);
+    this.router.navigate(['/accounts', this.account!.id, 'edit']);
   }
 }

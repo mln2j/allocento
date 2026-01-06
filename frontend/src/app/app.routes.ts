@@ -4,6 +4,7 @@ import { AccountsComponent } from './features/accounts/accounts.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { AccountCreateComponent } from './features/accounts/account-create/account-create.component';
 import { AccountDetailComponent } from './features/accounts/account-detail/account-detail.component';
+import { AccountEditComponent } from './features/accounts/account-edit/account-edit.component';
 
 export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'accounts', component: AccountsComponent },
   { path: 'accounts/new', component: AccountCreateComponent },
   { path: 'accounts/:id', component: AccountDetailComponent },
+  { path: 'accounts/:id/edit', component: AccountEditComponent },
   { path: '**', redirectTo: 'dashboard' },
 ];

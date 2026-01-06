@@ -110,8 +110,27 @@ class AccountController extends Controller
         }
 
         $data = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name'            => ['sometimes', 'string', 'max:255'],
+            'type'            => ['sometimes', 'in:personal,household,organization'],
+            'currency'        => ['sometimes', 'string', 'size:3'],
+            'opening_balance' => ['sometimes', 'numeric'],
+            'budget_limit'    => ['sometimes', 'nullable', 'numeric'],
         ]);
+
+        // Ako mijenjaš type, trebaš opet postaviti owner/household/organization ID-eve
+        if (array_key_exists('type', $data)) {
+            $data['owner_user_id'] = null;
+            $data['household_id'] = null;
+            $data['organization_id'] = null;
+
+            if ($data['type'] === 'personal') {
+                $data['owner_user_id'] = $user->id;
+            } elseif ($data['type'] === 'household') {
+                $data['household_id'] = $user->household_id;
+            } elseif ($data['type'] === 'organization') {
+                $data['organization_id'] = $user->organization_id;
+            }
+        }
 
         $account->update($data);
 

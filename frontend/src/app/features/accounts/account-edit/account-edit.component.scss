@@ -1,0 +1,187 @@
+.account-edit-container {
+  max-width: 720px;
+  margin: 16px auto;
+  padding: 16px;
+  background: var(--color-surface);
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+
+  span {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* uvijek jedna kolona */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  &.full-width {
+    width: 100%;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+  }
+
+  input,
+  select {
+    display: block;
+    width: 100%;
+    padding: 10px 12px; // više unutarnjeg prostora
+    border-radius: 6px;
+    border: 1px solid var(--color-border, #d1d5db);
+    font-size: 14px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--color-primary, #3b82f6);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  .error {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #ef4444;
+  }
+}
+
+/* Type selector buttons */
+.type-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.type-option {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt, #f9fafb);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+  border-color var(--duration-fast) var(--ease-standard),
+  color var(--duration-fast) var(--ease-standard);
+
+  mat-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  span {
+    line-height: 1.2;
+  }
+
+  &.selected {
+    border-color: var(--color-primary, #3b82f6);
+    background: rgba(59, 130, 246, 0.08);
+    color: var(--color-primary, #3b82f6);
+  }
+}
+
+/* Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+
+  .btn {
+    border-radius: 999px;
+    padding: 6px 18px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    &.btn-secondary {
+      background: #e5e7eb;
+      color: var(--color-text);
+    }
+
+    &.btn-primary {
+      background: #3b82f6;
+      color: #fff;
+
+      mat-spinner {
+        --mdc-circular-progress-active-indicator-color: #fff;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+}
+
+/* Malo više prostora na većim ekranima, ali i dalje jedna kolona */
+@media (min-width: 768px) {
+  .account-edit-container {
+    margin: 32px auto;
+    padding: 20px 24px;
+  }
+
+  .header h2 {
+    font-size: 24px;
+  }
+}
