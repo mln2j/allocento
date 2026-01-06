@@ -270,3 +270,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.accounts-table th.right,
+.accounts-table td.right {
+  text-align: right;
+}
+

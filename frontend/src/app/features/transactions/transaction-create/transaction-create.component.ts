@@ -54,7 +54,7 @@ export class TransactionCreateComponent implements OnInit {
       accountId: [null, Validators.required],
       type: ['expense' as TransactionType, Validators.required],
       amount: [0, [Validators.required, Validators.min(0.01)]],
-      date: [this.today(), Validators.required],
+      datetime: [this.nowLocal(), Validators.required],
       description: [''],
     });
 
@@ -80,8 +80,15 @@ export class TransactionCreateComponent implements OnInit {
     });
   }
 
-  private today(): string {
-    return new Date().toISOString().slice(0, 10);
+  private nowLocal(): string {
+    const d = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`; // za input[type=datetime-local]
   }
 
   cancel(): void {
@@ -95,10 +102,13 @@ export class TransactionCreateComponent implements OnInit {
     this.errorMessage = null;
 
     const value = this.form.value;
+
+    const isoDate = new Date(value.datetime).toISOString();
+
     const payload = {
-      type: value.type,
+      type: value.type as TransactionType,
       amount: Number(value.amount),
-      date: value.date,
+      date: isoDate,
       description: value.description || null,
     };
 
