@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "short_name": "frontend",
+  "name": "Allocento",
+  "short_name": "Allocento",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
