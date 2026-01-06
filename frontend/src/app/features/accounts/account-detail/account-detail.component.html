@@ -21,7 +21,6 @@
       </div>
 
       <div class="detail-content">
-        <!-- Info grid -->
         <div class="account-info-table">
           <!-- Type + icon -->
           <div class="info-cell type-cell">
@@ -29,18 +28,10 @@
             <div class="info-value type-value">
               <mat-icon class="type-icon">
                 @switch (account.type) {
-                  @case ('personal') {
-                    person
-                  }
-                  @case ('household') {
-                    home
-                  }
-                  @case ('organization') {
-                    business
-                  }
-                  @default {
-                    account_balance_wallet
-                  }
+                  @case ('personal') { person }
+                  @case ('household') { home }
+                  @case ('organization') { business }
+                  @default { account_balance_wallet }
                 }
               </mat-icon>
               <span class="type-label">{{ account.type }}</span>
@@ -55,59 +46,17 @@
             </div>
           </div>
 
-          <!-- Current balance (sredina, preko 2 kolone na desktopu) -->
+          <!-- Current balance -->
           <div class="info-cell balance-cell">
             <div class="info-label">Current Balance</div>
             <div
               class="info-value balance-value"
-              [ngClass]="account.currentBalance < 0 ? 'negative' : 'positive'">
-              {{ account.currentBalance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+              [ngClass]="account.balance < 0 ? 'negative' : 'positive'">
+              {{ account.balance | number:'1.2-2' }}
+              {{ getCurrencySymbol(account.currency) }}
             </div>
           </div>
-
-          <!-- Income -->
-          <div class="info-cell income-cell">
-            <div class="info-label">Income</div>
-            <div class="info-value income-value">
-              <mat-icon class="income-icon">trending_up</mat-icon>
-              <span class="amount positive">
-                {{ account.totalIncome | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Expenses -->
-          <div class="info-cell expenses-cell">
-            <div class="info-label">Expenses</div>
-            <div class="info-value expenses-value">
-              <mat-icon class="expenses-icon">trending_down</mat-icon>
-              <span class="amount negative">
-                {{ account.totalExpense | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
-              </span>
-            </div>
-          </div>
-
         </div>
-
-        <!-- Budget row (optional) -->
-        @if (account.budgetLimit) {
-          <div class="budget-row">
-            <div class="budget-item">
-              <div class="info-label">Budget Limit</div>
-              <div class="info-value">
-                {{ account.budgetLimit | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
-              </div>
-            </div>
-            <div class="budget-item">
-              <div class="info-label">Budget Remaining</div>
-              <div
-                class="info-value"
-                [ngClass]="account.remainingBudget! < 0 ? 'negative' : 'positive'">
-                {{ account.remainingBudget | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
-              </div>
-            </div>
-          </div>
-        }
 
         <div class="info-divider"></div>
         <h4>Transactions</h4>
@@ -133,7 +82,8 @@
                   <td>{{ tx.date | date:'yyyy-MM-dd' }}</td>
                   <td>{{ tx.type }}</td>
                   <td [ngClass]="tx.type === 'expense' ? 'negative' : 'positive'">
-                    {{ tx.amount | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+                    {{ tx.amount | number:'1.2-2' }}
+                    {{ getCurrencySymbol(account.currency) }}
                   </td>
                   <td>{{ tx.description }}</td>
                   <td class="actions">

@@ -10,6 +10,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { AuthShellComponent } from './core/layout/auth-shell/auth-shell.component';
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
 import { guestGuard } from './core/guards/guest.guard';
+import {TransactionCreateComponent} from './features/transactions/transaction-create/transaction-create.component';
 
 export const routes: Routes = [
   {
@@ -34,6 +35,7 @@ export const routes: Routes = [
       { path: 'accounts/new', component: AccountCreateComponent },
       { path: 'accounts/:id', component: AccountDetailComponent },
       { path: 'accounts/:id/edit', component: AccountEditComponent },
+      { path: 'transactions/new', component: TransactionCreateComponent },
     ],
   },
 

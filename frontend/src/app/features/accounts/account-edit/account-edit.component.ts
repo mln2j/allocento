@@ -5,8 +5,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AccountRepository } from '../../../core/repositories/account.repository';
+import { AccountRepository, AccountUpdatePayload } from '../../../core/repositories/account.repository';
 import { Account } from '../../../core/models/account.model';
+
+type AccountType = 'personal' | 'household' | 'organization';
 
 @Component({
   selector: 'app-account-edit',
@@ -37,14 +39,18 @@ export class AccountEditComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      type: ['personal', Validators.required],
+      type: ['personal' as AccountType, Validators.required],
       currency: ['EUR', Validators.required],
-      openingBalance: [0, [Validators.required]],
-      budgetLimit: [null],
+      balance: [0, [Validators.required]],
     });
 
     const idFromRoute = this.route.snapshot.paramMap.get('id');
     this.accountId = Number(idFromRoute);
+
+    if (!this.accountId) {
+      this.router.navigate(['/accounts']);
+      return;
+    }
 
     this.accountRepo.getById(this.accountId).subscribe({
       next: (account: Account) => {
@@ -52,8 +58,7 @@ export class AccountEditComponent implements OnInit {
           name: account.name,
           type: account.type,
           currency: account.currency,
-          openingBalance: account.openingBalance,
-          budgetLimit: account.budgetLimit,
+          balance: account.balance,
         });
         this.isLoading = false;
       },
@@ -73,12 +78,11 @@ export class AccountEditComponent implements OnInit {
     this.isSubmitting = true;
     const value = this.form.value;
 
-    const payload: Partial<Account> = {
+    const payload: AccountUpdatePayload = {
       name: value.name,
       type: value.type,
       currency: value.currency,
-      openingBalance: value.openingBalance,
-      budgetLimit: value.budgetLimit,
+      balance: Number(value.balance),
     };
 
     this.accountRepo.update(this.accountId, payload).subscribe({
@@ -91,7 +95,6 @@ export class AccountEditComponent implements OnInit {
       },
     });
   }
-
 
   onCancel(): void {
     this.router.navigate(['/accounts', this.accountId]);
