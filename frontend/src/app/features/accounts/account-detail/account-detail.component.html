@@ -66,47 +66,92 @@
         } @else if (transactions.length === 0) {
           <p class="transactions-placeholder">No transactions yet.</p>
         } @else {
-          <table class="accounts-table">
-            <thead>
-            <tr>
-              <th>Description</th>
-              <th class="right">Amount</th>
-              <th class="right">Date & time</th>
-              <th></th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (tx of transactions; track tx.id) {
-                <tr>
-                  <!-- Description / fallback -->
-                  <td>
-                    {{ tx.description || (tx.type === 'income' ? 'Income' : 'Expense') }}
-                  </td>
+          <!-- Desktop: table -->
+          <div class="tx-table-wrapper">
+            <table class="accounts-table">
+              <thead>
+              <tr>
+                <th>Description</th>
+                <th class="right">Amount</th>
+                <th class="right">Date & time</th>
+                <th>User</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (tx of transactions; track tx.id) {
+                  <tr>
+                    <td>
+                      {{ tx.description || (tx.type === 'income' ? 'Income' : 'Expense') }}
+                    </td>
+                    <td
+                      class="right"
+                      [ngClass]="tx.type === 'expense' ? 'negative' : 'positive'">
+                      {{ tx.type === 'income' ? '+' : '-' }}
+                      {{ tx.amount | number:'1.2-2' }}
+                      {{ getCurrencySymbol(account.currency) }}
+                    </td>
+                    <td class="right">
+                      {{ tx.date | date:'dd.MM.yyyy, HH:mm' }}
+                    </td>
+                    <td>
+                      {{ tx.user?.name || 'You' }}
+                    </td>
+                    <td class="actions">
+                      <button
+                        mat-icon-button
+                        [routerLink]="['/transactions', tx.id, 'edit']">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="onDeleteTransaction(tx)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
-                  <!-- Amount with + / - and color -->
-                  <td
-                    class="right"
+          <!-- Mobile: card list -->
+          <div class="tx-list-mobile">
+            @for (tx of transactions; track tx.id) {
+              <div class="tx-card-row">
+                <div class="tx-main">
+                  <div class="tx-title">
+                    {{ tx.description || (tx.type === 'income' ? 'Income' : 'Expense') }}
+                  </div>
+                  <div class="tx-subtitle">
+                    {{ tx.date | date:'dd.MM.yyyy, HH:mm' }}
+                  </div>
+                  <div class="tx-user">
+                    {{ tx.user?.name || 'You' }}
+                  </div>
+                </div>
+
+                <div class="tx-side">
+                  <div
+                    class="tx-amount-mobile"
                     [ngClass]="tx.type === 'expense' ? 'negative' : 'positive'">
                     {{ tx.type === 'income' ? '+' : '-' }}
                     {{ tx.amount | number:'1.2-2' }}
                     {{ getCurrencySymbol(account.currency) }}
-                  </td>
+                  </div>
 
-                  <!-- Date & time -->
-                  <td class="right">
-                    {{ tx.date | date:'dd.MM.yyyy, HH:mm' }}
-                  </td>
-
-                  <!-- Actions -->
-                  <td class="actions">
+                  <div class="tx-actions-mobile">
+                    <button
+                      mat-icon-button
+                      [routerLink]="['/transactions', tx.id, 'edit']">
+                      <mat-icon>edit</mat-icon>
+                    </button>
                     <button mat-icon-button (click)="onDeleteTransaction(tx)">
                       <mat-icon>delete</mat-icon>
                     </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
         }
       </div>
     </div>

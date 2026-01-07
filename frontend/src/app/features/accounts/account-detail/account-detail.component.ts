@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -23,6 +23,7 @@ import {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    RouterLink,
   ],
   templateUrl: './account-detail.component.html',
   styleUrl: './account-detail.component.scss',

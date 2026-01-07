@@ -11,6 +11,7 @@ import { AuthShellComponent } from './core/layout/auth-shell/auth-shell.componen
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
 import { guestGuard } from './core/guards/guest.guard';
 import {TransactionCreateComponent} from './features/transactions/transaction-create/transaction-create.component';
+import {TransactionEditComponent} from './features/transactions/transaction-edit/transaction-edit.component';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,7 @@ export const routes: Routes = [
       { path: 'accounts/:id', component: AccountDetailComponent },
       { path: 'accounts/:id/edit', component: AccountEditComponent },
       { path: 'transactions/new', component: TransactionCreateComponent },
+      { path: 'transactions/:id/edit', component: TransactionEditComponent },
     ],
   },
 

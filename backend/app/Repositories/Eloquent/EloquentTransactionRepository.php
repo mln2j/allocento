@@ -11,6 +11,7 @@ class EloquentTransactionRepository implements TransactionRepositoryInterface
     public function allForAccount(int $accountId, int $userId): Collection
     {
         return Transaction::query()
+            ->with('user')
             ->where('account_id', $accountId)
             ->where('user_id', $userId)
             ->orderByDesc('date')

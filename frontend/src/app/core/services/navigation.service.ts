@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Location } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -7,21 +6,19 @@ import { filter } from 'rxjs/operators';
 export class NavigationService {
   private history: string[] = [];
 
-  constructor(
-    private router: Router,
-    private location: Location,
-  ) {
+  constructor(private router: Router) {
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        this.history.push(event.urlAfterRedirects);
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: NavigationEnd) => {
+        this.history.push(e.urlAfterRedirects);
       });
   }
 
   back(): void {
-    this.history.pop(); // makni current
-    if (this.history.length > 0) {
-      this.location.back();
+    this.history.pop();
+    const previous = this.history.pop();
+    if (previous) {
+      this.router.navigateByUrl(previous);
     } else {
       this.router.navigateByUrl('/dashboard');
     }

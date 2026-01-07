@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('accounts/{account}/transactions', [TransactionController::class, 'store']);
     Route::put('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update']);
     Route::delete('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'destroy']);
-
+    Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
 
     Route::get('projects', [ProjectController::class, 'index']);
     Route::post('projects', [ProjectController::class, 'store']);
