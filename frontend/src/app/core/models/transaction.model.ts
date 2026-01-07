@@ -9,4 +9,10 @@ export interface Transaction {
   description?: string | null;
   categoryId?: number | null;
   projectId?: number | null;
+
+  user?: {
+    id: number;
+    name: string;
+    email?: string;
+  } | null;
 }

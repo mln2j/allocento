@@ -66,6 +66,20 @@ class TransactionController extends Controller
         return response()->json($transaction);
     }
 
+    public function show(Request $request, Transaction $transaction)
+    {
+        $user = $request->user();
+
+        if ($transaction->user_id !== $user->id) {
+            return response()->json([
+                'message' => 'Forbidden',
+                'error' => 'You do not have access to this transaction.',
+            ], 403);
+        }
+
+        return response()->json($transaction);
+    }
+
     public function destroy(int $accountId, int $transactionId)
     {
         $user = Auth::user();

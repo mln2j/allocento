@@ -275,4 +275,87 @@
 .accounts-table td.right {
   text-align: right;
 }
+.tx-table-wrapper {
+  overflow-x: auto;
+}
 
+.tx-list-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .tx-table-wrapper {
+    display: none;
+  }
+
+  .tx-list-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .tx-card-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .tx-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tx-title {
+    font-weight: 500;
+  }
+
+  .tx-subtitle,
+  .tx-user {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .tx-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .tx-amount-mobile {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .tx-actions-mobile {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
+}
+
+.negative {
+  color: #dc2626;
+}
+
+.positive {
+  color: #16a34a;
+}
+
+
+.detail-actions button mat-icon,
+.tx-actions-mobile button mat-icon,
+.accounts-table td.actions button mat-icon {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+/* malo manje agresivan warn */
+.detail-actions button[color='warn'] mat-icon,
+.tx-actions-mobile button[color='warn'] mat-icon,
+.accounts-table td.actions button[color='warn'] mat-icon {
+  color: rgba(220, 38, 38, 0.9); // #dc2626 sa smanjenim opacity
+}

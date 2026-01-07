@@ -1,0 +1,62 @@
+.tx-create-container {
+  max-width: 720px;
+  margin: 16px auto;
+  padding: 16px;
+}
+
+.tx-card {
+  padding: 16px 20px;
+}
+
+.tx-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+}
+
+.tx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.error {
+  font-size: 13px;
+  color: #ef4444;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tx-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 0;
+}
