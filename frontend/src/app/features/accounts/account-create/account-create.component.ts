@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AccountRepository, AccountCreatePayload } from '../../../core/repositories/account.repository';
+import { API_BASE_URL } from '../../../core/api.config';
+import { User } from '../../../core/models/user.model';
 
 type AccountType = 'personal' | 'household' | 'organization';
 
@@ -25,24 +29,44 @@ interface AccountCreateForm {
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './account-create.component.html',
   styleUrl: './account-create.component.scss',
 })
-export class AccountCreateComponent {
+export class AccountCreateComponent implements OnInit {
   isSubmitting = false;
+  isLoadingUser = true;
   form: FormGroup;
+  
+  householdAvailable = false;
+  organizationAvailable = false;
 
   constructor(
     private fb: FormBuilder,
     private accountRepo: AccountRepository,
     private router: Router,
+    private http: HttpClient
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       type: ['personal', Validators.required],
       currency: ['EUR', Validators.required],
       balance: [0, [Validators.required]],
+    });
+  }
+
+  ngOnInit(): void {
+    this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
+      next: (user) => {
+        this.householdAvailable = !!user.household_id;
+        this.organizationAvailable = !!user.organization_id;
+        this.isLoadingUser = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch user context', err);
+        this.isLoadingUser = false;
+      }
     });
   }
 

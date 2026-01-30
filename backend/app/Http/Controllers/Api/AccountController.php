@@ -53,8 +53,14 @@ class AccountController extends Controller
         if ($data['type'] === 'personal') {
             $data['owner_user_id'] = $user->id;
         } elseif ($data['type'] === 'household') {
+            if (! $user->household_id) {
+                return response()->json(['message' => 'User does not belong to a household.'], 403);
+            }
             $data['household_id'] = $user->household_id;
         } elseif ($data['type'] === 'organization') {
+            if (! $user->organization_id) {
+                return response()->json(['message' => 'User does not belong to an organization.'], 403);
+            }
             $data['organization_id'] = $user->organization_id;
         }
 
@@ -115,8 +121,14 @@ class AccountController extends Controller
             if ($data['type'] === 'personal') {
                 $data['owner_user_id'] = $user->id;
             } elseif ($data['type'] === 'household') {
+                if (! $user->household_id) {
+                    return response()->json(['message' => 'User does not belong to a household.'], 403);
+                }
                 $data['household_id'] = $user->household_id;
             } elseif ($data['type'] === 'organization') {
+                if (! $user->organization_id) {
+                    return response()->json(['message' => 'User does not belong to an organization.'], 403);
+                }
                 $data['organization_id'] = $user->organization_id;
             }
         }

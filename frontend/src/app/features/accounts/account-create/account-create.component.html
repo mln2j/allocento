@@ -22,32 +22,44 @@
     <div class="form-row">
       <div class="form-group">
         <label for="type">Account Type</label>
-        <div class="type-options" id="type">
-          <button
-            type="button"
-            class="type-option"
-            [class.selected]="form.get('type')?.value === 'personal'"
-            (click)="form.get('type')?.setValue('personal')">
-            <mat-icon>person</mat-icon>
-            <span>Personal</span>
-          </button>
-          <button
-            type="button"
-            class="type-option"
-            [class.selected]="form.get('type')?.value === 'household'"
-            (click)="form.get('type')?.setValue('household')">
-            <mat-icon>home</mat-icon>
-            <span>Household</span>
-          </button>
-          <button
-            type="button"
-            class="type-option"
-            [class.selected]="form.get('type')?.value === 'organization'"
-            (click)="form.get('type')?.setValue('organization')">
-            <mat-icon>business</mat-icon>
-            <span>Organization</span>
-          </button>
-        </div>
+        @if (isLoadingUser) {
+          <div class="loading-indicator">Checking permissions...</div>
+        } @else {
+          <div class="type-options" id="type">
+            <button
+              type="button"
+              class="type-option"
+              [class.selected]="form.get('type')?.value === 'personal'"
+              (click)="form.get('type')?.setValue('personal')">
+              <mat-icon>person</mat-icon>
+              <span>Personal</span>
+            </button>
+            
+            <button
+              type="button"
+              class="type-option"
+              [class.selected]="form.get('type')?.value === 'household'"
+              [class.disabled]="!householdAvailable"
+              [disabled]="!householdAvailable"
+              [matTooltip]="householdAvailable ? 'Create an account shared with your household' : 'You are not a member of a household'"
+              (click)="householdAvailable && form.get('type')?.setValue('household')">
+              <mat-icon>home</mat-icon>
+              <span>Household</span>
+            </button>
+            
+            <button
+              type="button"
+              class="type-option"
+              [class.selected]="form.get('type')?.value === 'organization'"
+              [class.disabled]="!organizationAvailable"
+              [disabled]="!organizationAvailable"
+              [matTooltip]="organizationAvailable ? 'Create an account for your organization' : 'You are not a member of an organization'"
+              (click)="organizationAvailable && form.get('type')?.setValue('organization')">
+              <mat-icon>business</mat-icon>
+              <span>Organization</span>
+            </button>
+          </div>
+        }
       </div>
 
       <div class="form-group">
