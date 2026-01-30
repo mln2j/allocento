@@ -10,7 +10,11 @@ class Account extends Model
     use SoftDeletes;
     protected $fillable = [
         'name', 'type', 'household_id', 'organization_id',
-        'owner_user_id', 'currency', 'balance',
+        'owner_user_id', 'currency', 'balance', 'is_primary',
+    ];
+
+    protected $casts = [
+        'is_primary' => 'boolean',
     ];
 
     public function household()

@@ -20,6 +20,7 @@
       <table class="accounts-table">
         <thead>
         <tr>
+          <th></th>
           <th>Name</th>
           <th>Type</th>
           <th>Balance</th>
@@ -29,6 +30,14 @@
         <tbody>
           @for (account of accounts; track account.id) {
             <tr (click)="goToDetail(account)" class="row-clickable">
+              <td class="primary-indicator">
+                <button mat-icon-button 
+                        (click)="setPrimary(account.id); $event.stopPropagation()"
+                        [color]="account.is_primary ? 'accent' : ''"
+                        [matTooltip]="account.is_primary ? 'Primary Account' : 'Set as Primary'">
+                  <mat-icon>{{ account.is_primary ? 'star' : 'star_border' }}</mat-icon>
+                </button>
+              </td>
               <td class="name">
                 {{ account.name }}
               </td>

@@ -16,6 +16,21 @@ class TransactionController extends Controller
     ) {
     }
 
+    public function all(Request $request)
+    {
+        $user = Auth::user();
+
+        $transactions = Transaction::whereHas('account', function($query) use ($user) {
+                $query->where('owner_user_id', $user->id)
+                      ->orWhere('household_id', $user->household_id);
+            })
+            ->with(['account', 'category'])
+            ->orderBy('date', 'desc')
+            ->paginate(20);
+
+        return response()->json($transactions);
+    }
+
     public function index(int $accountId)
     {
         $user = Auth::user();

@@ -67,6 +67,10 @@ export class AccountRepository {
     return this.api.delete<void>(`/accounts/${id}`);
   }
 
+  setPrimary(id: number): Observable<any> {
+    return this.api.post<any>(`/accounts/${id}/set-primary`, {});
+  }
+
   private mapApiToAccount(apiData: any): Account {
     return {
       id: apiData.id,
@@ -74,6 +78,7 @@ export class AccountRepository {
       type: apiData.type,
       currency: apiData.currency,
       balance: Number(apiData.balance ?? 0),
+      is_primary: !!apiData.is_primary,
     };
   }
 }

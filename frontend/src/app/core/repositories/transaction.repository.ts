@@ -13,6 +13,14 @@ export class TransactionRepository {
       .pipe(map(list => list.map(api => this.mapApiToTransaction(api))));
   }
 
+  listAll(): Observable<Transaction[]> {
+    return this.api
+      .get<any>('/transactions')
+      .pipe(
+        map(res => (res.data || []).map((api: any) => this.mapApiToTransaction(api)))
+      );
+  }
+
   getById(transactionId: number): Observable<Transaction> {
     return this.api
       .get<any>(`/transactions/${transactionId}`)
@@ -53,6 +61,8 @@ export class TransactionRepository {
           email: api.user.email,
         }
         : null,
+      account: api.account ? { id: api.account.id, name: api.account.name } : undefined,
+      category: api.category ? { id: api.category.id, name: api.category.name } : undefined,
     };
   }
 }
