@@ -41,7 +41,10 @@
               type="button"
               class="type-option"
               [class.selected]="form.get('type')?.value === 'household'"
-              (click)="form.get('type')?.setValue('household')">
+              [class.disabled]="!householdAvailable"
+              [disabled]="!householdAvailable"
+              [matTooltip]="householdAvailable ? 'Household account' : 'You are not a member of a household'"
+              (click)="householdAvailable && form.get('type')?.setValue('household')">
               <mat-icon>home</mat-icon>
               <span>Household</span>
             </button>
@@ -49,7 +52,10 @@
               type="button"
               class="type-option"
               [class.selected]="form.get('type')?.value === 'organization'"
-              (click)="form.get('type')?.setValue('organization')">
+              [class.disabled]="!organizationAvailable"
+              [disabled]="!organizationAvailable"
+              [matTooltip]="organizationAvailable ? 'Organization account' : 'You are not a member of an organization'"
+              (click)="organizationAvailable && form.get('type')?.setValue('organization')">
               <mat-icon>business</mat-icon>
               <span>Organization</span>
             </button>
