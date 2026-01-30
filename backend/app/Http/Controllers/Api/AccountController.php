@@ -46,12 +46,12 @@ class AccountController extends Controller
 
         $user = $request->user();
 
-        $data['owner_user_id']   = null;
+        $data['owner_user_id']   = $user->id; // Always set owner to creator
         $data['household_id']    = null;
         $data['organization_id'] = null;
 
         if ($data['type'] === 'personal') {
-            $data['owner_user_id'] = $user->id;
+            // owner_user_id is already set
         } elseif ($data['type'] === 'household') {
             if (! $user->household_id) {
                 return response()->json(['message' => 'User does not belong to a household.'], 403);
@@ -159,5 +159,19 @@ class AccountController extends Controller
         $account->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
+    }
+
+    public function setPrimary(Request $request, int $id)
+    {
+        $user = Auth::user();
+        $account = Account::where('id', $id)->where('owner_user_id', $user->id)->firstOrFail();
+
+        // Remove primary status from all other accounts owned by user
+        Account::where('owner_user_id', $user->id)->update(['is_primary' => false]);
+
+        // Set this one as primary
+        $account->update(['is_primary' => true]);
+
+        return response()->json(['message' => 'Account set as primary.']);
     }
 }

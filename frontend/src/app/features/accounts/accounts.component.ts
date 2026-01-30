@@ -7,6 +7,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AccountRepository } from '../../core/repositories/account.repository';
 import { Account } from '../../core/models/account.model';
 
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-accounts',
   standalone: true,
@@ -16,6 +19,8 @@ import { Account } from '../../core/models/account.model';
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   templateUrl: './accounts.component.html',
   styleUrl: './accounts.component.scss',
@@ -39,6 +44,7 @@ export class AccountsComponent implements OnInit {
   constructor(
     private accountRepo: AccountRepository,
     private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +62,15 @@ export class AccountsComponent implements OnInit {
         console.error('Error loading accounts:', err);
         this.loading = false;
       },
+    });
+  }
+
+  setPrimary(id: number): void {
+    this.accountRepo.setPrimary(id).subscribe({
+      next: () => {
+        this.snackBar.open('Primary account updated', 'Close', { duration: 3000 });
+        this.loadAccounts();
+      }
     });
   }
 

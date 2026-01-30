@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('accounts', AccountController::class)->only(['index', 'store', 'show']);
     Route::put('accounts/{account}', [AccountController::class, 'update']);
     Route::delete('accounts/{account}', [AccountController::class, 'destroy']);
+    Route::post('accounts/{account}/set-primary', [AccountController::class, 'setPrimary']);
     Route::get('household/summary', [HouseholdController::class, 'summary']);
     Route::get('household', [HouseholdController::class, 'show']);
     Route::post('household', [HouseholdController::class, 'store']);
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('invitations/accept/{token}', [InvitationController::class, 'accept']);
     Route::delete('invitations/reject/{token}', [InvitationController::class, 'reject']);
 
+    Route::get('transactions', [TransactionController::class, 'all']);
     Route::get('accounts/{account}/transactions', [TransactionController::class, 'index']);
     Route::post('accounts/{account}/transactions', [TransactionController::class, 'store']);
     Route::put('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update']);

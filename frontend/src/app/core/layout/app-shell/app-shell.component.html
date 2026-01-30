@@ -14,21 +14,29 @@
           <span>Dashboard</span>
         </a>
 
-              <a
-                mat-list-item
-                routerLink="/accounts"
-                routerLinkActive="active"
-                (click)="sidenav.close()">
-                <mat-icon>account_balance_wallet</mat-icon>
-                <span>Accounts</span>
-              </a>
-        
-              <a
-                mat-list-item
-                routerLink="/household"
-                routerLinkActive="active"
-                (click)="sidenav.close()">
-                <mat-icon>home</mat-icon>
+                      <a
+                        mat-list-item
+                        routerLink="/accounts"
+                        routerLinkActive="active"
+                        (click)="sidenav.close()">
+                        <mat-icon>account_balance_wallet</mat-icon>
+                        <span>Accounts</span>
+                      </a>
+              
+                      <a
+                        mat-list-item
+                        routerLink="/transactions"
+                        routerLinkActive="active"
+                        (click)="sidenav.close()">
+                        <mat-icon>receipt_long</mat-icon>
+                        <span>Transactions</span>
+                      </a>
+              
+                      <a
+                        mat-list-item
+                        routerLink="/household"
+                        routerLinkActive="active"
+                        (click)="sidenav.close()">                <mat-icon>home</mat-icon>
                 <span>Household</span>
               </a>
         
@@ -80,13 +88,5 @@
     <main class="app-main">
       <router-outlet></router-outlet>
     </main>
-
-    <button
-      mat-fab
-      color="primary"
-      class="add-transaction-fab"
-      (click)="onAddTransaction()">
-      <mat-icon>add</mat-icon>
-    </button>
   </mat-sidenav-content>
 </mat-sidenav-container>

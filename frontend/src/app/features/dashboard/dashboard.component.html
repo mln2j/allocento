@@ -1,0 +1,150 @@
+<div class="dashboard-wrapper">
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Organizing your wealth...</p>
+    </div>
+  } @else {
+    <!-- 1. Unified Top Metrics -->
+    <section class="metrics-row">
+      <div class="metric-card main">
+        <span class="label">Personal Balance</span>
+        <span class="value">{{ data.summary.personal_total | currency:'EUR' }}</span>
+        <mat-icon class="bg-icon">account_balance_wallet</mat-icon>
+      </div>
+      
+      @if (data.summary.household_total > 0) {
+        <div class="metric-card secondary">
+          <span class="label">Household Fund</span>
+          <span class="value">{{ data.summary.household_total | currency:'EUR' }}</span>
+          <mat-icon class="bg-icon">home</mat-icon>
+        </div>
+      }
+
+      <div class="metric-card highlight" *ngIf="data.summary.primary_account" [routerLink]="['/accounts', data.summary.primary_account.id]">
+        <span class="label">Primary: {{ data.summary.primary_account.name }}</span>
+        <span class="value">{{ data.summary.primary_account.balance | currency:'EUR' }}</span>
+        <mat-icon class="bg-icon">star</mat-icon>
+        <div class="action-hint">View details <mat-icon>arrow_forward</mat-icon></div>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <!-- 2. Left Side: Analytics & History -->
+      <div class="main-content">
+        
+        <!-- Spending Chart Section -->
+        <mat-card class="glass-card">
+          <mat-card-header>
+            <mat-card-title>Monthly Spending Analysis</mat-card-title>
+            <mat-icon matTooltip="Last 30 days">info_outline</mat-icon>
+          </mat-card-header>
+          <mat-card-content>
+            @if (data.spending_stats?.length > 0) {
+              <div class="analysis-grid">
+                @for (item of data.spending_stats; track item.name) {
+                  <div class="analysis-item">
+                    <div class="info">
+                      <span class="name">{{ item.name }}</span>
+                      <span class="amt">{{ item.amount | currency:'EUR' }}</span>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                      <div class="progress-fill" 
+                           [style.width.%]="getSpendingPercentage(item.amount)"
+                           [style.background-color]="item.color"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <mat-icon>bar_chart</mat-icon>
+                <p>No recent spending data available.</p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Transactions Section -->
+        <mat-card class="glass-card">
+          <mat-card-header>
+            <mat-card-title>Recent Activity</mat-card-title>
+            <button mat-button color="primary" routerLink="/transactions">History</button>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="tx-list">
+              @for (tx of data.recent_transactions; track tx.id) {
+                <div class="tx-row">
+                  <div class="tx-type-icon" [class]="tx.type">
+                    <mat-icon>{{ tx.type === 'income' ? 'add' : 'remove' }}</mat-icon>
+                  </div>
+                  <div class="tx-details">
+                    <span class="tx-title">{{ tx.description || 'General' }}</span>
+                    <span class="tx-sub">{{ tx.date | date:'MMM d, y' }} • {{ tx.account?.name }}</span>
+                  </div>
+                  <div class="tx-amount" [class]="tx.type">
+                    {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency:'EUR' }}
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">No recent activity.</div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- 3. Right Side: Accounts -->
+      <aside class="side-content">
+        <div class="section-header">
+          <h3>Your Accounts</h3>
+          <button mat-icon-button routerLink="/accounts" matTooltip="Manage Accounts">
+            <mat-icon>settings</mat-icon>
+          </button>
+        </div>
+
+        <div class="acc-stack">
+          @for (acc of data.accounts; track acc.id) {
+            <div class="acc-item" [routerLink]="['/accounts', acc.id]">
+              <div class="acc-icon" [class]="acc.type">
+                <mat-icon>
+                  @switch (acc.type) {
+                    @case ('personal') { person }
+                    @case ('household') { home }
+                    @default { account_balance }
+                  }
+                </mat-icon>
+              </div>
+              <div class="acc-info">
+                <span class="acc-name">{{ acc.name }}</span>
+                <span class="acc-meta">{{ acc.type }}</span>
+              </div>
+              <div class="acc-val" [class.neg]="acc.balance < 0">
+                {{ acc.balance | currency:'EUR' }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- FAB Placeholder contextually -->
+        <div class="quick-action-box">
+          <p>Need to add a record?</p>
+          <button mat-flat-button color="primary" (click)="onAddTransaction()">
+            <mat-icon>add</mat-icon>
+            New Transaction
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FAB Hidden for now
+    <button
+      mat-fab
+      color="primary"
+      class="mobile-fab"
+      (click)="onAddTransaction()">
+      <mat-icon>add</mat-icon>
+    </button>
+    -->
+  }
+</div>

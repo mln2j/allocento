@@ -15,4 +15,14 @@ export interface Transaction {
     name: string;
     email?: string;
   } | null;
+
+  account?: {
+    id: number;
+    name: string;
+  };
+
+  category?: {
+    id: number;
+    name: string;
+  };
 }

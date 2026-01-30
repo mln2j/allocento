@@ -44,6 +44,10 @@ export const routes: Routes = [
         path: 'organization', 
         loadComponent: () => import('./features/organization/organization.component').then(m => m.OrganizationComponent) 
       },
+      { 
+        path: 'transactions', 
+        loadComponent: () => import('./features/transactions/transactions.component').then(m => m.TransactionsComponent) 
+      },
       { path: 'transactions/new', component: TransactionCreateComponent },
       { path: 'transactions/:id/edit', component: TransactionEditComponent },
       { 

@@ -6,4 +6,5 @@ export interface Account {
   type: AccountType;
   currency: string;
   balance: number;
+  is_primary?: boolean;
 }
