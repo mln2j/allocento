@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\HouseholdController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OrganizationController;
+use App\Http\Controllers\Api\InvitationController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -19,7 +21,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('accounts/{account}', [AccountController::class, 'update']);
     Route::delete('accounts/{account}', [AccountController::class, 'destroy']);
     Route::get('household/summary', [HouseholdController::class, 'summary']);
+    Route::get('household', [HouseholdController::class, 'show']);
+    Route::post('household', [HouseholdController::class, 'store']);
+    Route::put('household', [HouseholdController::class, 'update']);
     Route::delete('households/{household}', [HouseholdController::class, 'destroy']);
+
+    Route::get('organization', [OrganizationController::class, 'show']);
+    Route::post('organization', [OrganizationController::class, 'store']);
+    Route::put('organization', [OrganizationController::class, 'update']);
+    Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy']);
+
+    Route::post('invitations/invite', [InvitationController::class, 'invite']);
+    Route::get('invitations/pending', [InvitationController::class, 'pending']);
+    Route::post('invitations/accept/{token}', [InvitationController::class, 'accept']);
+    Route::delete('invitations/reject/{token}', [InvitationController::class, 'reject']);
+
     Route::get('accounts/{account}/transactions', [TransactionController::class, 'index']);
     Route::post('accounts/{account}/transactions', [TransactionController::class, 'store']);
     Route::put('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update']);
@@ -42,6 +58,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('categories/{from}/merge-into/{to}', [CategoryController::class,'merge']);
 
     Route::get('reports/spending-by-category', [ReportController::class, 'spendingByCategory']);
+
+    // Profile Routes
+    Route::put('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    Route::put('/profile/password', [\App\Http\Controllers\Api\ProfileController::class, 'changePassword']);
+    Route::delete('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'destroy']);
+    Route::post('/profile/photo', [\App\Http\Controllers\Api\ProfileController::class, 'uploadPhoto']);
+    Route::delete('/profile/photo', [\App\Http\Controllers\Api\ProfileController::class, 'deletePhoto']);
 });
 
 

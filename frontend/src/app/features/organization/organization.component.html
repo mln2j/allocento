@@ -1,0 +1,96 @@
+<div class="container">
+  @if (isLoading) {
+    <div class="center">Loading...</div>
+  } @else {
+    @if (!organization) {
+      <mat-card class="create-card">
+        <h2>Create an Organization</h2>
+        <p>Start an organization to manage business projects and finances.</p>
+        <form [formGroup]="createForm" (ngSubmit)="onCreate()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Organization Name</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description (Optional)</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+          </mat-form-field>
+          <button mat-flat-button color="primary" [disabled]="createForm.invalid">Create Organization</button>
+        </form>
+      </mat-card>
+    } @else {
+      <div class="dashboard">
+        <mat-card class="info-card">
+          <div class="info-header">
+            @if (isEditing) {
+              <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="edit-form-full">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Organization Name</mat-label>
+                  <input matInput formControlName="name">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput formControlName="description"></textarea>
+                </mat-form-field>
+                <div class="edit-actions">
+                  <button mat-flat-button color="primary" type="submit">Save</button>
+                  <button mat-button type="button" (click)="isEditing = false">Cancel</button>
+                </div>
+              </form>
+            } @else {
+              <div class="title-row">
+                <h2>{{ organization.name }}</h2>
+                @if (isOwner) {
+                  <button mat-icon-button (click)="isEditing = true" matTooltip="Edit Organization"><mat-icon>edit</mat-icon></button>
+                }
+                <span class="spacer"></span>
+                @if (isOwner) {
+                  <button mat-button color="warn" (click)="onDelete()">
+                    <mat-icon>delete</mat-icon>
+                    Delete Organization
+                  </button>
+                }
+              </div>
+              <p>{{ organization.description || 'Business management dashboard.' }}</p>
+            }
+          </div>
+        </mat-card>
+
+        <div class="row">
+          <mat-card class="members-card">
+            <h3>Team Members</h3>
+            <mat-list>
+              @for (user of organization.users; track user.id) {
+                <mat-list-item>
+                  @if (user.profile_photo_url) {
+                    <img matListItemIcon [src]="user.profile_photo_url" class="member-avatar">
+                  } @else {
+                    <mat-icon matListItemIcon>person</mat-icon>
+                  }
+                  <div matListItemTitle>
+                    {{ user.name }}
+                    @if (user.id === organization.owner_id) {
+                      <span class="owner-badge">Owner</span>
+                    }
+                  </div>
+                  <div matListItemLine>{{ user.email }}</div>
+                </mat-list-item>
+              }
+            </mat-list>
+          </mat-card>
+
+          <mat-card class="invite-card">
+            <h3>Invite Team Member</h3>
+            <form [formGroup]="inviteForm" (ngSubmit)="onInvite()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email Address</mat-label>
+                <input matInput formControlName="email" type="email">
+              </mat-form-field>
+              <button mat-stroked-button color="primary" [disabled]="inviteForm.invalid">Send Invitation</button>
+            </form>
+          </mat-card>
+        </div>
+      </div>
+    }
+  }
+</div>

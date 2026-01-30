@@ -1,0 +1,53 @@
+<div class="edit-container">
+  <div class="header">
+    <button mat-icon-button (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Edit Profile Information</h2>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      
+      <div class="photo-section">
+        <div class="avatar-preview">
+          <img [src]="previewUrl" alt="Preview">
+        </div>
+        <button type="button" mat-stroked-button (click)="fileInput.click()">
+          Change Photo
+        </button>
+        <input 
+          #fileInput 
+          type="file" 
+          hidden 
+          accept="image/*"
+          (change)="onFileSelected($event)">
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email">
+      </mat-form-field>
+
+      <div class="actions">
+        <button type="button" mat-button (click)="cancel()">Cancel</button>
+        <button 
+          type="submit" 
+          mat-flat-button 
+          color="primary" 
+          [disabled]="profileForm.invalid || isSaving">
+          @if (isSaving) { Saving... } @else { Save Changes }
+        </button>
+      </div>
+    </form>
+  }
+</div>

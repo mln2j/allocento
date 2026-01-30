@@ -36,8 +36,24 @@ export const routes: Routes = [
       { path: 'accounts/new', component: AccountCreateComponent },
       { path: 'accounts/:id', component: AccountDetailComponent },
       { path: 'accounts/:id/edit', component: AccountEditComponent },
+      { 
+        path: 'household', 
+        loadComponent: () => import('./features/household/household.component').then(m => m.HouseholdComponent) 
+      },
+      { 
+        path: 'organization', 
+        loadComponent: () => import('./features/organization/organization.component').then(m => m.OrganizationComponent) 
+      },
       { path: 'transactions/new', component: TransactionCreateComponent },
       { path: 'transactions/:id/edit', component: TransactionEditComponent },
+      { 
+        path: 'profile', 
+        loadComponent: () => import('./features/profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent) 
+      },
+      { 
+        path: 'profile/edit', 
+        loadComponent: () => import('./features/profile/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent) 
+      },
     ],
   },
 
