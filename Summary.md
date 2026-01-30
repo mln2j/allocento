@@ -1,41 +1,55 @@
+# Allocento Project Summary
+
 Allocento je PWA za osobno/obiteljsko i poslovno upravljanje budžetima, s Angular frontendom, Laravel REST API backendom i MySQL bazom.
+
+## Tehnički Stack
+
+### Backend
+- **Framework**: Laravel 12.x
+- **Jezik**: PHP 8.2+
+- **Autentifikacija**: Laravel Sanctum (Token based)
+- **Baza**: MySQL / SQLite
+- **API**: RESTful JSON API
+
+### Frontend
+- **Framework**: Angular 20.x
+- **UI Library**: Angular Material 20.x
+- **Jezik**: TypeScript
+- **Platforma**: Progressive Web App (PWA)
 
 ## Domenska pravila
 
-- User može pripadati **najviše jednom kućanstvu** (household) i **najviše jednoj organizaciji** (organization), ali može imati oboje istovremeno.
-- Računi (accounts) mogu biti personal, kućanski ili organizacijski; personal i business račun se mogu “spojiti” preko posebne veze između računa, ne preko dodatnih veza na usera.
-
+- **User**: Može pripadati **najviše jednom kućanstvu** (household) i **najviše jednoj organizaciji** (organization), ali može imati oboje istovremeno.
+- **Računi (Accounts)**: Mogu biti personal, kućanski ili organizacijski. Personal i business račun se mogu “spojiti” preko posebne veze (`AccountLink`).
 
 ## Funkcionalni fokus
 
-- Personal/household dio: praćenje prihoda i rashoda po osobnim i zajedničkim računima, kategorijama i kućnom budžetu; svi članovi kućanstva vide ukupno stanje kućanstva.
-- Enterprise dio: organizacije imaju račune i projekte; troškovi se vežu na račune i projekte, s ograničenom vidljivošću salda i budžeta po ulogama (owner/manager/member).
+1. **Personal/Household**:
+   - Praćenje prihoda i rashoda po osobnim i zajedničkim računima.
+   - Kategorizacija transakcija.
+   - Dijeljenje uvida u financije među članovima kućanstva.
 
+2. **Enterprise/Organization**:
+   - Organizacije imaju račune i projekte.
+   - Troškovi se vežu na račune i projekte.
+   - Role-based visibility (owner/manager/member).
 
-## Baza – glavni entiteti
+## Baza – Glavni Entiteti
 
-- **User**: id, name, email, password, `household_id` (nullable), `organization_id` (nullable); veze na Transaction.
-- **Household**: id, name, owner_id; veze na Users i Accounts.
-- **Organization**: id, name, owner_id, description; veze na Users, Accounts i Projects.
-- **Account**: id, name, type (personal/household/organization), household_id, organization_id, owner_user_id (za osobne), currency, opening_balance, budget_limit.
-- **AccountLink**: spaja dva accounta (from_account_id, to_account_id, relation_type) za povezivanje personal i business računa.
-- **Project**: id, organization_id, name, description, planned_budget, start_date, end_date.
-- **Category**: id, name, type (personal/organization), parent_id.
-- **Transaction**: id, account_id, project_id (nullable), user_id, category_id, type (income/expense), amount, date, description, is_recurring, recurring_rule (JSON).
+- **User**: Centralni entitet. Veze na Household i Organization.
+- **Household**: Grupiranje korisnika za obiteljske financije.
+- **Organization**: Grupiranje za poslovne financije.
+- **Account**: Spremnik vrijednosti (Bank, Cash, etc.). Ima tip (personal/household/organization).
+- **Transaction**: Zapis promjene stanja (Income/Expense). Može se vezati uz Projekt i Kategoriju.
+- **Project**: Praćenje budžeta za specifične poslovne pothvate unutar organizacije.
+- **Category**: Hijerarhijska struktura za klasifikaciju troškova.
 
+## Arhitektura
 
-## Budžeti i izračuni
+### Struktura Direktorija
+Projekt je organiziran kao monorepo:
+- `/backend`: Sadrži sav Laravel kod (API, Database migrations, Models).
+- `/frontend`: Sadrži sav Angular kod (Components, Services, Guards).
 
-- Account: saldo = opening_balance + prihodi − rashodi; `remaining_budget = budget_limit − potrošeno` ako je limit definiran.
-- Project: sumira rashode s istim project_id i računa `remaining = planned_budget − spent`.
-- Household: ukupno stanje = zbroj salda svih (ili shared) household accounts, vidljivo svim članovima kućanstva.
-
-
-## Arhitektura fronta i backenda
-
-- **Angular PWA**: moduli po domenama (auth, household, organization, accounts, projects, transactions, reports); servisi za rad s Laravel API-jem (HTTPClient + interceptori za auth).
-- **Laravel API**:
-    - Controllers (Auth, Household, Organization, Account, Project, Transaction, Report) izlažu JSON rute.
-    - Services (BudgetService, HouseholdService, OrganizationService, TransactionService) drže poslovnu logiku (“koliko je ostalo”, pravila vidljivosti).
-    - Repositories (AccountRepository, ProjectRepository, TransactionRepository) kapsuliraju Eloquent upite i agregacije.
-    - Policies i guardovi implementiraju RBAC za pristup računima, kućanstvima i organizacijama.
+### Komunikacija
+Frontend komunicira s Backendom isključivo putem REST API poziva. `AuthService` na frontendu upravlja Sanctum tokenima koji se šalju u headeru svakog zahtjeva putem HTTP interceptora.

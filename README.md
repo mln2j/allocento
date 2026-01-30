@@ -1,28 +1,21 @@
 # Allocento
 
-Allocento is a modern web application designed to help teams manage and allocate their financial resources across projects with ease, offering real-time budgeting, secure multi-user collaboration, and insightful financial analytics.
+Allocento is a Progressive Web Application (PWA) designed for personal, family, and business budget management. It features a unified platform to track expenses across different domains (Household & Organization) with powerful reporting and role-based access control.
 
-## Features
+## Project Structure
 
-- Role-based secure authentication and authorization  
-- Real-time income and expense tracking  
-- Automated budget allocation across projects  
-- Recurring transactions support  
-- Interactive financial dashboards  
-- Progressive Web App with offline capabilities  
-- Continuous deployment with GitHub Actions
+This repository is structured as a monorepo containing both the backend API and the frontend client.
 
-## Tech Stack
+- **[Backend (API)](./backend/README.md)**: Built with **Laravel 12** and **Sanctum**. Handles data persistence, authentication, and business logic.
+- **[Frontend (Client)](./frontend/README.md)**: Built with **Angular 20** and **Angular Material**. A responsive PWA providing the user interface.
 
-- Frontend: Angular 17, Angular Material, Chart.js  
-- Backend: Node.js, Express, Sequelize ORM  
-- Database: PostgreSQL  
-- Deployment: Cloudflare Pages (frontend) and Render (backend/database)
+## Quick Start
 
-## Getting Started
+To get the full application running, you will need to set up both the backend and frontend services. Please refer to their respective README files for detailed instructions.
 
-See [docs/](docs/) for detailed setup, configuration, and deployment instructions.
+1. **Set up the Backend**: [Read Backend Instructions](./backend/README.md)
+2. **Set up the Frontend**: [Read Frontend Instructions](./frontend/README.md)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
