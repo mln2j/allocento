@@ -1,0 +1,71 @@
+<div class="profile-container">
+  @if (isLoading) {
+    <div class="loading">Loading...</div>
+  } @else if (user) {
+    <mat-card class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <img [src]="user.profile_photo_url" alt="Profile Photo" class="avatar">
+        </div>
+        <h2>{{ user.name }}</h2>
+        <p class="email">{{ user.email }}</p>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-item" 
+             [routerLink]="user.household_id ? '/household' : null"
+             [class.clickable]="user.household_id">
+          <mat-icon>home</mat-icon>
+          <div class="detail-info">
+            <span class="label">Household</span>
+            <span class="value">
+              {{ householdName || (user.household_id ? 'Member' : 'Not a member') }}
+              @if (user.household_id && user.id === householdOwnerId) {
+                <span class="owner-badge mini">Owner</span>
+              }
+            </span>
+          </div>
+          @if (user.household_id) {
+            <mat-icon class="chevron">chevron_right</mat-icon>
+          }
+        </div>
+
+        <div class="detail-item"
+             [routerLink]="user.organization_id ? '/organization' : null"
+             [class.clickable]="user.organization_id">
+          <mat-icon>business</mat-icon>
+          <div class="detail-info">
+            <span class="label">Organization</span>
+            <span class="value">
+              {{ organizationName || (user.organization_id ? 'Member' : 'Not a member') }}
+              @if (user.organization_id && user.id === organizationOwnerId) {
+                <span class="owner-badge mini org">Owner</span>
+              }
+            </span>
+          </div>
+          @if (user.organization_id) {
+            <mat-icon class="chevron">chevron_right</mat-icon>
+          }
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button mat-flat-button color="primary" (click)="editProfile()">
+          <mat-icon>edit</mat-icon>
+          Edit Profile
+        </button>
+
+        <button mat-stroked-button (click)="changePassword()">
+          <mat-icon>lock</mat-icon>
+          Change Password
+        </button>
+      </div>
+
+      <div class="danger-zone">
+        <button mat-button color="warn" (click)="deleteAccount()">
+          Delete My Account
+        </button>
+      </div>
+    </mat-card>
+  }
+</div>

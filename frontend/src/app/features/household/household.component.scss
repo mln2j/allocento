@@ -1,0 +1,85 @@
+.container {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.create-card {
+  max-width: 500px;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  h2 { margin: 0; }
+  .spacer { flex: 1; }
+}
+
+.edit-name-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  mat-form-field {
+    margin-bottom: -1.25em; // Align with buttons
+  }
+}
+
+.owner-badge {
+  background: #ebf4ff;
+  color: #3b82f6;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+mat-card {
+  padding: 1.5rem;
+}
+
+h2, h3 {
+  margin-top: 0;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 4rem;
+}

@@ -4,4 +4,5 @@ export interface User {
   email: string;
   household_id?: number | null;
   organization_id?: number | null;
+  profile_photo_url?: string;
 }
