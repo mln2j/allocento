@@ -10,6 +10,7 @@ import { API_BASE_URL } from '../../../core/api.config';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { UserRepository } from '../../../core/repositories/user.repository';
@@ -31,6 +32,7 @@ import { RouterLink } from '@angular/router';
     MatCardModule, 
     MatDialogModule, 
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     RouterLink
   ],
   templateUrl: './profile-view.component.html',

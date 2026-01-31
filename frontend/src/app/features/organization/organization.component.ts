@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { User } from '../../core/models/user.model';
 import { API_BASE_URL } from '../../core/api.config';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-organization',
@@ -32,7 +33,8 @@ import { API_BASE_URL } from '../../core/api.config';
     MatListModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressSpinner
   ],
   templateUrl: './organization.component.html',
   styleUrl: './organization.component.scss'
@@ -42,7 +44,7 @@ export class OrganizationComponent implements OnInit {
   currentUser: User | null = null;
   isLoading = true;
   isEditing = false;
-  
+
   createForm: FormGroup;
   inviteForm: FormGroup;
   editForm: FormGroup;
@@ -124,13 +126,26 @@ export class OrganizationComponent implements OnInit {
         this.isEditing = false;
         this.snackBar.open('Organization updated!', 'Close', { duration: 3000 });
         this.loadOrganization();
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.message || 'Error updating organization', 'Close', { duration: 3000 });
       }
     });
   }
 
+  cancelEdit() {
+    this.isEditing = false;
+    if (this.organization) {
+      this.editForm.patchValue({
+        name: this.organization.name,
+        description: this.organization.description
+      });
+    }
+  }
+
   onDelete() {
     if (!this.organization) return;
-    
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Delete Organization',

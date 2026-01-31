@@ -1,107 +1,65 @@
-<div class="account-create-container">
-  <div class="header">
-    <button mat-icon-button (click)="onCancel()">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2>New Account</h2>
-  </div>
+<div class="form-page">
+  <div class="form-container">
+    <header class="form-header">
+      <button mat-icon-button (click)="onCancel()"><mat-icon>arrow_back</mat-icon></button>
+      <h1>New Account</h1>
+    </header>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-    <div class="form-group full-width">
-      <label for="name">Account Name</label>
-      <input
-        id="name"
-        type="text"
-        formControlName="name"
-        placeholder="e.g., Daily Expenses, Emergency Fund" />
-      @if (form.get('name')?.invalid && form.get('name')?.touched) {
-        <span class="error">Name must be at least 2 characters.</span>
-      }
-    </div>
+    @if (isLoadingUser) {
+      <div class="form-loader"><mat-spinner diameter="32"></mat-spinner></div>
+    } @else {
+      <mat-card class="form-card">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          
+          <div class="form-section">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Account Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Daily Spending">
+              <mat-error *ngIf="form.get('name')?.invalid">Name is required (min 2 chars)</mat-error>
+            </mat-form-field>
+          </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="type">Account Type</label>
-        @if (isLoadingUser) {
-          <div class="loading-indicator">Checking permissions...</div>
-        } @else {
-          <div class="type-options" id="type">
-            <button
-              type="button"
-              class="type-option"
-              [class.selected]="form.get('type')?.value === 'personal'"
-              (click)="form.get('type')?.setValue('personal')">
-              <mat-icon>person</mat-icon>
-              <span>Personal</span>
-            </button>
-            
-            <button
-              type="button"
-              class="type-option"
-              [class.selected]="form.get('type')?.value === 'household'"
-              [class.disabled]="!householdAvailable"
-              [disabled]="!householdAvailable"
-              [matTooltip]="householdAvailable ? 'Create an account shared with your household' : 'You are not a member of a household'"
-              (click)="householdAvailable && form.get('type')?.setValue('household')">
-              <mat-icon>home</mat-icon>
-              <span>Household</span>
-            </button>
-            
-            <button
-              type="button"
-              class="type-option"
-              [class.selected]="form.get('type')?.value === 'organization'"
-              [class.disabled]="!organizationAvailable"
-              [disabled]="!organizationAvailable"
-              [matTooltip]="organizationAvailable ? 'Create an account for your organization' : 'You are not a member of an organization'"
-              (click)="organizationAvailable && form.get('type')?.setValue('organization')">
-              <mat-icon>business</mat-icon>
-              <span>Organization</span>
+          <div class="form-section">
+            <label class="section-label">Account Type</label>
+            <div class="type-selector">
+              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'personal'" (click)="form.get('type')?.setValue('personal')">
+                <mat-icon>person</mat-icon><span>Personal</span>
+              </button>
+              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'household'" 
+                      [disabled]="!householdAvailable" (click)="householdAvailable && form.get('type')?.setValue('household')">
+                <mat-icon>home</mat-icon><span>Household</span>
+              </button>
+              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'organization'" 
+                      [disabled]="!organizationAvailable" (click)="organizationAvailable && form.get('type')?.setValue('organization')">
+                <mat-icon>business</mat-icon><span>Org</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Currency</mat-label>
+              <select matNativeControl formControlName="currency">
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+                <option value="HRK">HRK (kn)</option>
+              </select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Initial Balance</mat-label>
+              <input matInput type="number" formControlName="balance">
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="onCancel()">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting">
+              {{ isSubmitting ? 'Creating...' : 'Create Account' }}
             </button>
           </div>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="currency">Currency</label>
-        <select id="currency" formControlName="currency">
-          <option value="EUR">EUR (€)</option>
-          <option value="USD">USD ($)</option>
-          <option value="GBP">GBP (£)</option>
-          <option value="HRK">HRK (kn)</option>
-          <option value="CHF">CHF (Fr)</option>
-          <option value="CAD">CAD (C$)</option>
-          <option value="AUD">AUD (A$)</option>
-          <option value="JPY">JPY (¥)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="balance">Initial Balance</label>
-        <input
-          id="balance"
-          type="number"
-          formControlName="balance"
-          placeholder="0.00"
-          step="0.01" />
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
-        Cancel
-      </button>
-
-      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitting">
-        @if (isSubmitting) {
-          <mat-spinner diameter="16"></mat-spinner>
-          <span>Creating...</span>
-        } @else {
-          <span>Create Account</span>
-        }
-      </button>
-    </div>
-  </form>
+        </form>
+      </mat-card>
+    }
+  </div>
 </div>

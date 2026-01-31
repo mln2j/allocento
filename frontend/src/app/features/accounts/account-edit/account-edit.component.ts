@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 import { AccountRepository, AccountUpdatePayload } from '../../../core/repositories/account.repository';
 import { Account } from '../../../core/models/account.model';
 import { User } from '../../../core/models/user.model';
@@ -25,6 +28,9 @@ type AccountType = 'personal' | 'household' | 'organization';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule
   ],
   templateUrl: './account-edit.component.html',
   styleUrl: './account-edit.component.scss',

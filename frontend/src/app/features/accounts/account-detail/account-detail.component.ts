@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
 import { Account } from '../../../core/models/account.model';
@@ -13,6 +14,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import {MatCard} from '@angular/material/card';
 
 @Component({
   selector: 'app-account-detail',
@@ -23,7 +25,9 @@ import {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatMenuModule,
     RouterLink,
+    MatCard,
   ],
   templateUrl: './account-detail.component.html',
   styleUrl: './account-detail.component.scss',

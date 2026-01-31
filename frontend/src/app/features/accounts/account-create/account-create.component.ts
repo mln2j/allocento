@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 import { AccountRepository, AccountCreatePayload } from '../../../core/repositories/account.repository';
 import { API_BASE_URL } from '../../../core/api.config';
 import { User } from '../../../core/models/user.model';
@@ -29,7 +32,10 @@ interface AccountCreateForm {
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule
   ],
   templateUrl: './account-create.component.html',
   styleUrl: './account-create.component.scss',
@@ -38,7 +44,7 @@ export class AccountCreateComponent implements OnInit {
   isSubmitting = false;
   isLoadingUser = true;
   form: FormGroup;
-  
+
   householdAvailable = false;
   organizationAvailable = false;
 

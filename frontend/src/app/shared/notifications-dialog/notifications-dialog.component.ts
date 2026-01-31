@@ -15,15 +15,22 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     <h2 mat-dialog-title>Notifications</h2>
     <mat-dialog-content>
       @if (invitations.length === 0) {
-        <p>No new notifications.</p>
+        <div class="empty-notif">
+          <mat-icon>notifications_none</mat-icon>
+          <p>No new notifications.</p>
+        </div>
       } @else {
-        <mat-list>
+        <div class="notif-list">
           @for (invite of invitations; track invite.token) {
-            <mat-list-item>
-              <mat-icon matListItemIcon>{{ invite.entity_type === 'household' ? 'home' : 'business' }}</mat-icon>
-              <div matListItemTitle>Invite to {{ invite.entity_name }}</div>
-              <div matListItemLine>You have been invited to join this {{ invite.entity_type }}.</div>
-              <div matListItemMeta>
+            <div class="notif-item">
+              <div class="notif-icon" [class]="invite.entity_type">
+                <mat-icon>{{ invite.entity_type === 'household' ? 'home' : 'business' }}</mat-icon>
+              </div>
+              <div class="notif-body">
+                <span class="notif-title">Invite to {{ invite.entity_name }}</span>
+                <span class="notif-sub">You have been invited to join this {{ invite.entity_type }}.</span>
+              </div>
+              <div class="notif-actions">
                 <button mat-icon-button color="primary" (click)="accept(invite.token)" matTooltip="Accept">
                   <mat-icon>check_circle</mat-icon>
                 </button>
@@ -31,9 +38,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
                   <mat-icon>cancel</mat-icon>
                 </button>
               </div>
-            </mat-list-item>
+            </div>
           }
-        </mat-list>
+        </div>
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -41,7 +48,40 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     </mat-dialog-actions>
   `,
   styles: [`
-    mat-list-item { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    :host { display: block; min-width: 350px; }
+    h2 { font-weight: 800; color: #1e293b; }
+    
+    .notif-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    
+    .notif-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      gap: 12px;
+    }
+
+    .notif-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      &.household { background: #eff6ff; color: #3b82f6; }
+      &.organization { background: #f0fdf4; color: #10b981; }
+    }
+
+    .notif-body {
+      flex: 1; display: flex; flex-direction: column;
+      .notif-title { font-weight: 700; color: #1e293b; font-size: 0.9rem; }
+      .notif-sub { font-size: 0.75rem; color: #64748b; }
+    }
+
+    .notif-actions { display: flex; gap: 4px; }
+
+    .empty-notif {
+      text-align: center; padding: 32px; color: #94a3b8;
+      mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.5; margin-bottom: 8px; }
+    }
   `]
 })
 export class NotificationsDialogComponent {
