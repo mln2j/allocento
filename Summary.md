@@ -1,6 +1,6 @@
 # Allocento Project Summary
 
-Allocento je PWA za osobno/obiteljsko i poslovno upravljanje budžetima, s Angular frontendom, Laravel REST API backendom i MySQL bazom.
+Allocento je moderna PWA aplikacija za osobno, obiteljsko i poslovno upravljanje budžetima. Projekt koristi Laravel 12 na backendu i Angular 20 na frontendu, s naglaskom na premium UX i sigurnost.
 
 ## Tehnički Stack
 
@@ -8,48 +8,53 @@ Allocento je PWA za osobno/obiteljsko i poslovno upravljanje budžetima, s Angul
 - **Framework**: Laravel 12.x
 - **Jezik**: PHP 8.2+
 - **Autentifikacija**: Laravel Sanctum (Token based)
-- **Baza**: MySQL / SQLite
+- **Baza**: SQLite (razvoj), spremno za MySQL/PostgreSQL
 - **API**: RESTful JSON API
 
 ### Frontend
 - **Framework**: Angular 20.x
 - **UI Library**: Angular Material 20.x
-- **Jezik**: TypeScript
-- **Platforma**: Progressive Web App (PWA)
+- **Dizajn**: Custom moderni UX (Glassmorphism, Tile-based lists, Premium UI)
+- **Platforma**: PWA (Progressive Web App)
 
-## Domenska pravila
+## Implementirane Funkcionalnosti
 
-- **User**: Može pripadati **najviše jednom kućanstvu** (household) i **najviše jednoj organizaciji** (organization), ali može imati oboje istovremeno.
-- **Računi (Accounts)**: Mogu biti personal, kućanski ili organizacijski. Personal i business račun se mogu “spojiti” preko posebne veze (`AccountLink`).
+### 1. Core & Auth
+- **Autentifikacija**: Registracija, Login i Logout.
+- **Profil**: Pregled i uređivanje osobnih podataka (Ime, Email).
+- **Sigurnost**: Promjena lozinke putem custom dijaloga.
+- **Profilna Slika**: Upload i pohrana profilne slike (Laravel Storage).
+- **Brisanje Računa**: Sigurno brisanje profila uz provjeru vlasništva nad grupama.
 
-## Funkcionalni fokus
+### 2. Upravljanje Računima (Accounts)
+- **Tipovi računa**: Personal, Household, Organization.
+- **Primarni Račun**: Mogućnost označavanja jednog računa kao primarnog ("star" sustav).
+- **Saldo**: Automatsko praćenje stanja na temelju transakcija.
+- **Povezivanje**: Vlasništvo računa se prati čak i za dijeljene (household) račune.
 
-1. **Personal/Household**:
-   - Praćenje prihoda i rashoda po osobnim i zajedničkim računima.
-   - Kategorizacija transakcija.
-   - Dijeljenje uvida u financije među članovima kućanstva.
+### 3. Transakcije (Transactions)
+- **Globalni pregled**: Povijest svih transakcija (osobne + kućanske) na jednom mjestu.
+- **CRUD**: Kreiranje, uređivanje i brisanje transakcija.
+- **Kategorizacija**: Svaka transakcija je vezana uz račun i kategoriju.
 
-2. **Enterprise/Organization**:
-   - Organizacije imaju račune i projekte.
-   - Troškovi se vežu na račune i projekte.
-   - Role-based visibility (owner/manager/member).
+### 4. Društvene Funkcionalnosti (Household & Organization)
+- **Invitations**: Sustav pozivnica putem emaila i tokena.
+- **Notifikacije**: Zvonce u toolbar-u s badge-om za aktivne pozivnice.
+- **Management**: Dashboard za kućanstva i organizacije s listom članova i ulogama (Owner badge).
+- **Ownership**: Zaštita od brisanja ako je korisnik jedini vlasnik grupe.
 
-## Baza – Glavni Entiteti
+### 5. Dashboard (Analytics)
+- **Financial Overview**: Razdvojeni Personal i Household totali.
+- **Favorit Card**: Istaknuti primarni račun s brzim pristupom.
+- **Spending Analysis**: Vizualni prikaz potrošnje po kategorijama u zadnjih 30 dana (CSS progress bars).
+- **Recent Activity**: Brzi uvid u zadnjih 10 transakcija.
 
-- **User**: Centralni entitet. Veze na Household i Organization.
-- **Household**: Grupiranje korisnika za obiteljske financije.
-- **Organization**: Grupiranje za poslovne financije.
-- **Account**: Spremnik vrijednosti (Bank, Cash, etc.). Ima tip (personal/household/organization).
-- **Transaction**: Zapis promjene stanja (Income/Expense). Može se vezati uz Projekt i Kategoriju.
-- **Project**: Praćenje budžeta za specifične poslovne pothvate unutar organizacije.
-- **Category**: Hijerarhijska struktura za klasifikaciju troškova.
+## Arhitektura Podataka (Glavni Entiteti)
+- **User**: Proširen s `profile_photo_path` i soft delete podrškom.
+- **Household / Organization**: Grupiranje korisnika i resursa.
+- **Invitation**: Upravlja životnim ciklusom pozivanja novih članova.
+- **Account**: Sprema saldo i primarni status.
+- **Transaction**: Centralni zapis o prometu novca.
 
-## Arhitektura
-
-### Struktura Direktorija
-Projekt je organiziran kao monorepo:
-- `/backend`: Sadrži sav Laravel kod (API, Database migrations, Models).
-- `/frontend`: Sadrži sav Angular kod (Components, Services, Guards).
-
-### Komunikacija
-Frontend komunicira s Backendom isključivo putem REST API poziva. `AuthService` na frontendu upravlja Sanctum tokenima koji se šalju u headeru svakog zahtjeva putem HTTP interceptora.
+## Trenutni Status: **Beta Ready**
+Aplikacija ima sve temeljne značajke za upravljanje novcem u timu ili obitelji. Sljedeći koraci uključuju naprednije izvještaje (grafovi) i dublju integraciju s projektima unutar organizacija.

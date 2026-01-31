@@ -1,20 +1,47 @@
 # Allocento
 
-Allocento is a Progressive Web Application (PWA) designed for personal, family, and business budget management. It features a unified platform to track expenses across different domains (Household & Organization) with powerful reporting and role-based access control.
+Allocento is a Progressive Web Application (PWA) designed for personal, family, and business budget management. It features a unified platform to track expenses across different domains (Household & Organization) with a premium UX and role-based access control.
+
+## Project Highlights
+
+- **Tech Stack**: Laravel 12 API & Angular 20 SPA.
+- **Modern UI**: Custom-designed interfaces with Material Design 3 principles.
+- **Multi-Tenant**: Manage your personal money, family household, and business organization in one app.
+- **Smart Analytics**: Real-time spending breakdown and balance tracking.
+
+## Core Features
+
+- ✅ **Profile & Security**: Update profile info, upload photos, and secure password management.
+- ✅ **Intelligent Dashboard**: At-a-glance view of your net worth, recent activity, and categorical spending.
+- ✅ **Shared Wealth**: Household and Organization management with member invitations.
+- ✅ **Account Management**: Support for multiple account types with "Primary Account" highlighting.
+- ✅ **Global History**: Unified transaction log with easy filtering and editing.
+- ✅ **Notifications**: In-app notification system for invitations and team events.
 
 ## Project Structure
 
-This repository is structured as a monorepo containing both the backend API and the frontend client.
-
-- **[Backend (API)](./backend/README.md)**: Built with **Laravel 12** and **Sanctum**. Handles data persistence, authentication, and business logic.
-- **[Frontend (Client)](./frontend/README.md)**: Built with **Angular 20** and **Angular Material**. A responsive PWA providing the user interface.
+- **[Backend (API)](./backend/README.md)**: Laravel 12 with Sanctum authentication.
+- **[Frontend (Client)](./frontend/README.md)**: Angular 20 PWA with Angular Material.
 
 ## Quick Start
 
-To get the full application running, you will need to set up both the backend and frontend services. Please refer to their respective README files for detailed instructions.
+1. **Set up the Backend**:
+   ```bash
+   cd backend
+   composer install
+   cp .env.example .env
+   php artisan key:generate
+   php artisan migrate --seed
+   php artisan storage:link
+   php artisan serve
+   ```
 
-1. **Set up the Backend**: [Read Backend Instructions](./backend/README.md)
-2. **Set up the Frontend**: [Read Frontend Instructions](./frontend/README.md)
+2. **Set up the Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
 
 ## License
 
