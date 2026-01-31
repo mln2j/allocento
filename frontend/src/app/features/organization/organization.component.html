@@ -1,95 +1,103 @@
-<div class="container">
+<div class="mgmt-page">
   @if (isLoading) {
-    <div class="center">Loading...</div>
+    <div class="center-loader"><mat-spinner diameter="40"></mat-spinner></div>
   } @else {
     @if (!organization) {
-      <mat-card class="create-card">
-        <h2>Create an Organization</h2>
+      <div class="empty-state-card">
+        <mat-icon class="huge-icon">business</mat-icon>
+        <h1>Create an Organization</h1>
         <p>Start an organization to manage business projects and finances.</p>
-        <form [formGroup]="createForm" (ngSubmit)="onCreate()">
-          <mat-form-field appearance="outline" class="full-width">
+        <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="compact-form">
+          <mat-form-field appearance="outline">
             <mat-label>Organization Name</mat-label>
             <input matInput formControlName="name">
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline">
             <mat-label>Description (Optional)</mat-label>
             <textarea matInput formControlName="description"></textarea>
           </mat-form-field>
-          <button mat-flat-button color="primary" [disabled]="createForm.invalid">Create Organization</button>
+          <button mat-flat-button color="primary" [disabled]="createForm.invalid">Launch Organization</button>
         </form>
-      </mat-card>
+      </div>
     } @else {
-      <div class="dashboard">
-        <mat-card class="info-card">
-          <div class="info-header">
-            @if (isEditing) {
-              <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="edit-form-full">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Organization Name</mat-label>
-                  <input matInput formControlName="name">
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Description</mat-label>
-                  <textarea matInput formControlName="description"></textarea>
-                </mat-form-field>
+      <!-- Modern Header -->
+      <header class="mgmt-header">
+        <div class="header-main">
+          @if (isEditing) {
+            <mat-card class="edit-panel">
+              <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="edit-form-content">
+                <div class="edit-inputs">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Organization Name</mat-label>
+                    <input matInput formControlName="name">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description" rows="2"></textarea>
+                  </mat-form-field>
+                </div>
                 <div class="edit-actions">
-                  <button mat-flat-button color="primary" type="submit">Save</button>
-                  <button mat-button type="button" (click)="isEditing = false">Cancel</button>
+                  <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">Save Changes</button>
                 </div>
               </form>
-            } @else {
-              <div class="title-row">
-                <h2>{{ organization.name }}</h2>
-                @if (isOwner) {
-                  <button mat-icon-button (click)="isEditing = true" matTooltip="Edit Organization"><mat-icon>edit</mat-icon></button>
-                }
-                <span class="spacer"></span>
-                @if (isOwner) {
-                  <button mat-button color="warn" (click)="onDelete()">
-                    <mat-icon>delete</mat-icon>
-                    Delete Organization
-                  </button>
-                }
-              </div>
-              <p>{{ organization.description || 'Business management dashboard.' }}</p>
-            }
-          </div>
+            </mat-card>
+          } @else {
+            <div class="title-group">
+              <h1>{{ organization.name }}</h1>
+              <button mat-icon-button *ngIf="isOwner" (click)="isEditing = true" class="edit-btn" matTooltip="Edit Organization">
+                <mat-icon>edit_note</mat-icon>
+              </button>
+            </div>
+            <p class="desc">{{ organization.description || 'Business management dashboard.' }}</p>
+          }
+        </div>
+        <button mat-stroked-button color="warn" *ngIf="isOwner && !isEditing" (click)="onDelete()" class="delete-btn">
+          <mat-icon>delete_forever</mat-icon>
+          Delete
+        </button>
+      </header>
+
+      <div class="mgmt-grid">
+        <!-- Members List -->
+        <mat-card class="modern-card">
+          <mat-card-header>
+            <mat-card-title>Team Members</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="user-list">
+              @for (user of organization.users; track user.id) {
+                <div class="user-item">
+                  <img *ngIf="user.profile_photo_url" [src]="user.profile_photo_url" class="avatar">
+                  <div *ngIf="!user.profile_photo_url" class="avatar-placeholder"><mat-icon>person</mat-icon></div>
+                  <div class="details">
+                    <span class="name">{{ user.name }}</span>
+                    <span class="email">{{ user.email }}</span>
+                  </div>
+                  <span class="owner-tag" *ngIf="user.id === organization.owner_id">Owner</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
         </mat-card>
 
-        <div class="row">
-          <mat-card class="members-card">
-            <h3>Team Members</h3>
-            <mat-list>
-              @for (user of organization.users; track user.id) {
-                <mat-list-item>
-                  @if (user.profile_photo_url) {
-                    <img matListItemIcon [src]="user.profile_photo_url" class="member-avatar">
-                  } @else {
-                    <mat-icon matListItemIcon>person</mat-icon>
-                  }
-                  <div matListItemTitle>
-                    {{ user.name }}
-                    @if (user.id === organization.owner_id) {
-                      <span class="owner-badge">Owner</span>
-                    }
-                  </div>
-                  <div matListItemLine>{{ user.email }}</div>
-                </mat-list-item>
-              }
-            </mat-list>
-          </mat-card>
-
-          <mat-card class="invite-card">
-            <h3>Invite Team Member</h3>
-            <form [formGroup]="inviteForm" (ngSubmit)="onInvite()">
+        <!-- Invite Section -->
+        <mat-card class="modern-card invite">
+          <mat-card-header>
+            <mat-card-title>Invite Team Member</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Team members can collaborate on organization accounts and track project budgets.</p>
+            <form [formGroup]="inviteForm" (ngSubmit)="onInvite()" class="invite-form">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Email Address</mat-label>
+                <mat-icon matPrefix>mail_outline</mat-icon>
                 <input matInput formControlName="email" type="email">
               </mat-form-field>
-              <button mat-stroked-button color="primary" [disabled]="inviteForm.invalid">Send Invitation</button>
+              <button mat-flat-button color="primary" [disabled]="inviteForm.invalid">Send Invitation</button>
             </form>
-          </mat-card>
-        </div>
+          </mat-card-content>
+        </mat-card>
       </div>
     }
   }

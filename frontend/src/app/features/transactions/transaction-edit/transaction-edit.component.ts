@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
@@ -27,6 +28,7 @@ import { NavigationService } from '../../../core/services/navigation.service';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './transaction-edit.component.html',
   styleUrl: './transaction-edit.component.scss',

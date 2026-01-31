@@ -19,21 +19,30 @@ export interface ConfirmDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-
-    <div mat-dialog-content>
-      <p>{{ data.message }}</p>
+    <div class="dialog-header">
+      <h2 mat-dialog-title>{{ data.title }}</h2>
     </div>
 
-    <div mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">
+    <mat-dialog-content>
+      <p class="dialog-msg">{{ data.message }}</p>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()" class="btn-cancel">
         {{ data.cancelText || 'Cancel' }}
       </button>
-      <button mat-flat-button color="warn" (click)="onConfirm()">
+      <button mat-flat-button color="warn" (click)="onConfirm()" class="btn-confirm">
         {{ data.confirmText || 'Delete' }}
       </button>
-    </div>
+    </mat-dialog-actions>
   `,
+  styles: [`
+    :host { display: block; padding: 8px; }
+    h2 { font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+    .dialog-msg { color: #64748b; font-size: 1rem; line-height: 1.5; }
+    mat-dialog-actions { padding: 16px 0 8px; gap: 8px; }
+    .btn-cancel, .btn-confirm { border-radius: 12px; height: 44px; font-weight: 600; }
+  `]
 })
 export class ConfirmDialogComponent {
   constructor(

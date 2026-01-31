@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
 import { UserRepository } from '../../../core/repositories/user.repository';
 import { User } from '../../../core/models/user.model';
 import { API_BASE_URL } from '../../../core/api.config';
@@ -24,7 +25,8 @@ import { API_BASE_URL } from '../../../core/api.config';
     MatInputModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatCardModule
   ],
   templateUrl: './profile-edit.component.html',
   styleUrl: './profile-edit.component.scss'

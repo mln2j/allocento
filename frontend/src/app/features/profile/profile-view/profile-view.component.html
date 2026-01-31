@@ -1,71 +1,85 @@
-<div class="profile-container">
+<div class="profile-page">
+  <header class="profile-header">
+    <div class="header-content">
+      <h1>Profile</h1>
+      <p>Personal information and memberships</p>
+    </div>
+  </header>
+
   @if (isLoading) {
-    <div class="loading">Loading...</div>
+    <div class="loader"><mat-spinner diameter="40"></mat-spinner></div>
   } @else if (user) {
-    <mat-card class="profile-card">
-      <div class="profile-header">
+    <div class="profile-layout">
+      
+      <!-- Profile Header Card -->
+      <div class="profile-hero">
         <div class="avatar-container">
-          <img [src]="user.profile_photo_url" alt="Profile Photo" class="avatar">
+          <img [src]="user.profile_photo_url" class="hero-avatar">
+          <button mat-mini-fab color="primary" class="photo-badge" routerLink="/profile/edit">
+            <mat-icon>camera_alt</mat-icon>
+          </button>
         </div>
-        <h2>{{ user.name }}</h2>
-        <p class="email">{{ user.email }}</p>
+        <div class="hero-info">
+          <h2 class="name">{{ user.name }}</h2>
+          <p class="email">{{ user.email }}</p>
+        </div>
+        <div class="hero-actions">
+          <button mat-stroked-button routerLink="/profile/edit">Edit Profile</button>
+          <button mat-flat-button color="primary" (click)="changePassword()">Security</button>
+        </div>
       </div>
 
-      <div class="profile-details">
-        <div class="detail-item" 
-             [routerLink]="user.household_id ? '/household' : null"
-             [class.clickable]="user.household_id">
-          <mat-icon>home</mat-icon>
-          <div class="detail-info">
-            <span class="label">Household</span>
-            <span class="value">
-              {{ householdName || (user.household_id ? 'Member' : 'Not a member') }}
-              @if (user.household_id && user.id === householdOwnerId) {
-                <span class="owner-badge mini">Owner</span>
-              }
-            </span>
+      <!-- Settings Section: Memberships -->
+      <section class="settings-group">
+        <h3 class="group-title">Connected Entities</h3>
+        <div class="tile-list">
+          
+          <div class="tile-item" 
+               [routerLink]="user.household_id ? '/household' : null"
+               [class.active]="user.household_id">
+            <div class="tile-icon blue"><mat-icon>home</mat-icon></div>
+            <div class="tile-content">
+              <span class="tile-title">Household</span>
+              <span class="tile-value">{{ householdName || (user.household_id ? 'Joined' : 'Join a household') }}</span>
+            </div>
+            <div class="tile-meta">
+              <span class="owner-chip" *ngIf="user.household_id && user.id === householdOwnerId">Owner</span>
+              <mat-icon class="arrow">chevron_right</mat-icon>
+            </div>
           </div>
-          @if (user.household_id) {
-            <mat-icon class="chevron">chevron_right</mat-icon>
-          }
-        </div>
 
-        <div class="detail-item"
-             [routerLink]="user.organization_id ? '/organization' : null"
-             [class.clickable]="user.organization_id">
-          <mat-icon>business</mat-icon>
-          <div class="detail-info">
-            <span class="label">Organization</span>
-            <span class="value">
-              {{ organizationName || (user.organization_id ? 'Member' : 'Not a member') }}
-              @if (user.organization_id && user.id === organizationOwnerId) {
-                <span class="owner-badge mini org">Owner</span>
-              }
-            </span>
+          <div class="tile-item"
+               [routerLink]="user.organization_id ? '/organization' : null"
+               [class.active]="user.organization_id">
+            <div class="tile-icon green"><mat-icon>business</mat-icon></div>
+            <div class="tile-content">
+              <span class="tile-title">Organization</span>
+              <span class="tile-value">{{ organizationName || (user.organization_id ? 'Joined' : 'Create organization') }}</span>
+            </div>
+            <div class="tile-meta">
+              <span class="owner-chip green" *ngIf="user.organization_id && user.id === organizationOwnerId">Owner</span>
+              <mat-icon class="arrow">chevron_right</mat-icon>
+            </div>
           </div>
-          @if (user.organization_id) {
-            <mat-icon class="chevron">chevron_right</mat-icon>
-          }
+
         </div>
-      </div>
+      </section>
 
-      <div class="profile-actions">
-        <button mat-flat-button color="primary" (click)="editProfile()">
-          <mat-icon>edit</mat-icon>
-          Edit Profile
-        </button>
+      <!-- Dangerous Actions -->
+      <section class="settings-group danger">
+        <h3 class="group-title">Account Management</h3>
+        <div class="tile-list">
+          <div class="tile-item delete" (click)="deleteAccount()">
+            <div class="tile-icon red"><mat-icon>delete_outline</mat-icon></div>
+            <div class="tile-content">
+              <span class="tile-title">Delete Account</span>
+              <span class="tile-value">Permanently remove all your data</span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </div>
+        </div>
+      </section>
 
-        <button mat-stroked-button (click)="changePassword()">
-          <mat-icon>lock</mat-icon>
-          Change Password
-        </button>
-      </div>
-
-      <div class="danger-zone">
-        <button mat-button color="warn" (click)="deleteAccount()">
-          Delete My Account
-        </button>
-      </div>
-    </mat-card>
+    </div>
   }
 </div>

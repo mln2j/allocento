@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
@@ -32,7 +33,8 @@ import { HttpClient } from '@angular/common/http';
     MatCardModule,
     MatListModule,
     MatSnackBarModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './household.component.html',
   styleUrl: './household.component.scss'
@@ -122,6 +124,13 @@ export class HouseholdComponent implements OnInit {
         this.snackBar.open(err.error?.message || 'Error updating household', 'Close', { duration: 3000 });
       }
     });
+  }
+
+  cancelEdit() {
+    this.isEditing = false;
+    if (this.household) {
+      this.editForm.patchValue({ name: this.household.name });
+    }
   }
 
   onDelete() {
