@@ -22,7 +22,24 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy on server
+      - name: Clone or pull repository on server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << EOF
+          set -e
+          if [ ! -d /home/allocento/app/.git ]; then
+            git clone https://github.com/${GITHUB_REPOSITORY}.git /home/allocento/app
+          else
+            cd /home/allocento/app
+            git pull origin main
+          fi
+          EOF
+
+      - name: Install backend dependencies
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -30,16 +47,77 @@ jobs:
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
+          cd /home/allocento/app/backend
+          composer install --no-dev --optimize-autoloader --no-interaction
+          EOF
 
-          if [ ! -d /home/allocento/app/.git ]; then
-            git clone https://github.com/${GITHUB_REPOSITORY}.git /home/allocento/app
-          fi
+      - name: Run backend migrations
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/backend
+          php artisan migrate --force
+          EOF
 
-          cd /home/allocento/app
-          git pull origin main
+      - name: Cache backend config and routes
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/backend
+          php artisan config:cache
+          php artisan route:cache
+          EOF
 
-          # Ovdje kasnije dodamo:
-          # - build frontend-a
-          # - build/deps za backend
-          # - restart systemd servisa
+      - name: Restart backend service
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          sudo systemctl restart allocento-backend
+          EOF
+
+      - name: Install frontend dependencies
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/frontend
+          npm ci
+          EOF
+
+      - name: Build frontend
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/frontend
+          npm run build -- --configuration=production
+          EOF
+
+      - name: Reload Nginx
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          sudo systemctl reload nginx
           EOF
