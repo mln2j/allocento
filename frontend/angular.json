@@ -66,6 +66,12 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              "localhost",
+              "mlendvaj.myddns.me"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
