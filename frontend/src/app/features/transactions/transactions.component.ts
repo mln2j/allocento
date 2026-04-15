@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { Transaction } from '../../core/models/transaction.model';
 
@@ -16,7 +15,6 @@ import { Transaction } from '../../core/models/transaction.model';
     MatCardModule, 
     MatButtonModule, 
     MatIconModule, 
-    MatProgressSpinnerModule,
     RouterLink
   ],
   templateUrl: './transactions.component.html',
@@ -24,7 +22,6 @@ import { Transaction } from '../../core/models/transaction.model';
 })
 export class TransactionsComponent implements OnInit {
   transactions: Transaction[] = [];
-  isLoading = true;
 
   constructor(private transactionRepo: TransactionRepository) {}
 
@@ -33,13 +30,10 @@ export class TransactionsComponent implements OnInit {
   }
 
   loadTransactions() {
-    this.isLoading = true;
     this.transactionRepo.listAll().subscribe({
       next: (list) => {
         this.transactions = list;
-        this.isLoading = false;
-      },
-      error: () => this.isLoading = false
+      }
     });
   }
 }

@@ -8,7 +8,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
@@ -27,15 +26,13 @@ import { NavigationService } from '../../../core/services/navigation.service';
     MatSelectModule,
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
-    MatProgressSpinnerModule
+    MatIconModule
   ],
   templateUrl: './transaction-edit.component.html',
   styleUrl: './transaction-edit.component.scss',
 })
 export class TransactionEditComponent implements OnInit {
   form!: FormGroup;
-  loading = true;
   submitting = false;
   errorMessage: string | null = null;
 
@@ -84,20 +81,16 @@ export class TransactionEditComponent implements OnInit {
               datetime: this.toLocalInputValue(tx.date),
               description: tx.description ?? '',
             });
-
-            this.loading = false;
           },
           error: err => {
             console.error('Failed to load accounts', err);
             this.errorMessage = 'Failed to load accounts.';
-            this.loading = false;
           },
         });
       },
       error: err => {
         console.error('Failed to load transaction', err);
         this.errorMessage = 'Failed to load transaction.';
-        this.loading = false;
       },
     });
   }
