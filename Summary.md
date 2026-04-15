@@ -6,16 +6,25 @@ Allocento je moderna PWA aplikacija za osobno, obiteljsko i poslovno upravljanje
 
 ### Backend
 - **Framework**: Laravel 12.x
-- **Jezik**: PHP 8.2+
+- **Jezik**: PHP 8.3+
 - **Autentifikacija**: Laravel Sanctum (Token based)
 - **Baza**: SQLite (razvoj), spremno za MySQL/PostgreSQL
 - **API**: RESTful JSON API
 
 ### Frontend
-- **Framework**: Angular 20.x
-- **UI Library**: Angular Material 20.x
+- **Framework**: Angular 20.3.x
+- **UI Library**: Angular Material 20.2.x
 - **Dizajn**: Custom moderni UX (Glassmorphism, Tile-based lists, Premium UI)
 - **Platforma**: PWA (Progressive Web App)
+
+## CI/CD & Deployment
+- **Automatizacija**: GitHub Actions (`deploy.yml`).
+- **Target**: Deploy na kućni server putem SSH-a.
+- **Proces**: 
+    - Automatsko povlačenje koda s main grane.
+    - Backend: `composer install`, `migrate --force`, `config/route:cache`.
+    - Frontend: `npm ci`, produkcijski build.
+    - Server management: `systemctl restart` za backend i `nginx reload`.
 
 ## Implementirane Funkcionalnosti
 

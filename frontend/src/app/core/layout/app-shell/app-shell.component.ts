@@ -15,8 +15,10 @@ import { AuthService } from '../../services/auth.service';
 
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InvitationRepository } from '../../repositories/invitation.repository';
 import { NotificationsDialogComponent } from '../../../shared/notifications-dialog/notifications-dialog.component';
+import { LoadingService } from '../../services/loading/loading.service';
 
 @Component({
   selector: 'app-app-shell',
@@ -32,7 +34,8 @@ import { NotificationsDialogComponent } from '../../../shared/notifications-dial
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
@@ -47,7 +50,8 @@ export class AppShellComponent implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private inviteRepo: InvitationRepository,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {

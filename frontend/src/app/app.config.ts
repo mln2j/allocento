@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { AuthService } from './core/services/auth.service';
+import { loadingInterceptor } from './core/services/loading/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
+        loadingInterceptor,
         (req, next) => {
           const auth = inject(AuthService);
           const token = auth.getToken();

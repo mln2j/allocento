@@ -22,7 +22,7 @@
                         <mat-icon>account_balance_wallet</mat-icon>
                         <span>Accounts</span>
                       </a>
-              
+
                       <a
                         mat-list-item
                         routerLink="/transactions"
@@ -31,7 +31,7 @@
                         <mat-icon>receipt_long</mat-icon>
                         <span>Transactions</span>
                       </a>
-              
+
                       <a
                         mat-list-item
                         routerLink="/household"
@@ -39,7 +39,7 @@
                         (click)="sidenav.close()">                <mat-icon>home</mat-icon>
                 <span>Household</span>
               </a>
-        
+
               <a
                 mat-list-item
                 routerLink="/organization"
@@ -69,8 +69,8 @@
       <span class="spacer"></span>
 
       <button mat-icon-button (click)="openNotifications()" class="notifications-button">
-        <mat-icon [matBadge]="pendingInvitations.length" 
-                  [matBadgeHidden]="pendingInvitations.length === 0" 
+        <mat-icon [aria-hidden]="false" [matBadge]="pendingInvitations.length"
+                  [matBadgeHidden]="pendingInvitations.length === 0"
                   matBadgeColor="warn">
           notifications
         </mat-icon>
@@ -86,6 +86,11 @@
     </mat-toolbar>
 
     <main class="app-main">
+      @if (loadingService.loading()) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+      }
       <router-outlet></router-outlet>
     </main>
   </mat-sidenav-content>
