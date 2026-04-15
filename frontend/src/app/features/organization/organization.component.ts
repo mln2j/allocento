@@ -17,7 +17,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { User } from '../../core/models/user.model';
 import { API_BASE_URL } from '../../core/api.config';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-organization',
@@ -33,8 +32,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
     MatListModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatTooltipModule,
-    MatProgressSpinner
+    MatTooltipModule
   ],
   templateUrl: './organization.component.html',
   styleUrl: './organization.component.scss'
@@ -42,7 +40,6 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 export class OrganizationComponent implements OnInit {
   organization: Organization | null = null;
   currentUser: User | null = null;
-  isLoading = true;
   isEditing = false;
 
   createForm: FormGroup;
@@ -78,13 +75,11 @@ export class OrganizationComponent implements OnInit {
   }
 
   loadData() {
-    this.isLoading = true;
     this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
       next: (user) => {
         this.currentUser = user;
         this.loadOrganization();
-      },
-      error: () => this.isLoading = false
+      }
     });
   }
 
@@ -96,11 +91,9 @@ export class OrganizationComponent implements OnInit {
           name: o.name,
           description: o.description
         });
-        this.isLoading = false;
       },
       error: () => {
         this.organization = null;
-        this.isLoading = false;
       }
     });
   }
