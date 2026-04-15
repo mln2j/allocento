@@ -1,4 +1,4 @@
-<div class="accounts-page">
+<div class="page-container">
   <header class="page-header">
     <div class="title-meta">
       <h1>Accounts</h1>
@@ -10,9 +10,7 @@
     </button>
   </header>
 
-  @if (loading) {
-    <div class="loader-box"><mat-spinner diameter="40"></mat-spinner></div>
-  } @else if (accounts.length === 0) {
+  @if (accounts.length === 0) {
     <div class="empty-placeholder">
       <mat-icon>account_balance_wallet</mat-icon>
       <p>No active accounts found.</p>

@@ -1,4 +1,4 @@
-<div class="profile-page">
+<div class="page-container">
   <header class="profile-header">
     <div class="header-content">
       <h1>Profile</h1>
@@ -6,11 +6,9 @@
     </div>
   </header>
 
-  @if (isLoading) {
-    <div class="loader"><mat-spinner diameter="40"></mat-spinner></div>
-  } @else if (user) {
+  @if (user) {
     <div class="profile-layout">
-      
+
       <!-- Profile Header Card -->
       <div class="profile-hero">
         <div class="avatar-container">
@@ -33,7 +31,7 @@
       <section class="settings-group">
         <h3 class="group-title">Connected Entities</h3>
         <div class="tile-list">
-          
+
           <div class="tile-item" 
                [routerLink]="user.household_id ? '/household' : null"
                [class.active]="user.household_id">

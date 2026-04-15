@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { UserRepository } from '../../../core/repositories/user.repository';
@@ -24,7 +23,6 @@ import { API_BASE_URL } from '../../../core/api.config';
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     MatCardModule
   ],
@@ -34,7 +32,6 @@ import { API_BASE_URL } from '../../../core/api.config';
 export class ProfileEditComponent implements OnInit {
   profileForm: FormGroup;
   user: User | null = null;
-  isLoading = true;
   isSaving = false;
   previewUrl: string | null = null;
   selectedFile: File | null = null;
@@ -61,7 +58,6 @@ export class ProfileEditComponent implements OnInit {
           name: user.name,
           email: user.email
         });
-        this.isLoading = false;
       },
       error: () => {
         this.router.navigate(['/profile']);

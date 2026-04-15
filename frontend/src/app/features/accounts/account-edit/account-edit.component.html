@@ -1,65 +1,52 @@
-<div class="form-page">
-  <div class="form-container">
-    <header class="form-header">
-      <button mat-icon-button (click)="onCancel()"><mat-icon>arrow_back</mat-icon></button>
-      <h1>Edit Account</h1>
-    </header>
+<div class="page-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <button mat-icon-button routerLink="/accounts" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-card-title>Edit Account</mat-card-title>
+    </mat-card-header>
 
-    @if (isLoading) {
-      <div class="form-loader"><mat-spinner diameter="32"></mat-spinner></div>
-    } @else {
-      <mat-card class="form-card">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          
-          <div class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Account Name</mat-label>
-              <input matInput formControlName="name" placeholder="e.g. Daily Spending">
-              <mat-error *ngIf="form.get('name')?.invalid">Name is required (min 2 chars)</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-section">
-            <label class="section-label">Account Type</label>
-            <div class="type-selector">
-              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'personal'" (click)="form.get('type')?.setValue('personal')">
-                <mat-icon>person</mat-icon><span>Personal</span>
-              </button>
-              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'household'" 
-                      [disabled]="!householdAvailable" (click)="householdAvailable && form.get('type')?.setValue('household')">
-                <mat-icon>home</mat-icon><span>Household</span>
-              </button>
-              <button type="button" class="type-btn" [class.active]="form.get('type')?.value === 'organization'" 
-                      [disabled]="!organizationAvailable" (click)="organizationAvailable && form.get('type')?.setValue('organization')">
-                <mat-icon>business</mat-icon><span>Org</span>
-              </button>
-            </div>
-          </div>
+    <mat-card-content>
+      @if (account) {
+        <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="modern-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Account Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. My Savings">
+          </mat-form-field>
 
           <div class="form-row">
             <mat-form-field appearance="outline">
-              <mat-label>Currency</mat-label>
-              <select matNativeControl formControlName="currency">
-                <option value="EUR">EUR (€)</option>
-                <option value="USD">USD ($)</option>
-                <option value="HRK">HRK (kn)</option>
-              </select>
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type">
+                <mat-option value="personal">Personal</mat-option>
+                <mat-option value="household">Household</mat-option>
+                <mat-option value="organization">Organization</mat-option>
+              </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Current Balance</mat-label>
-              <input matInput type="number" formControlName="balance">
+              <mat-label>Currency</mat-label>
+              <mat-select formControlName="currency">
+                <mat-option value="EUR">EUR (€)</mat-option>
+                <mat-option value="USD">USD ($)</mat-option>
+                <mat-option value="GBP">GBP (£)</mat-option>
+              </mat-select>
             </mat-form-field>
           </div>
 
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Initial Balance</mat-label>
+            <input matInput type="number" formControlName="balance">
+            <span matPrefix>{{ accountForm.get('currency')?.value === 'EUR' ? '€' : '$' }}&nbsp;</span>
+          </mat-form-field>
+
           <div class="form-actions">
-            <button mat-button type="button" (click)="onCancel()">Cancel</button>
-            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting">
-              {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
-            </button>
+            <button mat-button type="button" [routerLink]="['/accounts', accountId]">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="accountForm.invalid">Save Changes</button>
           </div>
         </form>
-      </mat-card>
-    }
-  </div>
+      }
+    </mat-card-content>
+  </mat-card>
 </div>

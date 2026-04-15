@@ -10,7 +10,6 @@ import { API_BASE_URL } from '../../../core/api.config';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { UserRepository } from '../../../core/repositories/user.repository';
@@ -32,7 +31,6 @@ import { RouterLink } from '@angular/router';
     MatCardModule, 
     MatDialogModule, 
     MatSnackBarModule,
-    MatProgressSpinnerModule,
     RouterLink
   ],
   templateUrl: './profile-view.component.html',
@@ -44,7 +42,6 @@ export class ProfileViewComponent implements OnInit {
   organizationOwnerId: number | null = null;
   householdName: string | null = null;
   organizationName: string | null = null;
-  isLoading = true;
 
   constructor(
     private http: HttpClient, 
@@ -62,8 +59,7 @@ export class ProfileViewComponent implements OnInit {
       next: (user) => {
         this.user = user;
         this.loadOwnerData(user);
-      },
-      error: () => this.isLoading = false
+      }
     });
   }
 
@@ -89,12 +85,8 @@ export class ProfileViewComponent implements OnInit {
             this.organizationOwnerId = res.org.owner_id;
             this.organizationName = res.org.name;
           }
-          this.isLoading = false;
-        },
-        error: () => this.isLoading = false
+        }
       });
-    } else {
-      this.isLoading = false;
     }
   }
 
