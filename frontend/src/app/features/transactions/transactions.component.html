@@ -1,4 +1,4 @@
-<div class="transactions-container">
+<div class="page-container">
   <header class="header">
     <h1>Transaction History</h1>
     <button mat-raised-button color="primary" routerLink="/transactions/new">
@@ -7,52 +7,45 @@
     </button>
   </header>
 
-  @if (isLoading) {
-    <div class="loading-state">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Fetching your records...</p>
+  <mat-card class="list-card">
+    <div class="tx-list">
+      @for (tx of transactions; track tx.id) {
+        <div class="tx-row">
+          <div class="tx-date-box">
+            <span class="day">{{ tx.date | date:'d' }}</span>
+            <span class="month">{{ tx.date | date:'MMM' }}</span>
+          </div>
+          
+          <div class="tx-type-icon" [class]="tx.type">
+            <mat-icon>{{ tx.type === 'income' ? 'add' : 'remove' }}</mat-icon>
+          </div>
+
+          <div class="tx-details">
+            <span class="tx-title">{{ tx.description || 'General' }}</span>
+            <div class="tx-meta">
+              <span class="acc-tag">{{ tx.account?.name }}</span>
+              @if (tx.category) {
+                <span class="cat-tag">{{ tx.category.name }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="tx-amount" [class]="tx.type">
+            {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency:'EUR' }}
+          </div>
+
+          <div class="tx-actions">
+            <button mat-icon-button [routerLink]="['/transactions', tx.id, 'edit']">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No transactions found.</p>
+        </div>
+      }
     </div>
-  } @else {
-    <mat-card class="list-card">
-      <div class="tx-list">
-        @for (tx of transactions; track tx.id) {
-          <div class="tx-row">
-            <div class="tx-date-box">
-              <span class="day">{{ tx.date | date:'d' }}</span>
-              <span class="month">{{ tx.date | date:'MMM' }}</span>
-            </div>
-            
-            <div class="tx-type-icon" [class]="tx.type">
-              <mat-icon>{{ tx.type === 'income' ? 'add' : 'remove' }}</mat-icon>
-            </div>
-
-            <div class="tx-details">
-              <span class="tx-title">{{ tx.description || 'General' }}</span>
-              <div class="tx-meta">
-                <span class="acc-tag">{{ tx.account?.name }}</span>
-                @if (tx.category) {
-                  <span class="cat-tag">{{ tx.category.name }}</span>
-                }
-              </div>
-            </div>
-
-            <div class="tx-amount" [class]="tx.type">
-              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency:'EUR' }}
-            </div>
-
-            <div class="tx-actions">
-              <button mat-icon-button [routerLink]="['/transactions', tx.id, 'edit']">
-                <mat-icon>edit</mat-icon>
-              </button>
-            </div>
-          </div>
-        } @empty {
-          <div class="empty-state">
-            <mat-icon>receipt_long</mat-icon>
-            <p>No transactions found.</p>
-          </div>
-        }
-      </div>
-    </mat-card>
-  }
+  </mat-card>
 </div>

@@ -14,7 +14,6 @@ import { TransactionRepository } from '../../../core/repositories/transaction.re
 import { Account } from '../../../core/models/account.model';
 import { TransactionType } from '../../../core/models/transaction.model';
 import { NavigationService } from '../../../core/services/navigation.service';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-transaction-create',
@@ -27,15 +26,13 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
     MatSelectModule,
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
-    MatProgressSpinner,
+    MatIconModule
   ],
   templateUrl: './transaction-create.component.html',
   styleUrl: './transaction-create.component.scss',
 })
 export class TransactionCreateComponent implements OnInit {
   form!: FormGroup;
-  loading = true;
   submitting = false;
   errorMessage: string | null = null;
 
@@ -71,13 +68,10 @@ export class TransactionCreateComponent implements OnInit {
         if (defaultId !== null) {
           this.form.get('accountId')?.setValue(defaultId);
         }
-
-        this.loading = false;
       },
       error: err => {
         console.error('Failed to load accounts', err);
         this.errorMessage = 'Failed to load accounts.';
-        this.loading = false;
       },
     });
   }

@@ -1,87 +1,86 @@
-<div class="mgmt-page">
-  @if (isLoading) {
-    <div class="center-loader"><mat-spinner diameter="40"></mat-spinner></div>
+<div class="page-container">
+  @if (!household) {
+    <div class="empty-state-card">
+      <mat-icon class="huge-icon">home</mat-icon>
+      <h1>Create a Household</h1>
+      <p>Manage finances with your family or roommates by creating a shared household.</p>
+      <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="compact-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Household Name</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+        <button mat-flat-button color="primary" [disabled]="createForm.invalid">Start Household</button>
+      </form>
+    </div>
   } @else {
-    @if (!household) {
-      <div class="empty-state-card">
-        <mat-icon class="huge-icon">home_work</mat-icon>
-        <h1>Create a Household</h1>
-        <p>Invite family members and manage shared expenses in one place.</p>
-        <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="compact-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Household Name</mat-label>
-            <input matInput formControlName="name" placeholder="e.g., My Sweet Home">
-          </mat-form-field>
-          <button mat-flat-button color="primary" [disabled]="createForm.invalid">Build Household</button>
-        </form>
-      </div>
-    } @else {
-      <header class="mgmt-header">
-        <div class="header-main">
-          @if (isEditing) {
-            <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="inline-edit">
-              <mat-form-field appearance="outline">
+    <header class="mgmt-header">
+      <div class="header-main">
+        @if (isEditing) {
+          <mat-card class="edit-panel">
+            <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="edit-form-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Household Name</mat-label>
                 <input matInput formControlName="name">
               </mat-form-field>
-              <button mat-icon-button color="primary" type="submit"><mat-icon>check_circle</mat-icon></button>
-              <button mat-icon-button (click)="cancelEdit()" type="button"><mat-icon>cancel</mat-icon></button>
+              <div class="edit-actions">
+                <button mat-button type="button" (click)="isEditing = false">Cancel</button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">Save Changes</button>
+              </div>
             </form>
-          } @else {
-            <div class="title-group">
-              <h1>{{ household.name }}</h1>
-              <button mat-icon-button *ngIf="isOwner" (click)="isEditing = true" class="edit-btn">
-                <mat-icon>edit_note</mat-icon>
-              </button>
-            </div>
-          }
-        </div>
-        <button mat-stroked-button color="warn" *ngIf="isOwner" (click)="onDelete()">
-          <mat-icon>delete_forever</mat-icon>
-          Delete
-        </button>
-      </header>
-
-      <div class="mgmt-grid">
-        <!-- Members -->
-        <mat-card class="modern-card">
-          <mat-card-header>
-            <mat-card-title>Family Members</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="user-list">
-              @for (user of household.users; track user.id) {
-                <div class="user-item">
-                  <img *ngIf="user.profile_photo_url" [src]="user.profile_photo_url" class="avatar">
-                  <div *ngIf="!user.profile_photo_url" class="avatar-placeholder"><mat-icon>person</mat-icon></div>
-                  <div class="details">
-                    <span class="name">{{ user.name }}</span>
-                    <span class="email">{{ user.email }}</span>
-                  </div>
-                  <span class="owner-tag" *ngIf="user.id === household.owner_id">Owner</span>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Invite -->
-        <mat-card class="modern-card invite">
-          <mat-card-header>
-            <mat-card-title>Add Member</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>Send an invitation to join your household.</p>
-            <form [formGroup]="inviteForm" (ngSubmit)="onInvite()" class="invite-form">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Email Address</mat-label>
-                <mat-icon matPrefix>mail_outline</mat-icon>
-                <input matInput formControlName="email" type="email">
-              </mat-form-field>
-              <button mat-flat-button color="primary" [disabled]="inviteForm.invalid">Send Invite</button>
-            </form>
-          </mat-card-content>
-        </mat-card>
+          </mat-card>
+        } @else {
+          <div class="title-group">
+            <h1>{{ household.name }}</h1>
+            <button mat-icon-button *ngIf="isOwner" (click)="isEditing = true" class="edit-btn">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          <p class="desc">Shared household for budget management.</p>
+        }
       </div>
-    }
+      <button mat-stroked-button color="warn" *ngIf="isOwner && !isEditing" (click)="onDelete()" class="delete-btn">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </header>
+
+    <div class="mgmt-grid">
+      <mat-card class="modern-card">
+        <mat-card-header>
+          <mat-card-title>Members</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="user-list">
+            @for (user of household.users; track user.id) {
+              <div class="user-item">
+                <img *ngIf="user.profile_photo_url" [src]="user.profile_photo_url" class="avatar">
+                <div *ngIf="!user.profile_photo_url" class="avatar-placeholder"><mat-icon>person</mat-icon></div>
+                <div class="details">
+                  <span class="name">{{ user.name }}</span>
+                  <span class="email">{{ user.email }}</span>
+                </div>
+                <span class="owner-tag" *ngIf="user.id === household.owner_id">Owner</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="modern-card invite">
+        <mat-card-header>
+          <mat-card-title>Invite Someone</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Invite family members by email to share household accounts.</p>
+          <form [formGroup]="inviteForm" (ngSubmit)="onInvite()" class="invite-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+            </mat-form-field>
+            <button mat-flat-button color="primary" [disabled]="inviteForm.invalid">Send Invite</button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
   }
 </div>
