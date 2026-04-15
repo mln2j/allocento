@@ -1,53 +1,47 @@
-<div class="form-page">
-  <div class="form-container">
-    <header class="form-header">
-      <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
-      <h1>Edit Profile</h1>
-    </header>
+<div class="page-container">
+  <header class="form-header">
+    <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
+    <h1>Edit Profile</h1>
+  </header>
 
-    @if (isLoading) {
-      <div class="form-loader"><mat-spinner diameter="32"></mat-spinner></div>
-    } @else {
-      <mat-card class="form-card">
-        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-          
-          <div class="photo-edit-section">
-            <div class="avatar-preview">
-              <img [src]="previewUrl" alt="Preview">
-            </div>
-            <div class="photo-actions">
-              <button type="button" mat-stroked-button (click)="fileInput.click()">
-                <mat-icon>photo_camera</mat-icon> Change Photo
-              </button>
-              <p class="hint">Recommended: Square JPG or PNG, max 1MB.</p>
-            </div>
-            <input #fileInput type="file" hidden accept="image/*" (change)="onFileSelected($event)">
-          </div>
+  <mat-card class="form-card">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      
+      <div class="photo-edit-section">
+        <div class="avatar-preview">
+          <img [src]="previewUrl" alt="Preview">
+        </div>
+        <div class="photo-actions">
+          <button type="button" mat-stroked-button (click)="fileInput.click()">
+            <mat-icon>photo_camera</mat-icon> Change Photo
+          </button>
+          <p class="hint">Recommended: Square JPG or PNG, max 1MB.</p>
+        </div>
+        <input #fileInput type="file" hidden accept="image/*" (change)="onFileSelected($event)">
+      </div>
 
-          <div class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Full Name</mat-label>
-              <mat-icon matPrefix>person_outline</mat-icon>
-              <input matInput formControlName="name">
-            </mat-form-field>
-          </div>
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <input matInput formControlName="name">
+        </mat-form-field>
+      </div>
 
-          <div class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email Address</mat-label>
-              <mat-icon matPrefix>mail_outline</mat-icon>
-              <input matInput formControlName="email" type="email">
-            </mat-form-field>
-          </div>
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <mat-icon matPrefix>mail_outline</mat-icon>
+          <input matInput formControlName="email" type="email">
+        </mat-form-field>
+      </div>
 
-          <div class="form-actions">
-            <button mat-button type="button" (click)="cancel()">Cancel</button>
-            <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isSaving">
-              {{ isSaving ? 'Saving...' : 'Save Changes' }}
-            </button>
-          </div>
-        </form>
-      </mat-card>
-    }
-  </div>
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isSaving">
+          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+  </mat-card>
 </div>
