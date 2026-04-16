@@ -108,7 +108,7 @@ jobs:
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
           cd /home/allocento/app/frontend
-          npm run build -- --configuration=production
+          npm run build:prod
           EOF
 
       - name: Reload Nginx
