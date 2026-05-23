@@ -1,0 +1,54 @@
+<svg width="100%" height="100%" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .data-packet {
+      width: 75px; height: 75px;
+      animation-timing-function: ease-in-out;
+      animation-duration: 7s;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 10px rgb(252 252 252 / 0.3));
+    }
+
+    /* Kocka 1 (lijevo) ide u zajedničku točku */
+    .cube-1 { animation-name: cube1; }
+    @keyframes cube1 {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(0, -98px); }
+      40% { transform: translate(196px, -98px); }
+      60% { transform: translate(196px, 294px); }
+      80% { transform: translate(-196px, 294px); }
+      90% { transform: translate(-196px, 0); }
+    }
+
+    /* Kocka 2 (desna) ide u tvoju željenu točku (-98px, -98px) */
+    .cube-2 { animation-name: cube2; }
+    @keyframes cube2 {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(0, -98px); }
+      40% { transform: translate(294px, -98px); }
+      60% { transform: translate(294px, 294px); }
+      80% { transform: translate(-98px, 294px); }
+      90% { transform: translate(-98px, 0); }
+    }
+
+    /* Kocka 3 (donja) ide u zajedničku točku */
+    .cube-3 { animation-name: cube3; }
+    @keyframes cube3 {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(0, -196px); }
+      40% { transform: translate(294px, -196px); }
+      60% { transform: translate(294px, 196px); }
+      80% { transform: translate(-98px, 196px); }
+      90% { transform: translate(-98px, 0); }
+    }
+  </style>
+
+  <g>
+    <rect x="316" y="121" width="75" height="270" fill="#621E95"/>
+    <rect x="219" y="218" width="75" height="173" fill="#621E95"/>
+    <rect x="121" y="316" width="75" height="75" fill="#621E95"/>
+
+    <rect class="data-packet cube-1" x="219" y="121" fill="#FCFCFC"/>
+    <rect class="data-packet cube-2" x="121" y="121" fill="#FCFCFC"/>
+    <rect class="data-packet cube-3" x="121" y="218" fill="#FCFCFC"/>
+  </g>
+</svg>
