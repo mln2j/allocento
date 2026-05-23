@@ -5,25 +5,29 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
+import { ContainerComponent } from '../../core/layout/container/container.component';
+import { ButtonComponent } from '../../shared/button/button.component';
 import { Transaction } from '../../core/models/transaction.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
-    RouterLink
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    RouterLink,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './transactions.component.html',
-  styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
   transactions: Transaction[] = [];
 
-  constructor(private transactionRepo: TransactionRepository) {}
+  constructor(private transactionRepo: TransactionRepository, private router: Router) {}
 
   ngOnInit() {
     this.loadTransactions();
@@ -35,5 +39,9 @@ export class TransactionsComponent implements OnInit {
         this.transactions = list;
       }
     });
+  }
+
+  onAddTransaction() {
+    this.router.navigate(['/transactions', 'new']);
   }
 }

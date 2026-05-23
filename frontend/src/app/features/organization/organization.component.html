@@ -1,4 +1,4 @@
-<div class="page-container">
+<app-container>
   @if (!organization) {
     <div class="empty-state-card">
       <mat-icon class="huge-icon">business</mat-icon>
@@ -13,10 +13,11 @@
           <mat-label>Description (Optional)</mat-label>
           <textarea matInput formControlName="description"></textarea>
         </mat-form-field>
-        <button mat-flat-button color="primary" [disabled]="createForm.invalid">Launch Organization</button>
+        <app-button variant="primary" [block]="true" type="submit" [disabled]="createForm.invalid">Launch Organization</app-button>
       </form>
     </div>
-  } @else {
+  }
+  @else {
     <!-- Modern Header -->
     <header class="mgmt-header">
       <div class="header-main">
@@ -34,8 +35,8 @@
                 </mat-form-field>
               </div>
               <div class="edit-actions">
-                <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">Save Changes</button>
+                <app-button variant="ghost" (click)="cancelEdit()" type="button">Cancel</app-button>
+                <app-button variant="primary" type="submit" [disabled]="editForm.invalid">Save Changes</app-button>
               </div>
             </form>
           </mat-card>
@@ -49,7 +50,7 @@
           <p class="desc">{{ organization.description || 'Business management dashboard.' }}</p>
         }
       </div>
-      <button mat-stroked-button color="warn" *ngIf="isOwner && !isEditing" (click)="onDelete()" class="delete-btn">
+      <button type="button" class="btn btn-danger delete-btn" *ngIf="isOwner && !isEditing" (click)="onDelete()">
         <mat-icon>delete_forever</mat-icon>
         Delete
       </button>
@@ -91,10 +92,10 @@
               <mat-icon matPrefix>mail_outline</mat-icon>
               <input matInput formControlName="email" type="email">
             </mat-form-field>
-            <button mat-flat-button color="primary" [disabled]="inviteForm.invalid">Send Invitation</button>
+            <app-button variant="primary" [block]="true" type="submit" [disabled]="inviteForm.invalid">Send Invitation</app-button>
           </form>
         </mat-card-content>
       </mat-card>
     </div>
   }
-</div>
+</app-container>

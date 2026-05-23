@@ -20,21 +20,24 @@ import { OrganizationRepository } from '../../../core/repositories/organization.
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
+import { ContainerComponent } from '../../../core/layout/container/container.component';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-profile-view',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatButtonModule, 
-    MatIconModule, 
-    MatCardModule, 
-    MatDialogModule, 
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatDialogModule,
     MatSnackBarModule,
-    RouterLink
+    RouterLink,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './profile-view.component.html',
-  styleUrl: './profile-view.component.scss'
 })
 export class ProfileViewComponent implements OnInit {
   user: User | null = null;
@@ -44,7 +47,7 @@ export class ProfileViewComponent implements OnInit {
   organizationName: string | null = null;
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private router: Router,
     private dialog: MatDialog,
     private userRepo: UserRepository,
@@ -65,11 +68,11 @@ export class ProfileViewComponent implements OnInit {
 
   loadOwnerData(user: User) {
     const requests: any = {};
-    
+
     if (user.household_id) {
       requests.household = this.householdRepo.get().pipe(catchError(() => of(null)));
     }
-    
+
     if (user.organization_id) {
       requests.org = this.orgRepo.get().pipe(catchError(() => of(null)));
     }
@@ -124,5 +127,10 @@ export class ProfileViewComponent implements OnInit {
         });
       }
     });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

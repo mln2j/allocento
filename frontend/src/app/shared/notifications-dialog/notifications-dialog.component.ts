@@ -44,7 +44,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Close</button>
+      <button class="btn btn-ghost" (click)="dialogRef.close()">Close</button>
     </mat-dialog-actions>
   `,
   styles: [`

@@ -28,7 +28,6 @@ interface RegisterResponse {
     NgIf,
   ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   form: FormGroup;

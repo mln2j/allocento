@@ -1,6 +1,6 @@
-<div class="page-container">
+<app-container>
   <mat-card class="form-card">
-    <mat-card-header>
+    <mat-card-header header>
       <button mat-icon-button routerLink="/accounts" class="back-btn">
         <mat-icon>arrow_back</mat-icon>
       </button>
@@ -43,11 +43,11 @@
           </mat-form-field>
 
           <div class="form-actions">
-            <button mat-button type="button" routerLink="/accounts">Cancel</button>
-            <button mat-flat-button color="primary" type="submit" [disabled]="accountForm.invalid">Create Account</button>
+            <app-button variant="ghost" (click)="router.navigate(['/accounts'])" type="button">Cancel</app-button>
+            <app-button variant="primary" [block]="true" type="submit" [disabled]="accountForm.invalid">Create Account</app-button>
           </div>
         </form>
       }
     </mat-card-content>
   </mat-card>
-</div>
+</app-container>

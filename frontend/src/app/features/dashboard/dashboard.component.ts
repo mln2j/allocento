@@ -11,24 +11,25 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { API_BASE_URL } from '../../core/api.config';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
-    MatListModule, 
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
     MatDividerModule,
     MatTooltipModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    RouterLink
+    RouterLink,
+    ButtonComponent
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   data: any = null;

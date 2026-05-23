@@ -14,6 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { API_BASE_URL } from '../../../core/api.config';
 import { User } from '../../../core/models/user.model';
+import { ContainerComponent } from '../../../core/layout/container/container.component';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-account-create',
@@ -29,10 +31,11 @@ import { User } from '../../../core/models/user.model';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
-    MatSelectModule
+    MatSelectModule,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './account-create.component.html',
-  styleUrl: './account-create.component.scss',
 })
 export class AccountCreateComponent implements OnInit {
   accountForm: FormGroup;
@@ -41,7 +44,7 @@ export class AccountCreateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private accountRepo: AccountRepository,
-    private router: Router,
+    public router: Router,
     private http: HttpClient
   ) {
     this.accountForm = this.fb.group({

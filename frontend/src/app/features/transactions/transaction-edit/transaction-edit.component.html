@@ -1,5 +1,5 @@
-<div class="page-container">
-  <header class="form-header">
+<app-container>
+  <header header class="form-header">
     <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
     <h1>Edit Transaction</h1>
   </header>
@@ -53,11 +53,11 @@
       </div>
 
       <div class="form-actions">
-        <button mat-button type="button" (click)="cancel()">Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || submitting">
+        <app-button variant="ghost" (click)="cancel()" type="button">Cancel</app-button>
+        <app-button variant="primary" [block]="true" type="submit" [disabled]="form.invalid || submitting">
           {{ submitting ? 'Updating...' : 'Update Transaction' }}
-        </button>
+        </app-button>
       </div>
     </form>
   </mat-card>
-</div>
+</app-container>

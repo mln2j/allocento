@@ -30,7 +30,6 @@ import {MatCard} from '@angular/material/card';
     MatCard,
   ],
   templateUrl: './account-detail.component.html',
-  styleUrl: './account-detail.component.scss',
 })
 export class AccountDetailComponent implements OnInit {
   account: Account | null = null;

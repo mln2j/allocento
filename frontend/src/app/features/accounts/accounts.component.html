@@ -1,20 +1,17 @@
-<div class="page-container">
-  <header class="page-header">
+<app-container>
+  <header header class="page-header">
     <div class="title-meta">
       <h1>Accounts</h1>
       <p>Manage your personal and shared accounts.</p>
     </div>
-    <button mat-flat-button color="primary" (click)="goToCreate()" class="add-btn">
-      <mat-icon>add</mat-icon>
-      New Account
-    </button>
+    <app-button variant="primary" (click)="goToCreate()" icon="add">New Account</app-button>
   </header>
 
   @if (accounts.length === 0) {
     <div class="empty-placeholder">
       <mat-icon>account_balance_wallet</mat-icon>
       <p>No active accounts found.</p>
-      <button mat-flat-button color="primary" (click)="goToCreate()">Create your first account</button>
+      <app-button variant="primary" [block]="true" (click)="goToCreate()">Create your first account</app-button>
     </div>
   } @else {
     <div class="accounts-stack">
@@ -31,7 +28,7 @@
                 }
               </mat-icon>
             </div>
-            
+
             <div class="acc-info">
               <div class="name-row">
                 <span class="acc-name">{{ account.name }}</span>
@@ -47,13 +44,12 @@
             </div>
 
             <div class="acc-actions">
-              <button mat-icon-button (click)="setPrimary(account.id); $event.stopPropagation()" 
-                      [color]="account.is_primary ? 'accent' : ''" matTooltip="Toggle Primary">
+              <app-button variant="ghost" class="btn-icon" (click)="$event.stopPropagation(); setPrimary(account.id)">
                 <mat-icon>{{ account.is_primary ? 'star' : 'star_border' }}</mat-icon>
-              </button>
-              <button mat-icon-button [routerLink]="['/accounts', account.id, 'edit']" (click)="$event.stopPropagation()">
+              </app-button>
+              <app-button variant="ghost" class="btn-icon" (click)="$event.stopPropagation(); goToEdit(account)">
                 <mat-icon>settings</mat-icon>
-              </button>
+              </app-button>
               <mat-icon class="chevron">chevron_right</mat-icon>
             </div>
           </div>
@@ -61,4 +57,4 @@
       }
     </div>
   }
-</div>
+</app-container>

@@ -21,7 +21,6 @@ import {NgIf} from '@angular/common';
     RouterLink,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   form: FormGroup;
