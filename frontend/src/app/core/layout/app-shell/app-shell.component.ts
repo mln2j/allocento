@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -38,12 +39,21 @@ import { LoadingService } from '../../services/loading/loading.service';
     MatProgressSpinnerModule
   ],
   templateUrl: './app-shell.component.html',
-  styleUrl: './app-shell.component.scss',
 })
 export class AppShellComponent implements OnInit {
   title = 'Allocento';
+  pageTitle = 'Allocento';
   user: User | null = null;
   pendingInvitations: any[] = [];
+
+  private readonly pageTitles: { [key: string]: string } = {
+    '/dashboard': 'Dashboard',
+    '/accounts': 'Accounts',
+    '/transactions': 'Transactions',
+    '/household': 'Household',
+    '/organization': 'Organization',
+    '/profile': 'Profile',
+  };
 
   constructor(
     private router: Router,
@@ -62,6 +72,17 @@ export class AppShellComponent implements OnInit {
       },
       error: (err) => console.error('Error fetching user for shell', err)
     });
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.updatePageTitle(event.urlAfterRedirects);
+      });
+  }
+
+  private updatePageTitle(url: string): void {
+    const cleanUrl = url.split('/').slice(0, 2).join('/');
+    this.pageTitle = this.pageTitles[cleanUrl] || 'Allocento';
   }
 
   loadPendingInvitations() {

@@ -6,6 +6,5 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet],
   template: `<router-outlet></router-outlet>`,
-  styleUrl: './auth-shell.component.scss',
 })
 export class AuthShellComponent {}

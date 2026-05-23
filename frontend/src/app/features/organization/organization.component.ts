@@ -17,6 +17,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { User } from '../../core/models/user.model';
 import { API_BASE_URL } from '../../core/api.config';
+import { ContainerComponent } from '../../core/layout/container/container.component';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-organization',
@@ -32,10 +34,11 @@ import { API_BASE_URL } from '../../core/api.config';
     MatListModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './organization.component.html',
-  styleUrl: './organization.component.scss'
 })
 export class OrganizationComponent implements OnInit {
   organization: Organization | null = null;

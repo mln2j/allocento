@@ -19,6 +19,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { API_BASE_URL } from '../../core/api.config';
 import { HttpClient } from '@angular/common/http';
+import { ContainerComponent } from '../../core/layout/container/container.component';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-household',
@@ -34,17 +36,18 @@ import { HttpClient } from '@angular/common/http';
     MatListModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './household.component.html',
-  styleUrl: './household.component.scss'
 })
 export class HouseholdComponent implements OnInit {
   household: Household | null = null;
   currentUser: User | null = null;
   isLoading = true;
   isEditing = false;
-  
+
   createForm: FormGroup;
   inviteForm: FormGroup;
   editForm: FormGroup;
@@ -113,7 +116,7 @@ export class HouseholdComponent implements OnInit {
 
   onUpdate() {
     if (this.editForm.invalid) return;
-    
+
     this.http.put(`${API_BASE_URL}/household`, this.editForm.value).subscribe({
       next: () => {
         this.isEditing = false;
@@ -135,7 +138,7 @@ export class HouseholdComponent implements OnInit {
 
   onDelete() {
     if (!this.household) return;
-    
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Delete Household',

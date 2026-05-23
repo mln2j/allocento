@@ -14,6 +14,8 @@ import { TransactionRepository } from '../../../core/repositories/transaction.re
 import { Account } from '../../../core/models/account.model';
 import { TransactionType } from '../../../core/models/transaction.model';
 import { NavigationService } from '../../../core/services/navigation.service';
+import { ContainerComponent } from '../../../core/layout/container/container.component';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-transaction-create',
@@ -26,10 +28,11 @@ import { NavigationService } from '../../../core/services/navigation.service';
     MatSelectModule,
     MatButtonModule,
     MatCardModule,
-    MatIconModule
+    MatIconModule,
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './transaction-create.component.html',
-  styleUrl: './transaction-create.component.scss',
 })
 export class TransactionCreateComponent implements OnInit {
   form!: FormGroup;

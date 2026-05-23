@@ -1,4 +1,4 @@
-<div class="page-container">
+<app-container>
   <header class="profile-header">
     <div class="header-content">
       <h1>Profile</h1>
@@ -13,17 +13,17 @@
       <div class="profile-hero">
         <div class="avatar-container">
           <img [src]="user.profile_photo_url" class="hero-avatar">
-          <button mat-mini-fab color="primary" class="photo-badge" routerLink="/profile/edit">
+          <app-button variant="ghost" class="photo-badge" (click)="editProfile()">
             <mat-icon>camera_alt</mat-icon>
-          </button>
+          </app-button>
         </div>
         <div class="hero-info">
           <h2 class="name">{{ user.name }}</h2>
           <p class="email">{{ user.email }}</p>
         </div>
         <div class="hero-actions">
-          <button mat-stroked-button routerLink="/profile/edit">Edit Profile</button>
-          <button mat-flat-button color="primary" (click)="changePassword()">Security</button>
+          <app-button variant="ghost" (click)="editProfile()">Edit Profile</app-button>
+          <app-button variant="primary" (click)="changePassword()">Security</app-button>
         </div>
       </div>
 
@@ -75,9 +75,18 @@
             </div>
             <mat-icon class="arrow">chevron_right</mat-icon>
           </div>
+
+          <div class="tile-item logout" (click)="logout()">
+            <div class="tile-icon red"><mat-icon>logout</mat-icon></div>
+            <div class="tile-content">
+              <span class="tile-title">Logout</span>
+              <span class="tile-value">Sign out of your account</span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </div>
         </div>
       </section>
 
     </div>
   }
-</div>
+</app-container>

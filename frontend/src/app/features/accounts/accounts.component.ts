@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,22 +10,25 @@ import { Account } from '../../core/models/account.model';
 
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ContainerComponent } from '../../core/layout/container/container.component';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatCardModule
+    MatCardModule,
+    // Shared components
+    ContainerComponent,
+    ButtonComponent
   ],
   templateUrl: './accounts.component.html',
-  styleUrl: './accounts.component.scss',
 })
 export class AccountsComponent implements OnInit {
   accounts: Account[] = [];
@@ -86,5 +89,9 @@ export class AccountsComponent implements OnInit {
 
   goToDetail(account: Account): void {
     this.router.navigate(['/accounts', account.id]);
+  }
+
+  goToEdit(account: Account): void {
+    this.router.navigate(['/accounts', account.id, 'edit']);
   }
 }

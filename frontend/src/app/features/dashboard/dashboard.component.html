@@ -64,7 +64,7 @@
       <mat-card class="glass-card">
         <mat-card-header>
           <mat-card-title>Recent Activity</mat-card-title>
-          <button mat-button color="primary" routerLink="/transactions">History</button>
+          <button class="btn btn-ghost" routerLink="/transactions">History</button>
         </mat-card-header>
         <mat-card-content>
           <div class="tx-list">
@@ -98,36 +98,47 @@
         </button>
       </div>
 
-      <div class="acc-stack">
-        @for (acc of data.accounts; track acc.id) {
-          <div class="acc-item" [routerLink]="['/accounts', acc.id]">
-            <div class="acc-icon" [class]="acc.type">
-              <mat-icon>
-                @switch (acc.type) {
-                  @case ('personal') { person }
-                  @case ('household') { home }
-                  @default { account_balance }
-                }
-              </mat-icon>
+      @if (data.accounts.length > 0) {
+        <div class="acc-stack">
+          @for (acc of data.accounts; track acc.id) {
+            <div class="acc-item" [routerLink]="['/accounts', acc.id]">
+              <div class="acc-icon" [class]="acc.type">
+                <mat-icon>
+                  @switch (acc.type) {
+                    @case ('personal') { person }
+                    @case ('household') { home }
+                    @default { account_balance }
+                  }
+                </mat-icon>
+              </div>
+              <div class="acc-info">
+                <span class="acc-name">{{ acc.name }}</span>
+                <span class="acc-meta">{{ acc.type }}</span>
+              </div>
+              <div class="acc-val" [class.neg]="acc.balance < 0">
+                {{ acc.balance | currency:'EUR' }}
+              </div>
             </div>
-            <div class="acc-info">
-              <span class="acc-name">{{ acc.name }}</span>
-              <span class="acc-meta">{{ acc.type }}</span>
-            </div>
-            <div class="acc-val" [class.neg]="acc.balance < 0">
-              {{ acc.balance | currency:'EUR' }}
-            </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-accounts-card">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <p class="empty-title">No accounts yet</p>
+          <p class="empty-desc">Create your first account to start tracking transactions</p>
+          <app-button variant="primary" [block]="true" routerLink="/accounts">Create Account</app-button>
+        </div>
+      }
 
-      <div class="quick-action-box">
-        <p>Need to add a record?</p>
-        <button mat-flat-button color="primary" (click)="onAddTransaction()">
-          <mat-icon>add</mat-icon>
-          New Transaction
-        </button>
-      </div>
+      @if (data.accounts.length > 0) {
+        <div class="quick-action-box">
+          <p>Need to add a record?</p>
+          <button class="btn btn-primary btn-block" (click)="onAddTransaction()">
+            <mat-icon>add</mat-icon>
+            New Transaction
+          </button>
+        </div>
+      }
     </aside>
   </div>
 </div>

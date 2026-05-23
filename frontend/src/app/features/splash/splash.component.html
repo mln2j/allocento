@@ -1,5 +1,35 @@
-<div class="fixed inset-0 flex items-center justify-center bg-brand-mint z-50">
-  <div class="w-64 h-64">
-    <img src="logo/white-logo-animated.svg" alt="Allocento" class="w-full h-full">
+<div class="fixed inset-0 flex flex-col items-center justify-center bg-brand-mint z-50 p-6">
+  <!-- Brand Symbol (Animated SVG) -->
+  <div class="w-48 h-48 mb-8 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+    <img src="logo/white-logo-animated.svg" alt="Allocento Logo" class="w-full h-full">
+  </div>
+
+  <!-- Brand Typography -->
+  <div class="text-center font-sans tracking-wide mb-8">
+    <h1 class="text-brand-purple text-4xl sm:text-5xl font-bold tracking-wider mb-2 select-none">
+      Allocento
+    </h1>
+    <p class="text-brand-purple/70 text-xs sm:text-sm font-semibold tracking-widest uppercase select-none">
+      {{ t('splash.calculated') }}
+    </p>
+  </div>
+
+  <!-- Dynamic Loading Info -->
+  <div class="w-full max-w-xs flex flex-col items-center">
+    <!-- Progress Bar Container -->
+    <div class="w-full h-1 bg-brand-purple/15 rounded-full overflow-hidden mb-3">
+      <!-- Active Progress -->
+      <div 
+        class="h-full bg-brand-purple rounded-full transition-all duration-300 ease-out"
+        [style.width.%]="progressWidth()">
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div class="text-brand-purple font-medium text-xs tracking-wider text-center h-5 select-none opacity-85 transition-all duration-300">
+      {{ t(currentKey()) }}
+    </div>
   </div>
 </div>
+
+

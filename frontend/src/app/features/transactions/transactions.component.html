@@ -1,10 +1,7 @@
-<div class="page-container">
-  <header class="header">
+<app-container>
+  <header header class="header">
     <h1>Transaction History</h1>
-    <button mat-raised-button color="primary" routerLink="/transactions/new">
-      <mat-icon>add</mat-icon>
-      New Transaction
-    </button>
+    <app-button variant="primary" icon="add" (click)="onAddTransaction()">New Transaction</app-button>
   </header>
 
   <mat-card class="list-card">
@@ -15,7 +12,7 @@
             <span class="day">{{ tx.date | date:'d' }}</span>
             <span class="month">{{ tx.date | date:'MMM' }}</span>
           </div>
-          
+
           <div class="tx-type-icon" [class]="tx.type">
             <mat-icon>{{ tx.type === 'income' ? 'add' : 'remove' }}</mat-icon>
           </div>
@@ -48,4 +45,4 @@
       }
     </div>
   </mat-card>
-</div>
+</app-container>
