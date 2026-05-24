@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { LoggerService } from './logger.service'; // <-- UVOZIMO LOGGER
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocalDbService {
+  private logger = inject(LoggerService); // <-- INJEKTIRAMO LOGGER
+
   private dbName = 'AllocentoDB';
   private dbVersion = 1;
   private db: IDBDatabase | null = null;
-
-  constructor() {}
 
   /**
    * Inicijalizira i otvara IndexedDB bazu podataka
@@ -25,36 +26,37 @@ export class LocalDbService {
       request.onupgradeneeded = (event: any) => {
         const db = event.target.result;
 
-        // 1. Tablica za korisnički profil (koristimo "key" kao ključ jer imamo samo jednog korisnika)
+        // 1. Tablica za korisnički profil
         if (!db.objectStoreNames.contains('user_profile')) {
-          db.createObjectStore('user_profile', { keyPath: 'id' });
+          db.createObjectStore('user_profile', {keyPath: 'id'});
         }
 
         // 2. Tablica za bankovne račune/kartice
         if (!db.objectStoreNames.contains('accounts')) {
-          db.createObjectStore('accounts', { keyPath: 'id' });
+          db.createObjectStore('accounts', {keyPath: 'id'});
         }
 
         // 3. Tablica za keširane transakcije
         if (!db.objectStoreNames.contains('transactions')) {
-          db.createObjectStore('transactions', { keyPath: 'id' });
+          db.createObjectStore('transactions', {keyPath: 'id'});
         }
 
         // 4. Tablica za offline queue (sinkronizacija troškova unesenih bez interneta)
-        // Koristimo autoIncrement jer troškovi još nemaju ID s backenda
         if (!db.objectStoreNames.contains('offline_queue')) {
-          db.createObjectStore('offline_queue', { keyPath: 'localId', autoIncrement: true });
+          db.createObjectStore('offline_queue', {keyPath: 'localId', autoIncrement: true});
         }
       };
 
       request.onsuccess = (event: any) => {
         this.db = event.target.result;
-        console.log('📦 IndexedDB [AllocentoDB] uspješno inicijalizirana.');
+        // Automatski prevodi i ispisuje: "Provjera offline baze u sesiji..." / "Checking offline database..."
+        this.logger.log('splash.offlineDb');
         resolve();
       };
 
       request.onerror = (event: any) => {
-        console.error('❌ Greška pri otvaranju IndexedDB:', event.target.error);
+        // Kritična greška ostaje vidljiva i u produkciji radi lakšeg debugiranja
+        this.logger.error('Greška pri otvaranju IndexedDB:', event.target.error);
         reject(event.target.error);
       };
     });

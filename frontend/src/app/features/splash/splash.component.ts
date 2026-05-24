@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { SyncService } from '../../core/services/sync';
+import { LoggerService } from '../../core/services/logger.service';
 
 @Component({
   selector: 'app-splash',
@@ -15,26 +16,34 @@ export class SplashComponent implements OnInit {
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private syncService = inject(SyncService);
+  private logger = inject(LoggerService);
 
   // Reaktivni signali za UI
   currentKey = signal<string>('splash.initializing');
   progressWidth = signal<number>(0);
 
   async ngOnInit() {
-    console.log('Allocento: Splash screen pokrenut. Prava provjera sustava počinje...');
-
-    // 1. Inicijalizacija jezika
+    // 1. Prvo inicijaliziramo jezik kako bi LoggerService mogao ispravno prevoditi logove
     this.translationService.initLanguage();
+
+    this.logger.log('splash.initializing');
 
     try {
       // KORAK 1: Sigurnost i lokalna baza (IndexedDB)
       this.updateStep('splash.security', 15);
-      await this.delay(500); // Kratki delay čisto da korisnik stigne pročitati što se događa
+      await this.delay(500);
 
       this.updateStep('splash.offlineDb', 35);
-      // Pokrećemo bazu, provjeru tokena i zdravlje servera unutar initializer-a
-      // Vraća nam konačnu destinaciju kamo korisnik smije ići ('dashboard' ili 'login')
+
+      // Dohvaćamo destinaciju ('dashboard', 'login' ili 'error')
       const targetRoute = await this.appInitializer.initializeApp();
+
+      // HITNA KOČNICA: Ako je initializer vratio error, odmah bježi na /error i prekini daljnje korake!
+      if (targetRoute === 'error') {
+        this.logger.warn('error.criticalTitle');
+        this.router.navigate(['/error']);
+        return;
+      }
 
       // KORAK 2: Server i sinkronizacija (samo ako smo utvrdili da smo online)
       if (this.appInitializer.isOnlineMode && targetRoute === 'dashboard') {
@@ -42,11 +51,9 @@ export class SplashComponent implements OnInit {
         await this.delay(400);
 
         this.updateStep('splash.syncing', 80);
-        // Pokrećemo pozadinsku sinkronizaciju ako ima zapelih offline troškova
         await this.syncService.syncOfflineQueue();
       } else if (!this.appInitializer.isOnlineMode && targetRoute === 'dashboard') {
-        // Ako smo offline ali imamo token, obavijesti korisnika kroz tekstualni korak
-        this.updateStep('splash.offlineMode', 80); // Dodaj ovaj ključ u prijevode ako želiš (npr. "Rad u lokalnom načinu")
+        this.updateStep('splash.offlineMode', 80);
         await this.delay(800);
       }
 
@@ -57,19 +64,15 @@ export class SplashComponent implements OnInit {
       this.updateStep('splash.ready', 100);
       await this.delay(300);
 
-      // SVE JE GOTOVO -> Idemo na Dashboard ili Login
-      console.log(`Allocento: Bootstrap završen. Preusmjeravanje na: /${targetRoute}`);
-
       if (targetRoute === 'login') {
-        this.router.navigate(['/auth/login']); // Prilagodi točnoj ruti za login
+        this.router.navigate(['/auth/login']);
       } else {
         this.router.navigate(['/dashboard']);
       }
 
     } catch (error) {
-      console.error('Kritična greška na Splash screenu:', error);
-      // U slučaju bilo kakvog raspada, baci ga na login kako aplikacija ne bi ostala visiti
-      this.router.navigate(['/auth/login']);
+      this.logger.error('Kritična greška na Splash screenu:', error);
+      this.router.navigate(['/error']);
     }
   }
 
@@ -79,11 +82,12 @@ export class SplashComponent implements OnInit {
   }
 
   /**
-   * Pomoćna metoda za ažuriranje stanja na ekranu
+   * Pomoćna metoda za ažuriranje stanja na ekranu i automatsko logiranje
    */
   private updateStep(key: string, progress: number) {
     this.currentKey.set(key);
     this.progressWidth.set(progress);
+    this.logger.log(key); // <-- AUTOMATSKO LOGIRANJE: Svaki korak se sada prevodi i zapisuje u konzolu
   }
 
   /**

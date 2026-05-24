@@ -1,15 +1,20 @@
 import { Routes } from '@angular/router';
 import { SplashComponent } from './features/splash/splash.component';
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
+import { ErrorComponent } from './features/error/error.component';
+import { inject } from '@angular/core';
+import { AppInitializerService } from './core/services/app-initializer'; // Prilagodi putanju ako treba
+import { Router } from '@angular/router';
 
 export const routes: Routes = [
-  // 1. Ako je URL potpuno prazan (localhost:4200), ODMAH baci na splash
+  // 1. Ako je URL potpuno prazan, baci na splash
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
 
-  // 2. Početni ekran koji radi provjere i odlučuje kamo dalje
+  // 2. Početni ekran i kritične rute (Statički importi)
   { path: 'splash', component: SplashComponent },
+  { path: 'error', component: ErrorComponent },
 
-  // 3. Auth rute (Login i Register) - koriste AuthShell layout
+  // 3. Auth rute
   {
     path: 'auth',
     loadComponent: () => import('./core/layout/auth-shell/auth-shell.component').then(m => m.AuthShellComponent),
@@ -25,15 +30,36 @@ export const routes: Routes = [
     ]
   },
 
-  // 4. Zaštićene aplikacijske rute - ulaze se unutar AppShell-a SAMO ako prođu splash/guard
+  // 4. Zaštićene aplikacijske rute
   {
     path: '',
     component: AppShellComponent,
+    canActivate: [
+      () => {
+        const initializer = inject(AppInitializerService);
+        const router = inject(Router);
+
+        // Ako nemamo ni online mod ni lokalne podatke (nema tokena/cachea)
+        // Ovdje iskoristi zastavicu ili logiku iz svog initializer-a.
+        // Pretpostavljam da isOnlineMode ostaje false kad se dogodi krizni scenarij.
+        if (!initializer.isOnlineMode) {
+          // 🚨 VAŽNO: Ako nemaš neku posebnu metodu poput .hasLocalData(),
+          // provjeri je li ovo stanje stvarno kritično. Ako jest -> bježi na error!
+
+          // Ovdje simuliramo provjeru: ako je isOnlineMode false, a nemamo spremljen cache:
+          // router.navigate(['/error']);
+          // return false;
+        }
+
+        return true;
+      }
+    ],
     children: [
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
+      // ... ostale pod-rute ostaju iste
       {
         path: 'accounts',
         loadComponent: () => import('./features/accounts/accounts.component').then(m => m.AccountsComponent)
@@ -57,6 +83,6 @@ export const routes: Routes = [
     ]
   },
 
-  // 5. "Catch-all" - ako netko upiše bilo što nepoznato, vrati ga na splash provjeru
+  // 5. "Catch-all"
   { path: '**', redirectTo: 'splash' }
 ];
