@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "navigation_title": "Allocento Navigation"
+  },
+  "page_titles": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "household": "Household",
+    "organization": "Organization",
+    "profile": "Profile"
+  },
+  "error": {
+    "offline_title": "Device is offline",
+    "offline_description": "The application is running for the first time and there is no local data cached. Please connect to the internet to load data.",
+    "retry_button": "Try again"
+  },
+  "splash": {
+    "initializing": "Initializing Allocento platform...",
+    "security": "Initializing security module...",
+    "session": "Verifying active user session...",
+    "server": "Establishing connection with Allocento server...",
+    "offlineDb": "Checking offline database in session...",
+    "syncing": "Syncing local data and balances...",
+    "settings": "Loading user preferences...",
+    "workspace": "Preparing workspace...",
+    "ready": "System ready. Launching...",
+    "calculated": "Calculated & Successful"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "navigation_title": "Allocento Navigacija"
+  },
+  "page_titles": {
+    "dashboard": "Nadzorna ploča",
+    "accounts": "Računi",
+    "transactions": "Transakcije",
+    "household": "Kućanstvo",
+    "organization": "Organizacija",
+    "profile": "Profil"
+  },
+  "error": {
+    "offline_title": "Uređaj je offline",
+    "offline_description": "Aplikacija se pokreće prvi put i nema spremljenih lokalnih podataka. Molimo spojite se na internet kako biste učitali podatke.",
+    "retry_button": "Pokušaj ponovno"
+  },
+  "splash": {
+    "initializing": "Inicijalizacija Allocento platforme...",
+    "security": "Inicijalizacija sigurnosnog modula...",
+    "session": "Provjera aktivne korisničke sesije...",
+    "server": "Uspostavljanje veze s Allocento poslužiteljem...",
+    "offlineDb": "Provjera offline baze u sesiji...",
+    "syncing": "Sinkronizacija lokalnih podataka i salda...",
+    "settings": "Učitavanje korisničkih postavki...",
+    "workspace": "Priprema radnog okruženja...",
+    "ready": "Sustav spreman. Pokretanje...",
+    "calculated": "Proračunato & Uspješno"
+  }
+}
