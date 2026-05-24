@@ -7,7 +7,7 @@ import { TranslationService } from '../../core/services/translation.service';
   standalone: true,
   // Tirkizna pozadina preko cijelog ekrana (Allocator Turquoise)
   template: `
-    <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#31DDBB] p-6 text-center">
+    <div class="fixed inset-0 flex flex-col items-center justify-center bg-brand-mint p-6 text-center">
       <div class="max-w-md p-10 bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center">
 
         <div class="w-16 h-16 bg-[#621E95]/10 text-[#621E95] rounded-full flex items-center justify-center mb-8 border border-[#621E95]/20 animate-pulse">
