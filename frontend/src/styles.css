@@ -16,3 +16,24 @@
   }
 }
 
+@layer components {
+  /* Kartice s "glass" efektom koje se uklapaju u tvoju tamnu temu */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg;
+  }
+
+  /* Glavni gumbi (npr. "Aktiviraj", "Spremi") */
+  .btn-primary {
+    @apply px-6 py-3 bg-brand-mint text-brand-bg font-bold rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_10px_rgba(49,221,171,0.3)];
+  }
+
+  /* Polja za unos (Input) */
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-brand-mint transition-all;
+  }
+
+  /* Tipografija za naslove */
+  .heading-main {
+    @apply text-3xl font-bold text-white tracking-tight;
+  }
+}
