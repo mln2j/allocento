@@ -71,14 +71,11 @@ export class AppInitializerService {
    */
   private async checkBackendHealth(): Promise<boolean> {
     try {
-      await firstValueFrom(this.http.get(this.apiPingUrl, { responseType: 'text' }));
-      return true;
+      const response = await firstValueFrom(this.http.get(this.apiPingUrl, { observe: 'response' }));
+      // Samo ako je status 200, smatramo da je server OK
+      return response.status === 200;
     } catch (error) {
-      if (error instanceof HttpErrorResponse) {
-        if (error.status !== 0) {
-          return true;
-        }
-      }
+      // Ako je greška (404, 500, 502, 0), vraćamo false
       return false;
     }
   }
