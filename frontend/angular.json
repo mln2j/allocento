@@ -18,6 +18,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "baseHref": "/",
             "polyfills": [
               "zone.js"
             ],
@@ -35,6 +36,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/allocento/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
