@@ -1,14 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-error',
   standalone: true,
-  // Tirkizna pozadina preko cijelog ekrana (Allocator Turquoise)
   template: `
     <div class="fixed inset-0 flex flex-col items-center justify-center bg-brand-mint p-6 text-center">
-      <div class="max-w-md p-10 bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center">
+      <div
+        [class.opacity-100]="loaded"
+        [class.translate-y-0]="loaded"
+        class="max-w-md p-10 bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col items-center
+               opacity-0 translate-y-4 transition-all duration-700 ease-out">
+
 
         <div class="w-16 h-16 bg-brand-purple/10 text-brand-purple rounded-full flex items-center justify-center mb-8 border border-brand-purple/20 animate-pulse">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
@@ -34,15 +38,18 @@ import { TranslationService } from '../../core/services/translation.service';
     </div>
   `
 })
-export class ErrorComponent {
+export class ErrorComponent implements OnInit {
   private router = inject(Router);
   private translationService = inject(TranslationService);
+  loaded = false;
 
-  t(key: string): string {
-    return this.translationService.translate(key);
+  ngOnInit() {
+    // Mali delay da browser stigne renderirati element prije nego krene tranzicija
+    setTimeout(() => {
+      this.loaded = true;
+    }, 50);
   }
 
-  retry() {
-    this.router.navigate(['/splash']);
-  }
+  t(key: string): string { return this.translationService.translate(key); }
+  retry() { this.router.navigate(['/splash']); }
 }
