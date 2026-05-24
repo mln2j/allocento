@@ -13,6 +13,10 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\InvitationController;
 
+Route::any('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
