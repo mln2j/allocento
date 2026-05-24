@@ -15,7 +15,7 @@ export class AppInitializerService {
   private http = inject(HttpClient);
   private logger = inject(LoggerService); // <-- INJEKTIRAMO LOGGER
 
-  private apiPingUrl = `${API_BASE_URL}/ping`;
+  private apiPingUrl = `${API_BASE_URL}`;
   public isOnlineMode = true;
 
   /**
