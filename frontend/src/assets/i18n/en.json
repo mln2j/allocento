@@ -30,5 +30,21 @@
     "criticalTitle": "System not available",
     "criticalMessage": "Allocento cannot launch the workspace right now because the server is unavailable and no local data exists on this device.",
     "offlineNotice": "Please check your internet connection or server status."
+  },
+  "auth": {
+    "email_placeholder": "Email address",
+    "password_placeholder": "Password",
+    "signing_in": "Signing in...",
+    "sign_in": "Sign in",
+    "already_have_account": "Already have an account?",
+    "dont_have_account": "Don't have an account yet?",
+    "register": "Register",
+    "invalidCredentials": "Invalid credentials.",
+    "create_account": "Create account",
+    "name_placeholder": "Full name",
+    "confirm_password_placeholder": "Confirm password",
+    "passwords_mismatch": "Passwords do not match.",
+    "creating_account": "Creating account...",
+    "registrationFailed": "Registration failed. Please check your data."
   }
 }

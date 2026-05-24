@@ -30,5 +30,21 @@
     "criticalTitle": "Sustav nije dostupan",
     "criticalMessage": "Allocento trenutno ne može pokrenuti radno okruženje jer poslužitelj nije dostupan, a lokalni podaci na ovom uređaju ne postoje.",
     "offlineNotice": "Provjerite internetsku vezu ili status servera."
+  },
+  "auth": {
+    "email_placeholder": "Email adresa",
+    "password_placeholder": "Lozinka",
+    "signing_in": "Prijava u tijeku...",
+    "sign_in": "Prijavi se",
+    "already_have_account": "Već imaš korisnički račun?",
+    "dont_have_account": "Nemaš korisnički račun?",
+    "register": "Registriraj se",
+    "invalidCredentials": "Pogrešni podaci za prijavu.",
+    "create_account": "Stvori račun",
+    "name_placeholder": "Ime i prezime",
+    "confirm_password_placeholder": "Potvrdi lozinku",
+    "passwords_mismatch": "Lozinke se ne podudaraju.",
+    "creating_account": "Izrada računa...",
+    "registrationFailed": "Registracija nije uspjela. Provjerite podatke."
   }
 }

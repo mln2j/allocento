@@ -1,42 +1,45 @@
-import { Component } from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import {Component, inject, OnInit} from '@angular/core';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import {NgIf} from '@angular/common';
+import { NgIf } from '@angular/common';
+import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    NgIf,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, NgIf, RouterLink],
   templateUrl: './login.component.html',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private translationService = inject(TranslationService);
+
+  loaded = false;
   form: FormGroup;
   loading = false;
   errorMessage: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {
+  constructor() {
     this.form = this.fb.group({
-      email: ['test@example.com', [Validators.required, Validators.email]],
-      password: ['password', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
     });
+  }
+
+  ngOnInit() {
+    // Mali delay za efekt animacije
+    setTimeout(() => {
+      this.loaded = true;
+    }, 50);
+  }
+
+  // Funkcija za dohvat prijevoda identična onoj u ErrorComponent
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 
   submit(): void {
@@ -44,19 +47,16 @@ export class LoginComponent {
 
     this.loading = true;
     this.errorMessage = null;
-    const { email, password } = this.form.value;
 
-    this.auth.login(email, password).subscribe({
+    this.auth.login(this.form.value.email, this.form.value.password).subscribe({
       next: () => {
-        this.loading = false;
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
-        this.router.navigateByUrl(returnUrl);
+        this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard');
       },
-      error: (err: any) => {
+      error: () => {
         this.loading = false;
-        this.errorMessage = 'Invalid credentials or server error.';
-        console.error('Login failed', err);
-      },
+        // Prevedena poruka greške
+        this.errorMessage = this.t('auth.invalidCredentials');
+      }
     });
   }
 }

@@ -30,6 +30,17 @@ export class AuthService {
     );
   }
 
+  register(data: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_BASE_URL}/register`, data, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    }).pipe(
+      tap(res => this.setToken(res.token))
+    );
+  }
+
 
   setToken(token: string) {
     localStorage.setItem(this.TOKEN_KEY, token);
