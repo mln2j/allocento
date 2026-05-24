@@ -1,53 +1,68 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { LocalDbService } from './local-db';
 import { AuthService } from './auth.service';
 import { API_BASE_URL } from '../api.config';
 import { firstValueFrom } from 'rxjs';
+import { LoggerService } from './logger.service'; // <-- UVOZIMO LOGGER
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppInitializerService {
+  private localDb = inject(LocalDbService);
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private logger = inject(LoggerService); // <-- INJEKTIRAMO LOGGER
+
   private apiPingUrl = `${API_BASE_URL}/ping`;
   public isOnlineMode = true;
-
-  constructor(
-    private localDb: LocalDbService,
-    private authService: AuthService,
-    private http: HttpClient
-  ) {}
 
   /**
    * Glavna metoda koja pokreće sve provjere dok je korisnik na Splash Screenu.
    */
-  async initializeApp(): Promise<'dashboard' | 'login'> {
+  async initializeApp(): Promise<'dashboard' | 'login' | 'error'> {
     try {
       // 1. Inicijalizacija lokalne baze podataka
       await this.localDb.initDatabase();
 
-      // 2. Provjera sesije preko tvog AuthService-a
+      // 2. Provjera dostupnosti Laravel backenda
+      this.logger.log('splash.server');
+      this.isOnlineMode = await this.checkBackendHealth();
+
+      if (!this.isOnlineMode) {
+        this.logger.warn('splash.offlineMode');
+
+        // Provjeravamo imamo li ikakav profil spremljen u IndexedDB
+        const cachedUsers = await this.localDb.getAll('user_profile');
+
+        // KRITIČNA SITUACIJA: Nema servera, a nema ni lokalnih podataka
+        if (!cachedUsers || cachedUsers.length === 0) {
+          this.logger.error('error.criticalTitle'); // Prevedeno: Sustav nije dostupan (Vrišti crveno u dev modu)
+          return 'error';
+        }
+
+        this.logger.log('splash.offlineDb'); // Koristimo ključ za učitavanje lokalne baze
+      }
+
+      // 3. Provjera sesije preko AuthService-a
       if (!this.authService.isAuthenticated()) {
-        console.log('👤 Korisnik nema aktivnu sesiju -> Preusmjeravanje na Login.');
+        this.logger.log('splash.session'); // Provjera aktivne sesije završava -> ide na login
         return 'login';
       }
 
-      // 3. Provjera dostupnosti Laravel backenda
-      console.log('🌐 Provjera dostupnosti Laravel backenda...');
-      this.isOnlineMode = await this.checkBackendHealth();
-
+      // Ako smo online i sesija je valjana, sinkroniziraj podatke
       if (this.isOnlineMode) {
-        console.log('🚀 Backend je ONLINE. Pokrećem sinkronizaciju podataka...');
+        this.logger.log('splash.syncing');
         await this.syncFreshDataFromServer();
-      } else {
-        console.log('📴 Backend je OFFLINE. Koristimo lokalne podatke.');
       }
 
+      this.logger.log('splash.ready');
       return 'dashboard';
 
     } catch (error) {
-      console.error('❌ Greška tijekom inicijalizacije aplikacije:', error);
-      return 'login';
+      this.logger.error('Kritična greška tijekom inicijalizacije aplikacije:', error);
+      return 'error';
     }
   }
 
@@ -56,14 +71,10 @@ export class AppInitializerService {
    */
   private async checkBackendHealth(): Promise<boolean> {
     try {
-      // Očekujemo bilo kakav tekstualni odgovor (čak i 200 OK s praznim body-em)
       await firstValueFrom(this.http.get(this.apiPingUrl, { responseType: 'text' }));
       return true;
     } catch (error) {
-      // Castamo error u HttpErrorResponse da TypeScript zna pročitati .status
       if (error instanceof HttpErrorResponse) {
-        // Ako je status različit od 0 (npr. 404, 401, 500), server je online i odgovara!
-        // Status 0 znači Network Error (server je ugašen ili nema interneta)
         if (error.status !== 0) {
           return true;
         }
@@ -77,9 +88,9 @@ export class AppInitializerService {
    */
   private async syncFreshDataFromServer(): Promise<void> {
     try {
-      console.log('🔄 Lokalni cache uspješno ažuriran najnovijim podacima s servera.');
+      // Ovdje u budućnosti logiraš uspješnu sinkronizaciju ako želiš
     } catch (error) {
-      console.error('⚠️ Neuspjelo keširanje podataka s servera:', error);
+      this.logger.warn('⚠️ Neuspjelo keširanje podataka s servera:', error);
     }
   }
 }

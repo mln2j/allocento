@@ -1,19 +1,18 @@
 {
-  "nav": {
-    "navigation_title": "Allocento Navigacija"
+  "common": {
+    "retryButton": "Pokušaj ponovno",
+    "calculated": "Proračunato & Uspješno"
   },
-  "page_titles": {
+  "nav": {
+    "navigationTitle": "Allocento Navigacija"
+  },
+  "pageTitles": {
     "dashboard": "Nadzorna ploča",
     "accounts": "Računi",
     "transactions": "Transakcije",
     "household": "Kućanstvo",
     "organization": "Organizacija",
     "profile": "Profil"
-  },
-  "error": {
-    "offline_title": "Uređaj je offline",
-    "offline_description": "Aplikacija se pokreće prvi put i nema spremljenih lokalnih podataka. Molimo spojite se na internet kako biste učitali podatke.",
-    "retry_button": "Pokušaj ponovno"
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",
@@ -25,6 +24,11 @@
     "settings": "Učitavanje korisničkih postavki...",
     "workspace": "Priprema radnog okruženja...",
     "ready": "Sustav spreman. Pokretanje...",
-    "calculated": "Proračunato & Uspješno"
+    "offlineMode": "Rad u lokalnom načinu..."
+  },
+  "error": {
+    "criticalTitle": "Sustav nije dostupan",
+    "criticalMessage": "Allocento trenutno ne može pokrenuti radno okruženje jer poslužitelj nije dostupan, a lokalni podaci na ovom uređaju ne postoje.",
+    "offlineNotice": "Provjerite internetsku vezu ili status servera."
   }
 }

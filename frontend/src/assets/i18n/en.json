@@ -1,19 +1,18 @@
 {
-  "nav": {
-    "navigation_title": "Allocento Navigation"
+  "common": {
+    "retryButton": "Try again",
+    "calculated": "Calculated & Successful"
   },
-  "page_titles": {
+  "nav": {
+    "navigationTitle": "Allocento Navigation"
+  },
+  "pageTitles": {
     "dashboard": "Dashboard",
     "accounts": "Accounts",
     "transactions": "Transactions",
     "household": "Household",
     "organization": "Organization",
     "profile": "Profile"
-  },
-  "error": {
-    "offline_title": "Device is offline",
-    "offline_description": "The application is running for the first time and there is no local data cached. Please connect to the internet to load data.",
-    "retry_button": "Try again"
   },
   "splash": {
     "initializing": "Initializing Allocento platform...",
@@ -25,6 +24,11 @@
     "settings": "Loading user preferences...",
     "workspace": "Preparing workspace...",
     "ready": "System ready. Launching...",
-    "calculated": "Calculated & Successful"
+    "offlineMode": "Running in offline mode..."
+  },
+  "error": {
+    "criticalTitle": "System not available",
+    "criticalMessage": "Allocento cannot launch the workspace right now because the server is unavailable and no local data exists on this device.",
+    "offlineNotice": "Please check your internet connection or server status."
   }
 }
