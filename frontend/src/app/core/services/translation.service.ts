@@ -52,7 +52,7 @@ export class TranslationService {
   }
 
   // Reaktivna funkcija za prijevod (traži duboke ključeve tipa 'splash.calculated')
-  translate(key: string): string {
+  translate(key: string, params?: any): string {
     // Čitanje signala kako bi se uspostavila reaktivna ovisnost
     const lang = this.currentLang();
     const keys = key.split('.');

@@ -1,10 +1,9 @@
 {
   "common": {
     "retryButton": "Pokušaj ponovno",
-    "calculated": "Proračunato & Uspješno"
-  },
-  "nav": {
-    "navigationTitle": "Allocento Navigacija"
+    "calculated": "Proračunato & Uspješno",
+    "accept": "Prihvati",
+    "reject": "Odbij"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -46,5 +45,18 @@
     "passwords_mismatch": "Lozinke se ne podudaraju.",
     "creating_account": "Izrada računa...",
     "registrationFailed": "Registracija nije uspjela. Provjerite podatke."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transakcije",
+    "accounts": "Računi",
+    "workspace": "Radni prostor",
+    "profile": "Profil"
+  },
+  "notifications": {
+    "title": "Pozivnice",
+    "empty": "Sve čisto!",
+    "defaultWorkspace": "Zajednički prostor",
+    "sentBy": "Šalje"
   }
 }
