@@ -1,10 +1,9 @@
 {
   "common": {
     "retryButton": "Try again",
-    "calculated": "Calculated & Successful"
-  },
-  "nav": {
-    "navigationTitle": "Allocento Navigation"
+    "calculated": "Calculated & Successful",
+    "accept": "Accept",
+    "reject": "Reject"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -46,5 +45,18 @@
     "passwords_mismatch": "Passwords do not match.",
     "creating_account": "Creating account...",
     "registrationFailed": "Registration failed. Please check your data."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "accounts": "Accounts",
+    "workspace": "Workspace",
+    "profile": "Profile"
+  },
+  "notifications": {
+    "title": "Invitations",
+    "empty": "Empty!",
+    "defaultWorkspace": "Shared Workspace",
+    "sentBy": "Sent by"
   }
 }

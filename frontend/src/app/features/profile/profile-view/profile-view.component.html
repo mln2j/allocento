@@ -1,92 +1,36 @@
-<app-container>
-  <header class="profile-header">
-    <div class="header-content">
-      <h1>Profile</h1>
-      <p>Personal information and memberships</p>
+<div class="max-w-2xl mx-auto p-6 space-y-8">
+
+  <div class="flex items-center gap-4">
+    <img [src]="user?.profile_photo_url" class="w-16 h-16 rounded-full bg-slate-100 object-cover border border-slate-200">
+    <div class="flex-grow">
+      <h1 class="text-xl font-bold text-slate-900">{{ user?.name }}</h1>
+      <p class="text-slate-500 text-sm">{{ user?.email }}</p>
     </div>
-  </header>
+    <button routerLink="/profile/edit" class="text-sm font-medium text-brand-purple hover:underline">Edit</button>
+  </div>
 
-  @if (user) {
-    <div class="profile-layout">
+  <div class="grid gap-3">
+    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Memberships</h2>
 
-      <!-- Profile Header Card -->
-      <div class="profile-hero">
-        <div class="avatar-container">
-          <img [src]="user.profile_photo_url" class="hero-avatar">
-          <app-button variant="ghost" class="photo-badge" (click)="editProfile()">
-            <mat-icon>camera_alt</mat-icon>
-          </app-button>
-        </div>
-        <div class="hero-info">
-          <h2 class="name">{{ user.name }}</h2>
-          <p class="email">{{ user.email }}</p>
-        </div>
-        <div class="hero-actions">
-          <app-button variant="ghost" (click)="editProfile()">Edit Profile</app-button>
-          <app-button variant="primary" (click)="changePassword()">Security</app-button>
-        </div>
+    <a [routerLink]="user?.household_id ? '/household' : null" class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-brand-purple transition-colors">
+      <span class="mr-4">🏠</span>
+      <div class="flex-grow">
+        <p class="font-bold text-sm">Household</p>
+        <p class="text-xs text-slate-500">{{ householdName || 'Not joined' }}</p>
       </div>
+    </a>
 
-      <!-- Settings Section: Memberships -->
-      <section class="settings-group">
-        <h3 class="group-title">Connected Entities</h3>
-        <div class="tile-list">
+    <a [routerLink]="user?.organization_id ? '/organization' : null" class="flex items-center p-4 bg-white border border-slate-200 rounded-xl hover:border-brand-purple transition-colors">
+      <span class="mr-4">🏢</span>
+      <div class="flex-grow">
+        <p class="font-bold text-sm">Organization</p>
+        <p class="text-xs text-slate-500">{{ organizationName || 'Not joined' }}</p>
+      </div>
+    </a>
+  </div>
 
-          <div class="tile-item" 
-               [routerLink]="user.household_id ? '/household' : null"
-               [class.active]="user.household_id">
-            <div class="tile-icon blue"><mat-icon>home</mat-icon></div>
-            <div class="tile-content">
-              <span class="tile-title">Household</span>
-              <span class="tile-value">{{ householdName || (user.household_id ? 'Joined' : 'Join a household') }}</span>
-            </div>
-            <div class="tile-meta">
-              <span class="owner-chip" *ngIf="user.household_id && user.id === householdOwnerId">Owner</span>
-              <mat-icon class="arrow">chevron_right</mat-icon>
-            </div>
-          </div>
-
-          <div class="tile-item"
-               [routerLink]="user.organization_id ? '/organization' : null"
-               [class.active]="user.organization_id">
-            <div class="tile-icon green"><mat-icon>business</mat-icon></div>
-            <div class="tile-content">
-              <span class="tile-title">Organization</span>
-              <span class="tile-value">{{ organizationName || (user.organization_id ? 'Joined' : 'Create organization') }}</span>
-            </div>
-            <div class="tile-meta">
-              <span class="owner-chip green" *ngIf="user.organization_id && user.id === organizationOwnerId">Owner</span>
-              <mat-icon class="arrow">chevron_right</mat-icon>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- Dangerous Actions -->
-      <section class="settings-group danger">
-        <h3 class="group-title">Account Management</h3>
-        <div class="tile-list">
-          <div class="tile-item delete" (click)="deleteAccount()">
-            <div class="tile-icon red"><mat-icon>delete_outline</mat-icon></div>
-            <div class="tile-content">
-              <span class="tile-title">Delete Account</span>
-              <span class="tile-value">Permanently remove all your data</span>
-            </div>
-            <mat-icon class="arrow">chevron_right</mat-icon>
-          </div>
-
-          <div class="tile-item logout" (click)="logout()">
-            <div class="tile-icon red"><mat-icon>logout</mat-icon></div>
-            <div class="tile-content">
-              <span class="tile-title">Logout</span>
-              <span class="tile-value">Sign out of your account</span>
-            </div>
-            <mat-icon class="arrow">chevron_right</mat-icon>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  }
-</app-container>
+  <div class="border-t border-slate-100 pt-6 space-y-2">
+    <button (click)="deleteAccount()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">Delete Account</button>
+    <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Logout</button>
+  </div>
+</div>

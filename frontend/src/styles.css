@@ -37,3 +37,20 @@
     @apply text-3xl font-bold text-white tracking-tight;
   }
 }
+
+/* --- MINIMALISTIČKI MOBILNI NAV-BAR --- */
+
+/* Kada je link aktivan, prebaci ga u brand ljubičastu */
+.nav-link-item.active-nav-link {
+  color: rgb(147, 51, 234) !important; /* Tvoja brand-purple boja */
+}
+
+/* Prikaži gornju diskretnu liniju na aktivnoj stavci */
+.active-nav-link .top-border {
+  opacity: 1;
+}
+
+/* Isključi nepotrebne animacije na modalima za maksimalni 'snappy' osjećaj */
+.fixed {
+  transition: none !important;
+}

@@ -1,27 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs';
+import { Component, OnInit, HostListener, ElementRef, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { filter } from 'rxjs';
+
 import { User } from '../../models/user.model';
 import { API_BASE_URL } from '../../api.config';
-
 import { AuthService } from '../../services/auth.service';
-import { AppInitializerService } from '../../services/app-initializer'; // <-- DODANO
-import { LocalDbService } from '../../services/local-db'; // <-- DODANO
-
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AppInitializerService } from '../../services/app-initializer';
+import { LocalDbService } from '../../services/local-db';
 import { InvitationRepository } from '../../repositories/invitation.repository';
-import { NotificationsDialogComponent } from '../../../shared/notifications-dialog/notifications-dialog.component';
 import { LoadingService } from '../../services/loading/loading.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-app-shell',
@@ -29,14 +19,8 @@ import { LoadingService } from '../../services/loading/loading.service';
   imports: [
     CommonModule,
     RouterOutlet,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatBadgeModule,
-    MatDialogModule,
-    MatProgressSpinnerModule
+    RouterLink,
+    RouterLinkActive
   ],
   templateUrl: './app-shell.component.html',
 })
@@ -45,48 +29,66 @@ export class AppShellComponent implements OnInit {
   pageTitle = 'Allocento';
   user: User | null = null;
   pendingInvitations: any[] = [];
+  private translationService = inject(TranslationService);
 
-  private readonly pageTitles: { [key: string]: string } = {
-    '/dashboard': 'Dashboard',
-    '/accounts': 'Accounts',
-    '/transactions': 'Transactions',
-    '/household': 'Household',
-    '/organization': 'Organization',
-    '/profile': 'Profile',
-  };
+  // Kontrola samo za ugrađeni Tailwind modal obavijesti
+  isNotificationsOpen = false;
+
+  t(key: string, params?: any): string {
+    return this.translationService.translate(key, params);
+  }
+
+  private updatePageTitle(url: string): void {
+    const cleanUrl = url.split('/').slice(0, 2).join('/');
+    const titleKey = cleanUrl.replace('/', '') || 'dashboard';
+    this.pageTitle = this.t('pageTitles.' + titleKey);
+  }
 
   constructor(
     private router: Router,
     private http: HttpClient,
     private authService: AuthService,
     private inviteRepo: InvitationRepository,
-    private dialog: MatDialog,
     public loadingService: LoadingService,
-    private appInitializer: AppInitializerService, // <-- INJEKTIRANO
-    private localDb: LocalDbService // <-- INJEKTIRANO
+    public appInitializer: AppInitializerService,
+    private localDb: LocalDbService,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
-    // Pokrećemo pametno učitavanje korisničkog konteksta ovisno o mreži
     this.loadUserContext();
 
+    // 1. Postavi naslov odmah pri inicijalizaciji na temelju trenutnog URL-a
+    this.updatePageTitle(this.router.url);
+
+    // 2. Slušaj promjene za kasnije
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.updatePageTitle(event.urlAfterRedirects);
+        this.isNotificationsOpen = false;
       });
   }
 
-  /**
-   * Provjerava mrežni način rada i učitava podatke iz pravog izvora
-   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const targetElement = event.target as HTMLElement;
+
+    // Pronađi okidače i modal sadržaj
+    const clickedInsideNotificationButton = targetElement.closest('.notification-trigger');
+    const clickedInsideModal = targetElement.closest('.modal-content');
+
+    // Zatvori modal ako je kliknuto izvan gumba i samog sadržaja modala
+    if (!clickedInsideNotificationButton && !clickedInsideModal) {
+      this.isNotificationsOpen = false;
+    }
+  }
+
   private async loadUserContext(): Promise<void> {
     if (this.appInitializer.isOnlineMode) {
-      // --- ONLINE NAČIN ---
       this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
         next: async (user) => {
           this.user = user;
-          // Odmah spremi profil u IndexedDB cache za idući put kad bude offline
           await this.localDb.put('user_profile', user);
           this.loadPendingInvitations();
         },
@@ -96,23 +98,18 @@ export class AppShellComponent implements OnInit {
         }
       });
     } else {
-      // --- OFFLINE NAČIN ---
       console.log('📴 AppShell: Rad u offline načinu. Učitavam podatke iz lokalnog cachea...');
       await this.loadUserFromCache();
     }
   }
 
-  /**
-   * Pomoćna metoda za čitanje korisnika iz IndexedDB baze
-   */
   private async loadUserFromCache(): Promise<void> {
     try {
       const cachedUsers = await this.localDb.getAll('user_profile');
       if (cachedUsers && cachedUsers.length > 0) {
-        this.user = cachedUsers[0]; // Uzimamo spremljeni profil
+        this.user = cachedUsers[0];
         console.log('📦 Korisnik uspješno pročitan iz lokalnog cachea:', this.user);
       } else {
-        // Ako je baza potpuno prazna (npr. prvo pokretanje ikad bez neta), stavljamo fallback
         this.user = { id: 0, name: 'Offline User', email: '' } as User;
       }
     } catch (err) {
@@ -120,13 +117,7 @@ export class AppShellComponent implements OnInit {
     }
   }
 
-  private updatePageTitle(url: string): void {
-    const cleanUrl = url.split('/').slice(0, 2).join('/');
-    this.pageTitle = this.pageTitles[cleanUrl] || 'Allocento';
-  }
-
   loadPendingInvitations() {
-    // Pozivnice povlačimo samo ako smo online, jer nemaju smisla u offline načinu rada
     if (!this.appInitializer.isOnlineMode) {
       this.pendingInvitations = [];
       return;
@@ -138,35 +129,28 @@ export class AppShellComponent implements OnInit {
     });
   }
 
-  openNotifications() {
-    // Blokiramo otvaranje obavijesti/pozivnica ako nema mreže
+  toggleNotifications() {
     if (!this.appInitializer.isOnlineMode) {
       console.log('Obavijesti nisu dostupne u offline načinu rada.');
       return;
     }
-
-    const dialogRef = this.dialog.open(NotificationsDialogComponent, {
-      width: '450px',
-      data: { invitations: this.pendingInvitations }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadPendingInvitations();
-        if (this.appInitializer.isOnlineMode) {
-          this.http.get<User>(`${API_BASE_URL}/user`).subscribe(u => this.user = u);
-        }
-      }
-    });
+    this.isNotificationsOpen = !this.isNotificationsOpen;
   }
 
-  onAddTransaction(): void {
-    this.router.navigate(['/transactions/new']);
+  respondToInvitation(id: number, accept: boolean) {
+    const endpoint = accept ? 'accept' : 'reject';
+    this.http.post(`${API_BASE_URL}/invitations/${id}/${endpoint}`, {}).subscribe({
+      next: () => {
+        this.loadPendingInvitations();
+        this.http.get<User>(`${API_BASE_URL}/user`).subscribe(u => this.user = u);
+      },
+      error: (err) => console.error('Error responding to invitation', err)
+    });
   }
 
   onLogout(): void {
     this.authService.logout();
-    this.localDb.clearStore('user_profile'); // Čistimo i lokalni cache kod odjave
+    this.localDb.clearStore('user_profile');
     this.router.navigate(['/auth/login']);
   }
 }
