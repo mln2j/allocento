@@ -3,7 +3,8 @@
     "retryButton": "Try again",
     "calculated": "Calculated & Successful",
     "accept": "Accept",
-    "reject": "Reject"
+    "reject": "Reject",
+    "loading": "Loading..."
   },
   "pageTitles": {
     "dashboard": "Dashboard",
