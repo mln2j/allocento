@@ -3,7 +3,8 @@
     "retryButton": "Pokušaj ponovno",
     "calculated": "Proračunato & Uspješno",
     "accept": "Prihvati",
-    "reject": "Odbij"
+    "reject": "Odbij",
+    "loading": "Učitavanje..."
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",

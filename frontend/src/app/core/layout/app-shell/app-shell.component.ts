@@ -1,5 +1,5 @@
-import { Component, OnInit, HostListener, ElementRef, inject } from '@angular/core';
-import { Router, NavigationEnd, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
@@ -11,7 +11,12 @@ import { AppInitializerService } from '../../services/app-initializer';
 import { LocalDbService } from '../../services/local-db';
 import { InvitationRepository } from '../../repositories/invitation.repository';
 import { LoadingService } from '../../services/loading/loading.service';
+import { LoadingComponent } from '../../services/loading/loading.component'
 import { TranslationService } from '../../services/translation.service';
+import { LoggerService } from '../../services/logger.service';
+
+import { HeaderComponent } from '../header/header.component';
+import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-app-shell',
@@ -19,8 +24,9 @@ import { TranslationService } from '../../services/translation.service';
   imports: [
     CommonModule,
     RouterOutlet,
-    RouterLink,
-    RouterLinkActive
+    HeaderComponent,
+    BottomNavComponent,
+    LoadingComponent
   ],
   templateUrl: './app-shell.component.html',
 })
@@ -29,10 +35,18 @@ export class AppShellComponent implements OnInit {
   pageTitle = 'Allocento';
   user: User | null = null;
   pendingInvitations: any[] = [];
-  private translationService = inject(TranslationService);
-
-  // Kontrola samo za ugrađeni Tailwind modal obavijesti
   isNotificationsOpen = false;
+
+  private translationService = inject(TranslationService);
+  private router = inject(Router);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private inviteRepo = inject(InvitationRepository);
+  private logger = inject(LoggerService);
+
+  public loadingService = inject(LoadingService);
+  public appInitializer = inject(AppInitializerService);
+  private localDb = inject(LocalDbService);
 
   t(key: string, params?: any): string {
     return this.translationService.translate(key, params);
@@ -44,24 +58,10 @@ export class AppShellComponent implements OnInit {
     this.pageTitle = this.t('pageTitles.' + titleKey);
   }
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-    private authService: AuthService,
-    private inviteRepo: InvitationRepository,
-    public loadingService: LoadingService,
-    public appInitializer: AppInitializerService,
-    private localDb: LocalDbService,
-    private elementRef: ElementRef
-  ) {}
-
   ngOnInit(): void {
     this.loadUserContext();
-
-    // 1. Postavi naslov odmah pri inicijalizaciji na temelju trenutnog URL-a
     this.updatePageTitle(this.router.url);
 
-    // 2. Slušaj promjene za kasnije
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -73,12 +73,9 @@ export class AppShellComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const targetElement = event.target as HTMLElement;
-
-    // Pronađi okidače i modal sadržaj
     const clickedInsideNotificationButton = targetElement.closest('.notification-trigger');
     const clickedInsideModal = targetElement.closest('.modal-content');
 
-    // Zatvori modal ako je kliknuto izvan gumba i samog sadržaja modala
     if (!clickedInsideNotificationButton && !clickedInsideModal) {
       this.isNotificationsOpen = false;
     }
@@ -93,12 +90,12 @@ export class AppShellComponent implements OnInit {
           this.loadPendingInvitations();
         },
         error: async (err) => {
-          console.error('Error fetching user for shell, switching to local backup', err);
+          this.logger.error('Greška pri dohvaćanju korisnika, prebacujem na lokalni cache', err);
           await this.loadUserFromCache();
         }
       });
     } else {
-      console.log('📴 AppShell: Rad u offline načinu. Učitavam podatke iz lokalnog cachea...');
+      this.logger.warn('splash.offlineMode');
       await this.loadUserFromCache();
     }
   }
@@ -108,12 +105,11 @@ export class AppShellComponent implements OnInit {
       const cachedUsers = await this.localDb.getAll('user_profile');
       if (cachedUsers && cachedUsers.length > 0) {
         this.user = cachedUsers[0];
-        console.log('📦 Korisnik uspješno pročitan iz lokalnog cachea:', this.user);
       } else {
         this.user = { id: 0, name: 'Offline User', email: '' } as User;
       }
     } catch (err) {
-      console.error('Greška pri čitanju korisnika iz IndexedDB:', err);
+      this.logger.error('Kritična greška pri čitanju korisnika iz IndexedDB', err);
     }
   }
 
@@ -125,30 +121,33 @@ export class AppShellComponent implements OnInit {
 
     this.inviteRepo.getPending().subscribe({
       next: (invites) => (this.pendingInvitations = invites),
-      error: (err) => console.error('Error loading invitations', err)
+      error: (err) => this.logger.error('Greška pri učitavanju pozivnica', err)
     });
   }
 
   toggleNotifications() {
     if (!this.appInitializer.isOnlineMode) {
-      console.log('Obavijesti nisu dostupne u offline načinu rada.');
       return;
     }
     this.isNotificationsOpen = !this.isNotificationsOpen;
+    this.logger.log(this.isNotificationsOpen ? 'Obavijesti otvorene' : 'Obavijesti zatvorene');
   }
 
   respondToInvitation(id: number, accept: boolean) {
     const endpoint = accept ? 'accept' : 'reject';
+    this.logger.log(`Odgovor na pozivnicu ${id}: ${endpoint}`);
+
     this.http.post(`${API_BASE_URL}/invitations/${id}/${endpoint}`, {}).subscribe({
       next: () => {
         this.loadPendingInvitations();
         this.http.get<User>(`${API_BASE_URL}/user`).subscribe(u => this.user = u);
       },
-      error: (err) => console.error('Error responding to invitation', err)
+      error: (err) => this.logger.error(`Neuspješan odgovor na pozivnicu ${id}`, err)
     });
   }
 
   onLogout(): void {
+    this.logger.log('Korisnik pokrenuo odjavu');
     this.authService.logout();
     this.localDb.clearStore('user_profile');
     this.router.navigate(['/auth/login']);
