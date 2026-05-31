@@ -7,10 +7,16 @@ import { TranslationService } from '../translation.service';
   selector: 'app-global-loading',
   standalone: true,
   imports: [CommonModule],
+  // HOST OBJEKT: Kontrolira klase na samom <app-global-loading> tagu ovisno o stanju signala!
+  host: {
+    '[class]': '"absolute inset-0 rounded-2xl overflow-hidden z-50 transition-all duration-300"',
+    '[class.pointer-events-auto]': 'loadingService.loading()',
+    '[class.pointer-events-none]': '!loadingService.loading()'
+  },
   template: `
     <div
       *ngIf="loadingService.loading()"
-      class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-50/20 backdrop-blur-md transition-all duration-300 animate-fade-in"
+      class="w-full h-full flex flex-col items-center justify-center bg-slate-50/20 backdrop-blur-md animate-fade-in"
     >
       <div class="flex flex-col items-center gap-4 relative z-10">
         <div class="w-16 h-16 flex items-center justify-center animate-pulse-subtle">
