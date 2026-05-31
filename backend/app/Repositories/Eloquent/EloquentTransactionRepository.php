@@ -8,12 +8,11 @@ use Illuminate\Support\Collection;
 
 class EloquentTransactionRepository implements TransactionRepositoryInterface
 {
-    public function allForAccount(int $accountId, int $userId): Collection
+    public function allForAccount(int $accountId): Collection
     {
         return Transaction::query()
-            ->with('user')
+            ->with('createdBy')
             ->where('account_id', $accountId)
-            ->where('user_id', $userId)
             ->orderByDesc('date')
             ->get();
     }
@@ -21,16 +20,15 @@ class EloquentTransactionRepository implements TransactionRepositoryInterface
     public function createForAccount(int $accountId, int $userId, array $data): Transaction
     {
         $data['account_id'] = $accountId;
-        $data['user_id']    = $userId;
+        $data['created_by_user_id'] = $userId;
 
         return Transaction::create($data);
     }
 
-    public function sumForAccount(int $accountId, int $userId, ?string $type = null): float
+    public function sumForAccount(int $accountId, ?string $type = null): float
     {
         $query = Transaction::query()
-            ->where('account_id', $accountId)
-            ->where('user_id', $userId);
+            ->where('account_id', $accountId);
 
         if ($type) {
             $query->where('type', $type);
@@ -39,30 +37,15 @@ class EloquentTransactionRepository implements TransactionRepositoryInterface
         return (float) $query->sum('amount');
     }
 
-    public function sumForProject(int $projectId, int $userId, ?string $type = null): float
-    {
-        $query = Transaction::query()
-            ->where('project_id', $projectId)
-            ->where('user_id', $userId);
-
-        if ($type) {
-            $query->where('type', $type);
-        }
-
-        return (float) $query->sum('amount');
-    }
-
-    public function balanceForAccount(int $accountId, int $userId): float
+    public function balanceForAccount(int $accountId): float
     {
         $income = Transaction::query()
             ->where('account_id', $accountId)
-            ->where('user_id', $userId)
             ->where('type', 'income')
             ->sum('amount');
 
         $expense = Transaction::query()
             ->where('account_id', $accountId)
-            ->where('user_id', $userId)
             ->where('type', 'expense')
             ->sum('amount');
 

@@ -23,8 +23,8 @@ class User extends Authenticatable
         'email',
         'password',
         'profile_photo_path',
-        'household_id',
-        'organization_id',
+        'favorite_workspace_id',
+        'preferred_language',
     ];
 
     /**
@@ -69,19 +69,21 @@ class User extends Authenticatable
         ];
     }
 
-    public function household()
+    public function workspaces(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsTo(Household::class);
+        return $this->belongsToMany(Workspace::class, 'user_workspace')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
-    public function organization()
+    public function favoriteWorkspace(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Workspace::class, 'favorite_workspace_id');
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class, 'created_by_user_id');
     }
 
 }

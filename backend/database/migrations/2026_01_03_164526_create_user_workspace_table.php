@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account_links', function (Blueprint $table) {
+        Schema::create('user_workspace', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('from_account_id')->constrained('accounts')->cascadeOnDelete();
-            $table->foreignId('to_account_id')->constrained('accounts')->cascadeOnDelete();
-            $table->string('relation_type')->default('linked_budget');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
+            $table->enum('role', ['owner', 'manager', 'member'])->default('member');
             $table->timestamps();
+
+            $table->unique(['user_id', 'workspace_id']);
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account_links');
+        Schema::dropIfExists('user_workspace');
     }
 };

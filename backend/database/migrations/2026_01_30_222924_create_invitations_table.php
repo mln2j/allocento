@@ -6,22 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('invitations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
             $table->string('email');
-            $table->string('entity_type'); // household or organization
-            $table->unsignedBigInteger('entity_id');
-            $table->string('token')->unique();
+            $table->string('token', 64)->unique();
+            $table->enum('role', ['manager', 'member'])->default('member');
             $table->timestamp('expires_at')->nullable();
-            $table->unsignedBigInteger('invited_by');
+            $table->timestamp('accepted_at')->nullable();
             $table->timestamps();
-
-            $table->foreign('invited_by')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('invitations');

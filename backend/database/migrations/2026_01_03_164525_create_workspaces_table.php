@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('workspaces', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->decimal('planned_budget', 15, 2)->default(0);
-            $table->date('start_date');
-            $table->date('end_date')->nullable();
+            $table->enum('type', ['personal', 'household', 'company']);
+            $table->string('icon')->nullable();
+            $table->string('currency', 3)->default('EUR');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('workspaces');
     }
 };

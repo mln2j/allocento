@@ -6,6 +6,9 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+use App\Models\Workspace;
+use Illuminate\Support\Facades\DB;
+
 class AuthService
 {
     public function __construct(private UserRepositoryInterface $userRepository) {}
@@ -24,27 +27,36 @@ class AuthService
 
         return [
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
+            'user' => $user->load(['favoriteWorkspace', 'workspaces']),
         ];
     }
 
     public function register(array $data): array
     {
-        $user = $this->userRepository->create($data);
+        $user = DB::transaction(function () use ($data) {
+            $user = $this->userRepository->create($data);
+
+            // Auto-create personal workspace
+            $workspace = Workspace::create([
+                'name' => 'Osobno',
+                'type' => 'personal',
+                'currency' => 'EUR',
+            ]);
+
+            // User is the owner of this workspace
+            $workspace->users()->attach($user->id, ['role' => 'owner']);
+
+            // Set favorite workspace
+            $user->update(['favorite_workspace_id' => $workspace->id]);
+
+            return $user;
+        });
 
         $token = $user->createToken('allocento')->plainTextToken;
 
         return [
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
+            'user' => $user->load(['favoriteWorkspace', 'workspaces']),
         ];
     }
 }

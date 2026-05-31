@@ -18,7 +18,7 @@ class TransactionService
 
     public function listForAccount(User $user, int $accountId): Collection
     {
-        return $this->transactions->allForAccount($accountId, $user->id);
+        return $this->transactions->allForAccount($accountId);
     }
 
     public function createForAccount(User $user, int $accountId, array $data): Transaction
@@ -48,7 +48,6 @@ class TransactionService
             $transaction = Transaction::query()
                 ->where('id', $transactionId)
                 ->where('account_id', $accountId)
-                ->where('user_id', $user->id)
                 ->firstOrFail();
 
             $account = Account::query()
@@ -82,7 +81,6 @@ class TransactionService
             $transaction = Transaction::query()
                 ->where('id', $transactionId)
                 ->where('account_id', $accountId)
-                ->where('user_id', $user->id)
                 ->firstOrFail();
 
             $account = Account::query()

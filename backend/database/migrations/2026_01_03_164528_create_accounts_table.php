@@ -14,20 +14,17 @@ return new class extends Migration
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['personal', 'household', 'organization']);
-            $table->foreignId('household_id')->nullable()
-                ->constrained('households')->nullOnDelete();
-            $table->foreignId('organization_id')->nullable()
-                ->constrained('organizations')->nullOnDelete();
-            $table->foreignId('owner_user_id')->nullable()
-                ->constrained('users')->nullOnDelete();
+            $table->enum('type', ['checking', 'savings', 'cash', 'credit', 'investment', 'other']);
+            $table->foreignId('created_by_user_id')->constrained('users')->cascadeOnDelete();
             $table->string('currency', 3)->default('EUR');
+            $table->decimal('balance', 15, 2)->default(0);
             $table->decimal('opening_balance', 15, 2)->default(0);
-            $table->decimal('budget_limit', 15, 2)->nullable();
+            $table->boolean('is_primary')->default(false);
+            $table->boolean('is_archived')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

@@ -3,47 +3,48 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Transaction extends Model
+class RecurringTemplate extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
+        'workspace_id',
         'account_id',
         'created_by_user_id',
         'category_id',
+        'name',
         'type',
         'amount',
-        'date',
         'description',
         'tags',
-        'is_recurring',
-        'recurring_rule',
+        'frequency',
+        'day_of_month',
+        'is_active',
     ];
 
     protected $casts = [
-        'date' => 'datetime',
-        'is_recurring' => 'boolean',
-        'recurring_rule' => 'array',
         'tags' => 'array',
+        'is_active' => 'boolean',
         'amount' => 'decimal:2',
     ];
 
-    public function account()
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
+    }
+
+    public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 }
-
