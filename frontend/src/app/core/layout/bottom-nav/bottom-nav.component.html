@@ -1,20 +1,20 @@
 <div class="fixed bottom-6 left-0 right-0 w-full z-40 pointer-events-none flex justify-center">
 
-  <nav class="pointer-events-auto w-[343px] h-14 bg-[#120e16] rounded-full shadow-[0_10px_30px_rgba(18,14,22,0.3)] border border-white/5 flex items-center relative select-none overflow-hidden">
+  <nav class="pointer-events-auto w-[343px] h-14 bg-white rounded-full shadow-[0_10px_25px_rgba(15,23,42,0.08)] border border-slate-200/60 flex items-center relative select-none overflow-hidden">
 
     <div
       class="absolute h-full top-0 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
       [style.width.%]="100 / navItems.length"
       [style.transform]="'translateX(' + (activeIndex() * 100) + '%)'"
     >
-      <div class="w-4/5 h-10 bg-white/10 rounded-full"></div>
+      <div class="w-4/5 h-10 bg-brand-purple/10 rounded-full"></div>
     </div>
 
     @for (item of navItems; track item.path; let i = $index) {
       <a
         [routerLink]="item.path"
         class="flex-1 flex items-center justify-center h-full relative z-10 outline-none transition-colors duration-200 group"
-        [ngClass]="isActive(item.path) ? 'text-brand-mint' : 'text-slate-400 hover:text-slate-200'"
+        [ngClass]="isActive(item.path) ? 'text-brand-purple' : 'text-slate-400 hover:text-slate-600'"
         [attr.aria-label]="t(item.translationKey)"
       >
 
@@ -29,7 +29,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.iconPath" />
         </svg>
 
-        <span class="absolute -top-10 bg-[#120e16] border border-white/10 text-white text-[10px] font-mono px-2.5 py-1 rounded-md opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl">
+        <span class="absolute -top-10 bg-slate-900 text-white text-[10px] font-mono px-2.5 py-1 rounded-md opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-md">
           {{ t(item.translationKey) }}
         </span>
 

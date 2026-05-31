@@ -1,6 +1,4 @@
-<div class="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased">
-
-  <app-global-loading></app-global-loading>
+<div class="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased overflow-x-hidden">
 
   <app-header
     [isOnline]="appInitializer.isOnlineMode"
@@ -8,14 +6,20 @@
     (notificationClick)="toggleNotifications()">
   </app-header>
 
-  <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-6 md:px-8 pb-28 md:pb-8 scroll-smooth">
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-6 md:px-8 pb-28 md:pb-8 flex flex-col relative">
+
     <div class="mb-6">
       <h1 class="text-2xl font-bold tracking-tight text-slate-900" style="font-family: 'Space Mono', monospace;">
         {{ pageTitle }}
       </h1>
     </div>
 
-    <router-outlet></router-outlet>
+    <div class="flex-1 relative min-h-[50vh]">
+      <router-outlet></router-outlet>
+
+      <app-global-loading class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-auto"></app-global-loading>
+    </div>
+
   </main>
 
   <app-bottom-nav></app-bottom-nav>

@@ -1,49 +1,90 @@
-import { Injectable, signal } from '@angular/core';
-import { BehaviorSubject, combineLatest, timer } from 'rxjs';
-import { debounce, map } from 'rxjs/operators';
+import { Injectable, signal, inject } from '@angular/core';
+import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoadingService {
-  // Privatni stream koji prati broj aktivnih HTTP zahtjeva
-  private activeRequests$ = new BehaviorSubject<number>(0);
+  private router = inject(Router);
 
-  // Izloženi read-only signal kojeg tvoja nova LoadingComponent već sluša
+  // Brojač aktivnih mrežnih zahtjeva
+  private activeRequests = 0;
+
+  // Javni signal koji kontrolira stakleni overlay u UI-ju
   private _loading = signal<boolean>(false);
   loading = this._loading.asReadonly();
 
+  // Zastavice za kontrolu minimalnog trajanja (250ms)
+  private isLocked = false;
+  private shouldHideAfterUnlock = false;
+
   constructor() {
-    // Magija koja rješava "flash" efekt
-    this.activeRequests$.pipe(
-      debounce(count => {
-        // Ako nema aktivnih zahtjeva, gasimo odmah (ili s minimalnim odmakom za uglađenost)
-        if (count === 0) {
-          return timer(400); // Drži loader otvorenim barem 400ms da animacija završi fluidno
-        }
-        // Ako se zahtjev pojavi, čekaj 250ms prije nego ga uopće prikažeš
-        return timer(250);
-      }),
-      // Pretvaramo broj zahtjeva u čisti boolean (true ako je count > 0)
-      map(count => count > 0)
-    ).subscribe(shouldLoad => {
-      // Ažuriramo signal koji dalje kontrolira UI
-      this._loading.set(shouldLoad);
+    // Slušamo ruter događaje za instantno paljenje na klik
+    this.router.events.pipe(
+      filter(event =>
+        event instanceof NavigationStart ||
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      )
+    ).subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.startLoading();
+      } else {
+        // Kada ruter završi, nemoj odmah gasiti nego samo signaliziraj završetak tog dijela
+        this.stopLoading();
+      }
     });
   }
 
   /**
-   * Poziva se u interceptoru kada HTTP zahtjev krene
+   * Pokreće loading i zaključava ga na minimalno 250ms
    */
-  show() {
-    this.activeRequests$.next(this.activeRequests$.value + 1);
+  private startLoading() {
+    if (!this._loading()) {
+      this._loading.set(true);
+      this.isLocked = true;
+      this.shouldHideAfterUnlock = false;
+
+      // Pokreni timer od 250ms koji drži loader zaključanim bez prekida
+      setTimeout(() => {
+        this.isLocked = false;
+        // Kada se otključa, provjeri je li u međuvremenu stigao zahtjev da se ugasi
+        if (this.shouldHideAfterUnlock && this.activeRequests === 0) {
+          this._loading.set(false);
+        }
+      }, 250); // Minimalno trajanje loadera
+    }
   }
 
   /**
-   * Poziva se u interceptoru kada HTTP zahtjev završi (ili pukne)
+   * Pokušava ugasiti loading, ali poštuje zaključavanje i aktivne HTTP zahtjeve
+   */
+  private stopLoading() {
+    if (this.isLocked || this.activeRequests > 0) {
+      // Ako je zaključan ili još uvijek čekamo Laravel API, samo zabilježi da želimo ugasiti čim bude slobodno
+      this.shouldHideAfterUnlock = true;
+    } else {
+      // Ako je sve čisto i timer je prošao, gasi odmah
+      this._loading.set(false);
+    }
+  }
+
+  /**
+   * Poziva se u interceptoru kad HTTP zahtjev krene
+   */
+  show() {
+    this.activeRequests++;
+    this.startLoading();
+  }
+
+  /**
+   * Poziva se u interceptoru kad HTTP zahtjev završi
    */
   hide() {
-    const nextCount = Math.max(0, this.activeRequests$.value - 1);
-    this.activeRequests$.next(nextCount);
+    this.activeRequests = Math.max(0, this.activeRequests - 1);
+    this.stopLoading();
   }
 }
