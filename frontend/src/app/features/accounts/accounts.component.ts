@@ -1,36 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatCardModule } from '@angular/material/card';
 import { AccountRepository } from '../../core/repositories/account.repository';
 import { Account } from '../../core/models/account.model';
-
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ContainerComponent } from '../../core/layout/container/container.component';
-import { ButtonComponent } from '../../shared/button/button.component';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    MatCardModule,
-    // Shared components
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './accounts.component.html',
 })
 export class AccountsComponent implements OnInit {
+  private accountRepo = inject(AccountRepository);
+  private router = inject(Router);
+  private translationService = inject(TranslationService);
+
   accounts: Account[] = [];
   loading = true;
 
@@ -45,12 +34,6 @@ export class AccountsComponent implements OnInit {
     AUD: 'A$',
     HRK: 'kn',
   };
-
-  constructor(
-    private accountRepo: AccountRepository,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
 
   ngOnInit(): void {
     this.loadAccounts();
@@ -73,7 +56,6 @@ export class AccountsComponent implements OnInit {
   setPrimary(id: number): void {
     this.accountRepo.setPrimary(id).subscribe({
       next: () => {
-        this.snackBar.open('Primary account updated', 'Close', { duration: 3000 });
         this.loadAccounts();
       }
     });
@@ -93,5 +75,9 @@ export class AccountsComponent implements OnInit {
 
   goToEdit(account: Account): void {
     this.router.navigate(['/accounts', account.id, 'edit']);
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

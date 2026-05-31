@@ -1,19 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatCardModule } from '@angular/material/card';
 import { UserRepository } from '../../../core/repositories/user.repository';
 import { User } from '../../../core/models/user.model';
 import { API_BASE_URL } from '../../../core/api.config';
 import { ContainerComponent } from '../../../core/layout/container/container.component';
-import { ButtonComponent } from '../../../shared/button/button.component';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -21,31 +15,25 @@ import { ButtonComponent } from '../../../shared/button/button.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    MatCardModule,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './profile-edit.component.html',
 })
 export class ProfileEditComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
+  private userRepo = inject(UserRepository);
+  private router = inject(Router);
+  private translationService = inject(TranslationService);
+
   profileForm: FormGroup;
   user: User | null = null;
   isSaving = false;
   previewUrl: string | null = null;
   selectedFile: File | null = null;
+  errorMessage: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private userRepo: UserRepository,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.profileForm = this.fb.group({
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]]
@@ -84,6 +72,7 @@ export class ProfileEditComponent implements OnInit {
     if (this.profileForm.invalid) return;
 
     this.isSaving = true;
+    this.errorMessage = null;
     const { name, email } = this.profileForm.value;
 
     this.userRepo.updateProfile({ name, email }).subscribe({
@@ -91,7 +80,10 @@ export class ProfileEditComponent implements OnInit {
         if (this.selectedFile) {
           this.userRepo.uploadPhoto(this.selectedFile).subscribe({
             next: () => this.finishSave(),
-            error: () => this.isSaving = false
+            error: () => {
+              this.isSaving = false;
+              this.errorMessage = 'Failed to upload photo.';
+            }
           });
         } else {
           this.finishSave();
@@ -99,18 +91,21 @@ export class ProfileEditComponent implements OnInit {
       },
       error: (err) => {
         this.isSaving = false;
-        this.snackBar.open(err.error?.message || 'Error updating profile', 'Close', { duration: 3000 });
+        this.errorMessage = err.error?.message || 'Error updating profile.';
       }
     });
   }
 
   finishSave() {
     this.isSaving = false;
-    this.snackBar.open('Profile updated successfully', 'Close', { duration: 2000 });
     this.router.navigate(['/profile']);
   }
 
   cancel() {
     this.router.navigate(['/profile']);
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

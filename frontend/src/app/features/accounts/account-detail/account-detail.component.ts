@@ -1,37 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatMenuModule } from '@angular/material/menu';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
 import { Account } from '../../../core/models/account.model';
 import { Transaction } from '../../../core/models/transaction.model';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/confirm-dialog/confirm-dialog.component';
-import {MatCard} from '@angular/material/card';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-account-detail',
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatMenuModule,
     RouterLink,
-    MatCard,
   ],
   templateUrl: './account-detail.component.html',
 })
 export class AccountDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private accountRepo = inject(AccountRepository);
+  private txRepo = inject(TransactionRepository);
+  private translationService = inject(TranslationService);
+
   account: Account | null = null;
   loadingAccount = true;
 
@@ -39,14 +30,6 @@ export class AccountDetailComponent implements OnInit {
   loadingTransactions = true;
 
   private accountId!: number;
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountRepo: AccountRepository,
-    private txRepo: TransactionRepository,
-    private dialog: MatDialog,
-  ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -116,65 +99,37 @@ export class AccountDetailComponent implements OnInit {
   onDeleteAccount(): void {
     if (!this.account) return;
 
-    const data: ConfirmDialogData = {
-      title: 'Delete account',
-      message: `Are you sure you want to delete account "${this.account.name}"?`,
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-    };
-
-    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
-      ConfirmDialogComponent,
-      {
-        maxWidth: '400px',
-        data,
-      },
-    );
-
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-
-      this.accountRepo.delete(this.account!.id).subscribe({
+    const message = `Are you sure you want to delete account "${this.account.name}"?`;
+    if (confirm(message)) {
+      this.accountRepo.delete(this.account.id).subscribe({
         next: () => {
           this.router.navigate(['/accounts']);
         },
         error: err => console.error('Error deleting account', err),
       });
-    });
+    }
   }
 
   onDeleteTransaction(tx: Transaction): void {
     if (!this.account) return;
 
-    const data: ConfirmDialogData = {
-      title: 'Delete transaction',
-      message: 'Are you sure you want to delete this transaction?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-    };
-
-    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
-      ConfirmDialogComponent,
-      {
-        maxWidth: '400px',
-        data,
-      },
-    );
-
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-
-      this.txRepo.delete(this.account!.id, tx.id).subscribe({
+    const message = 'Are you sure you want to delete this transaction?';
+    if (confirm(message)) {
+      this.txRepo.delete(this.account.id, tx.id).subscribe({
         next: () => {
           this.loadAccount(this.accountId);
           this.loadTransactions(this.accountId);
         },
         error: err => console.error('Error deleting transaction', err),
       });
-    });
+    }
   }
 
   onEditAccount(): void {
     this.router.navigate(['/accounts', this.account!.id, 'edit']);
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

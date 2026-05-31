@@ -1,21 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { API_BASE_URL } from '../../../core/api.config';
 import { User } from '../../../core/models/user.model';
 import { ContainerComponent } from '../../../core/layout/container/container.component';
-import { ButtonComponent } from '../../../shared/button/button.component';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-account-create',
@@ -24,34 +16,28 @@ import { ButtonComponent } from '../../../shared/button/button.component';
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatSelectModule,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './account-create.component.html',
 })
 export class AccountCreateComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private accountRepo = inject(AccountRepository);
+  public router = inject(Router);
+  private http = inject(HttpClient);
+  private translationService = inject(TranslationService);
+
   accountForm: FormGroup;
   currentUser: User | null = null;
+  submitting = false;
+  errorMessage: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private accountRepo: AccountRepository,
-    public router: Router,
-    private http: HttpClient
-  ) {
+  constructor() {
     this.accountForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       type: ['personal', Validators.required],
       currency: ['EUR', Validators.required],
-      balance: [0, [Validators.required]],
+      balance: [null, [Validators.required]],
     });
   }
 
@@ -67,10 +53,13 @@ export class AccountCreateComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.accountForm.invalid) {
+    if (this.accountForm.invalid || this.submitting) {
       this.accountForm.markAllAsTouched();
       return;
     }
+
+    this.submitting = true;
+    this.errorMessage = null;
 
     const payload = {
       name: this.accountForm.value.name,
@@ -81,11 +70,18 @@ export class AccountCreateComponent implements OnInit {
 
     this.accountRepo.create(payload).subscribe({
       next: (account) => {
-        this.router.navigate(['/accounts', account.id]);
+        this.submitting = false;
+        this.router.navigate(['/accounts']);
       },
       error: (err) => {
         console.error('Error creating account', err);
+        this.errorMessage = 'Failed to create account.';
+        this.submitting = false;
       },
     });
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

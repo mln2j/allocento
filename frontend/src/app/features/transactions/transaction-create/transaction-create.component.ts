@@ -1,13 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
@@ -15,7 +9,7 @@ import { Account } from '../../../core/models/account.model';
 import { TransactionType } from '../../../core/models/transaction.model';
 import { NavigationService } from '../../../core/services/navigation.service';
 import { ContainerComponent } from '../../../core/layout/container/container.component';
-import { ButtonComponent } from '../../../shared/button/button.component';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-transaction-create',
@@ -23,18 +17,19 @@ import { ButtonComponent } from '../../../shared/button/button.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './transaction-create.component.html',
 })
 export class TransactionCreateComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private accountRepo = inject(AccountRepository);
+  private txRepo = inject(TransactionRepository);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private navigation = inject(NavigationService);
+  private translationService = inject(TranslationService);
+
   form!: FormGroup;
   submitting = false;
   errorMessage: string | null = null;
@@ -42,20 +37,11 @@ export class TransactionCreateComponent implements OnInit {
   accounts: Account[] = [];
   defaultAccountId: number | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private accountRepo: AccountRepository,
-    private txRepo: TransactionRepository,
-    private router: Router,
-    private route: ActivatedRoute,
-    private navigation: NavigationService,
-  ) {}
-
   ngOnInit(): void {
     this.form = this.fb.group({
       accountId: [null, Validators.required],
       type: ['expense' as TransactionType, Validators.required],
-      amount: [0, [Validators.required, Validators.min(0.01)]],
+      amount: [null, [Validators.required, Validators.min(0.01)]],
       datetime: [this.nowLocal(), Validators.required],
       description: [''],
     });
@@ -101,7 +87,6 @@ export class TransactionCreateComponent implements OnInit {
     this.errorMessage = null;
 
     const value = this.form.value;
-
     const isoDate = new Date(value.datetime).toISOString();
 
     const payload = {
@@ -124,5 +109,9 @@ export class TransactionCreateComponent implements OnInit {
         this.submitting = false;
       },
     });
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

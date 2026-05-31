@@ -1,43 +1,118 @@
 <app-container>
-  <header header class="form-header">
-    <button mat-icon-button class="btn-ghost" (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
-    <h1>Edit Profile</h1>
+  <!-- Header -->
+  <header class="flex items-center gap-4 pb-6 border-b border-slate-100 mb-8 font-sans">
+    <button (click)="cancel()" type="button"
+            class="p-2 text-slate-450 hover:text-brand-purple hover:bg-slate-50 border border-slate-200/50 rounded-xl transition-colors focus:outline-none cursor-pointer"
+            aria-label="Back">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+      </svg>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-800 font-mono">
+        {{ t('profile.edit_title') || 'Edit Profile' }}
+      </h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">
+        {{ t('profile.edit_subtitle') || 'Update your personal information' }}
+      </p>
+    </div>
   </header>
 
-  <mat-card class="form-card">
-    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-      
-      <div class="photo-edit-section">
-        <div class="avatar-preview">
-          <img [src]="previewUrl" alt="Preview">
+  <!-- Form Card -->
+  <div class="glass-card max-w-xl mx-auto">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6 font-sans">
+
+      <!-- Photo Section -->
+      <div class="flex items-center gap-5 pb-6 border-b border-slate-100">
+        <!-- Avatar Preview -->
+        <div class="relative flex-shrink-0">
+          <img *ngIf="previewUrl; else emptyAvatar"
+               [src]="previewUrl"
+               alt="Profile photo preview"
+               class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md">
+          <ng-template #emptyAvatar>
+            <div class="w-16 h-16 rounded-2xl bg-brand-purple/10 border-2 border-white shadow-md flex items-center justify-center">
+              <svg class="w-8 h-8 text-brand-purple" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+              </svg>
+            </div>
+          </ng-template>
         </div>
-        <div class="photo-actions">
-          <app-button variant="ghost" (click)="fileInput.click()" type="button"><mat-icon>photo_camera</mat-icon> Change Photo</app-button>
-          <p class="hint">Recommended: Square JPG or PNG, max 1MB.</p>
+
+        <!-- Photo Upload Controls -->
+        <div>
+          <button type="button" (click)="fileInput.click()"
+                  class="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-mono text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer focus:outline-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/>
+            </svg>
+            {{ t('profile.change_photo') || 'Change Photo' }}
+          </button>
+          <p class="text-[10px] font-mono text-slate-400 mt-1.5 leading-relaxed">
+            {{ t('profile.photo_hint') || 'Square JPG or PNG, max 1MB' }}
+          </p>
         </div>
         <input #fileInput type="file" hidden accept="image/*" (change)="onFileSelected($event)">
       </div>
 
-      <div class="form-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Full Name</mat-label>
-          <mat-icon matPrefix>person_outline</mat-icon>
-          <input matInput formControlName="name">
-        </mat-form-field>
+      <!-- Name Input -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          {{ t('profile.name_label') || 'Full Name' }}
+        </label>
+        <div class="relative flex items-center">
+          <svg class="absolute left-3.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+          </svg>
+          <input formControlName="name" type="text" [placeholder]="t('profile.name_placeholder') || 'Your full name'"
+                 class="input-field pl-10 text-sm font-sans font-medium text-slate-800">
+        </div>
+        <div *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid"
+             class="text-red-500 text-xs font-mono mt-1">
+          {{ t('profile.name_error') || 'Name is required.' }}
+        </div>
       </div>
 
-      <div class="form-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email Address</mat-label>
-          <mat-icon matPrefix>mail_outline</mat-icon>
-          <input matInput formControlName="email" type="email">
-        </mat-form-field>
+      <!-- Email Input -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          {{ t('profile.email_label') || 'Email Address' }}
+        </label>
+        <div class="relative flex items-center">
+          <svg class="absolute left-3.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+          </svg>
+          <input formControlName="email" type="email" [placeholder]="t('profile.email_placeholder') || 'your@email.com'"
+                 class="input-field pl-10 text-sm font-sans font-medium text-slate-800">
+        </div>
+        <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.invalid"
+             class="text-red-500 text-xs font-mono mt-1">
+          {{ t('profile.email_error') || 'Valid email is required.' }}
+        </div>
       </div>
 
-      <div class="form-actions">
-        <app-button variant="ghost" (click)="cancel()" type="button">Cancel</app-button>
-        <app-button variant="primary" type="submit" [disabled]="profileForm.invalid || isSaving">{{ isSaving ? 'Saving...' : 'Save Changes' }}</app-button>
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="text-red-500 text-xs font-mono font-bold text-center bg-red-50 p-3 rounded-xl border border-red-100 animate-pulse">
+        {{ errorMessage }}
       </div>
+
+      <!-- Form Actions -->
+      <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+        <button (click)="cancel()" type="button"
+                class="flex-1 py-3 px-4 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-mono text-sm font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer focus:outline-none">
+          {{ t('common.cancel') || 'Cancel' }}
+        </button>
+        <button [disabled]="profileForm.invalid || isSaving" type="submit"
+                class="flex-1 btn-primary py-3 px-4 font-mono text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer focus:outline-none disabled:opacity-50">
+          <svg *ngIf="isSaving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+          </svg>
+          {{ isSaving ? (t('profile.saving') || 'Saving...') : (t('profile.save') || 'Save Changes') }}
+        </button>
+      </div>
+
     </form>
-  </mat-card>
+  </div>
 </app-container>

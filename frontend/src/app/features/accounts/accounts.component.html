@@ -1,59 +1,115 @@
 <app-container>
-  <header header class="page-header">
-    <div class="title-meta">
-      <h1>Accounts</h1>
-      <p>Manage your personal and shared accounts.</p>
+  <!-- Header Section -->
+  <header class="flex items-center justify-between pb-6 border-b border-slate-100 mb-8 font-sans">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-800 font-mono">
+        {{ t('accounts.title') || 'Accounts' }}
+      </h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">
+        {{ t('accounts.subtitle') || 'Manage your personal and shared wallets' }}
+      </p>
     </div>
-    <app-button variant="primary" (click)="goToCreate()" icon="add">New Account</app-button>
+    
+    <button (click)="goToCreate()" class="btn-primary flex items-center gap-2 cursor-pointer focus:outline-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      <span class="font-mono text-sm uppercase tracking-wider">{{ t('accounts.new_account') || 'New Account' }}</span>
+    </button>
   </header>
 
+  <!-- Main Accounts Section -->
   @if (accounts.length === 0) {
-    <div class="empty-placeholder">
-      <mat-icon>account_balance_wallet</mat-icon>
-      <p>No active accounts found.</p>
-      <app-button variant="primary" [block]="true" (click)="goToCreate()">Create your first account</app-button>
+    <!-- Empty state -->
+    <div class="text-center py-20 flex flex-col items-center justify-center bg-white border border-slate-200/50 rounded-2xl p-8 shadow-sm shadow-slate-100/50 max-w-md mx-auto font-sans">
+      <svg class="w-16 h-16 mb-4 text-brand-purple opacity-70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
+      </svg>
+      <h3 class="text-base font-bold text-slate-800">{{ t('accounts.empty_title') || 'No accounts found' }}</h3>
+      <p class="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
+        {{ t('accounts.empty_desc') || 'Create your first account to start tracking transactions' }}
+      </p>
+      <button (click)="goToCreate()" class="btn-primary w-full cursor-pointer focus:outline-none font-mono text-sm uppercase tracking-wider">
+        {{ t('accounts.create_first') || 'Create Account' }}
+      </button>
     </div>
   } @else {
-    <div class="accounts-stack">
+    <!-- Accounts list stack -->
+    <div class="space-y-4 font-sans">
       @for (account of accounts; track account.id) {
-        <mat-card class="wide-account-card" [class.is-primary]="account.is_primary" (click)="goToDetail(account)">
-          <div class="acc-main">
-            <div class="acc-icon-box" [class]="account.type">
-              <mat-icon>
-                @switch (account.type) {
-                  @case ('personal') { person }
-                  @case ('household') { home }
-                  @case ('organization') { business }
-                  @default { account_balance }
-                }
-              </mat-icon>
+        <div (click)="goToDetail(account)"
+             class="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white border border-slate-200/50 rounded-2xl shadow-[0_4px_20px_rgba(15,23,42,0.015)] hover:border-brand-purple/40 hover:shadow-[0_8px_30px_rgba(15,23,42,0.03)] cursor-pointer transition-all gap-4 relative overflow-hidden"
+             [ngClass]="{'border-brand-purple/20 bg-brand-purple/[0.005]': account.is_primary}">
+          
+          <div class="flex items-center gap-4 truncate">
+            <!-- Account Icon Type -->
+            <div class="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 text-slate-500 bg-slate-50 border border-slate-100">
+              <svg class="w-5 h-5 text-slate-550" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path *ngIf="account.type === 'personal'" stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                <path *ngIf="account.type === 'household'" stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+                <path *ngIf="account.type === 'organization'" stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5M3 21h18M12 9h.008v.008H12V9z"/>
+                <path *ngIf="account.type !== 'personal' && account.type !== 'household' && account.type !== 'organization'" stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5M3 21h18M12 9h.008v.008H12V9z"/>
+              </svg>
             </div>
 
-            <div class="acc-info">
-              <div class="name-row">
-                <span class="acc-name">{{ account.name }}</span>
-                <span class="primary-badge" *ngIf="account.is_primary">PRIMARY</span>
+            <!-- Name and details -->
+            <div class="truncate">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-base font-bold text-slate-700 block truncate leading-tight">{{ account.name }}</span>
+                <span class="text-[9px] font-mono font-bold uppercase bg-brand-purple text-white px-2 py-0.5 rounded-full" *ngIf="account.is_primary">
+                  {{ t('accounts.badge_primary') || 'PRIMARY' }}
+                </span>
+                <!-- Offline Created Badge -->
+                <span class="text-[9px] font-mono font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200/20 px-2 py-0.5 rounded-full" *ngIf="account.id < 0">
+                  offline
+                </span>
               </div>
-              <span class="acc-type">{{ account.type }}</span>
-            </div>
-
-            <div class="acc-balance-group">
-              <span class="val" [class.neg]="account.balance < 0">
-                {{ account.balance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
-              </span>
-            </div>
-
-            <div class="acc-actions">
-              <app-button variant="ghost" class="btn-icon" (click)="$event.stopPropagation(); setPrimary(account.id)">
-                <mat-icon>{{ account.is_primary ? 'star' : 'star_border' }}</mat-icon>
-              </app-button>
-              <app-button variant="ghost" class="btn-icon" (click)="$event.stopPropagation(); goToEdit(account)">
-                <mat-icon>settings</mat-icon>
-              </app-button>
-              <mat-icon class="chevron">chevron_right</mat-icon>
+              <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 block mt-1">{{ account.type }}</span>
             </div>
           </div>
-        </mat-card>
+
+          <!-- Balance, Actions & Chevron -->
+          <div class="flex items-center justify-between sm:justify-end gap-5 flex-shrink-0 border-t border-slate-50 pt-3 sm:border-0 sm:pt-0">
+            <!-- Balance -->
+            <div class="font-mono font-bold text-base text-slate-750 text-right" [class.text-rose-600]="account.balance < 0">
+              {{ account.balance | number:'1.2-2' }} {{ getCurrencySymbol(account.currency) }}
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-2">
+              
+              <!-- Set Primary button -->
+              <button (click)="$event.stopPropagation(); setPrimary(account.id)" type="button"
+                      [disabled]="account.is_primary || account.id < 0"
+                      class="p-2 rounded-xl border border-slate-200/50 hover:bg-slate-50 transition-colors focus:outline-none cursor-pointer disabled:opacity-40"
+                      [ngClass]="account.is_primary ? 'text-amber-400 border-amber-200/30 bg-amber-50/20' : 'text-slate-400'">
+                <!-- Star icon SVG -->
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" *ngIf="account.is_primary">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" *ngIf="!account.is_primary">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c.176-.47.848-.47 1.024 0l1.835 4.887 5.093.424c.504.042.705.67.322 1.011l-3.87 3.454 1.144 4.98c.113.493-.418.88-.847.608L12 18.25l-4.526 2.653c-.43.272-.96-.115-.847-.608l1.144-4.98-3.87-3.454c-.383-.341-.182-.969.322-1.011l5.093-.424 1.835-4.887z"/>
+                </svg>
+              </button>
+
+              <!-- Settings / Edit Button -->
+              <button (click)="$event.stopPropagation(); goToEdit(account)" type="button"
+                      [disabled]="account.id < 0"
+                      class="p-2 text-slate-400 hover:text-brand-purple border border-slate-200/50 hover:bg-slate-50 rounded-xl transition-colors focus:outline-none cursor-pointer disabled:opacity-40">
+                <!-- Settings Icon SVG -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.991l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </button>
+
+              <!-- Chevron indicator -->
+              <svg class="w-5 h-5 text-slate-350 hover:text-brand-purple transition-colors ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+              </svg>
+            </div>
+          </div>
+          
+        </div>
       }
     </div>
   }

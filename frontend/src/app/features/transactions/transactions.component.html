@@ -1,48 +1,93 @@
 <app-container>
-  <header header class="header">
-    <h1>Transaction History</h1>
-    <app-button variant="primary" icon="add" (click)="onAddTransaction()">New Transaction</app-button>
+  <header class="flex items-center justify-between pb-6 border-b border-slate-100 mb-8 font-sans">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-800 font-mono">
+        {{ t('transactions.history_title') || 'Transaction History' }}
+      </h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">
+        {{ t('transactions.history_subtitle') || 'Review your recent entries and sync status' }}
+      </p>
+    </div>
+    
+    <button (click)="onAddTransaction()" class="btn-primary flex items-center gap-2 cursor-pointer focus:outline-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      <span class="font-mono text-sm uppercase tracking-wider">{{ t('dashboard.new_transaction') || 'New Transaction' }}</span>
+    </button>
   </header>
 
-  <mat-card class="list-card">
-    <div class="tx-list">
+  <div class="glass-card">
+    <div class="divide-y divide-slate-100 font-sans">
       @for (tx of transactions; track tx.id) {
-        <div class="tx-row">
-          <div class="tx-date-box">
-            <span class="day">{{ tx.date | date:'d' }}</span>
-            <span class="month">{{ tx.date | date:'MMM' }}</span>
-          </div>
+        <div class="flex items-center justify-between py-4 first:pt-0 last:pb-0 hover:bg-slate-50/50 px-2 rounded-xl transition-colors">
+          
+          <!-- Left details -->
+          <div class="flex items-center gap-4 truncate">
+            
+            <!-- Date box -->
+            <div class="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0 text-slate-450 leading-tight">
+              <span class="text-xs font-mono font-bold">{{ tx.date | date:'d' }}</span>
+              <span class="text-[9px] font-mono uppercase font-bold tracking-wider opacity-70">{{ tx.date | date:'MMM' }}</span>
+            </div>
 
-          <div class="tx-type-icon" [class]="tx.type">
-            <mat-icon>{{ tx.type === 'income' ? 'add' : 'remove' }}</mat-icon>
-          </div>
+            <!-- Type Icon Indicator -->
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                 [ngClass]="tx.type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path *ngIf="tx.type === 'income'" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                <path *ngIf="tx.type !== 'income'" stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/>
+              </svg>
+            </div>
 
-          <div class="tx-details">
-            <span class="tx-title">{{ tx.description || 'General' }}</span>
-            <div class="tx-meta">
-              <span class="acc-tag">{{ tx.account?.name }}</span>
-              @if (tx.category) {
-                <span class="cat-tag">{{ tx.category.name }}</span>
-              }
+            <div class="truncate">
+              <span class="text-sm font-bold text-slate-700 block truncate leading-tight">
+                {{ tx.description || (tx.type === 'income' ? 'Primitak' : 'Trošak') }}
+              </span>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="text-[9px] font-mono uppercase bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
+                  {{ tx.account?.name }}
+                </span>
+                @if (tx.category) {
+                  <span class="text-[9px] font-mono uppercase bg-brand-purple/5 text-brand-purple px-1.5 py-0.5 rounded">
+                    {{ tx.category.name }}
+                  </span>
+                }
+                <!-- Offline Badge -->
+                @if (tx.id < 0) {
+                  <span class="text-[9px] font-mono uppercase bg-amber-50 text-amber-700 border border-amber-250/20 px-1.5 py-0.5 rounded animate-pulse">
+                    offline sync pending
+                  </span>
+                }
+              </div>
             </div>
           </div>
 
-          <div class="tx-amount" [class]="tx.type">
-            {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency:'EUR' }}
-          </div>
+          <!-- Right amount & actions -->
+          <div class="flex items-center gap-4 flex-shrink-0">
+            <div class="font-mono font-bold text-sm text-right"
+                 [ngClass]="tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency:'EUR':'symbol':'1.2-2' }}
+            </div>
 
-          <div class="tx-actions">
-            <button mat-icon-button [routerLink]="['/transactions', tx.id, 'edit']">
-              <mat-icon>edit</mat-icon>
+            <button [routerLink]="['/transactions', tx.id, 'edit']"
+                    class="p-2 text-slate-400 hover:text-brand-purple hover:bg-slate-50 rounded-xl transition-colors focus:outline-none">
+              <!-- Edit Icon SVG -->
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+              </svg>
             </button>
           </div>
+          
         </div>
       } @empty {
-        <div class="empty-state">
-          <mat-icon>receipt_long</mat-icon>
-          <p>No transactions found.</p>
+        <div class="text-center py-16 flex flex-col items-center justify-center text-slate-400">
+          <svg class="w-12 h-12 mb-3 opacity-60 text-brand-purple" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-xs font-mono font-bold">{{ t('transactions.empty_title') || 'No transactions found.' }}</p>
         </div>
       }
     </div>
-  </mat-card>
+  </div>
 </app-container>

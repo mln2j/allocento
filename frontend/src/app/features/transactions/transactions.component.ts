@@ -1,33 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { RouterLink, Router } from '@angular/router';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { ContainerComponent } from '../../core/layout/container/container.component';
-import { ButtonComponent } from '../../shared/button/button.component';
 import { Transaction } from '../../core/models/transaction.model';
-import { Router } from '@angular/router';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
     RouterLink,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './transactions.component.html',
 })
 export class TransactionsComponent implements OnInit {
-  transactions: Transaction[] = [];
+  private transactionRepo = inject(TransactionRepository);
+  private router = inject(Router);
+  private translationService = inject(TranslationService);
 
-  constructor(private transactionRepo: TransactionRepository, private router: Router) {}
+  transactions: Transaction[] = [];
 
   ngOnInit() {
     this.loadTransactions();
@@ -43,5 +37,9 @@ export class TransactionsComponent implements OnInit {
 
   onAddTransaction() {
     this.router.navigate(['/transactions', 'new']);
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

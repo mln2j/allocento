@@ -1,13 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
@@ -15,7 +9,7 @@ import { Account } from '../../../core/models/account.model';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 import { NavigationService } from '../../../core/services/navigation.service';
 import { ContainerComponent } from '../../../core/layout/container/container.component';
-import { ButtonComponent } from '../../../shared/button/button.component';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-transaction-edit',
@@ -23,32 +17,24 @@ import { ButtonComponent } from '../../../shared/button/button.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './transaction-edit.component.html',
 })
 export class TransactionEditComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private accountRepo = inject(AccountRepository);
+  private txRepo = inject(TransactionRepository);
+  private navigation = inject(NavigationService);
+  private translationService = inject(TranslationService);
+
   form!: FormGroup;
   submitting = false;
   errorMessage: string | null = null;
 
   accounts: Account[] = [];
   transaction!: Transaction;
-
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private accountRepo: AccountRepository,
-    private txRepo: TransactionRepository,
-    private navigation: NavigationService,
-  ) {}
 
   ngOnInit(): void {
     const txIdParam = this.route.snapshot.paramMap.get('id');
@@ -62,7 +48,7 @@ export class TransactionEditComponent implements OnInit {
     this.form = this.fb.group({
       accountId: [null, Validators.required],
       type: ['expense' as TransactionType, Validators.required],
-      amount: [0, [Validators.required, Validators.min(0.01)]],
+      amount: [null, [Validators.required, Validators.min(0.01)]],
       datetime: ['', Validators.required],
       description: [''],
     });
@@ -142,5 +128,26 @@ export class TransactionEditComponent implements OnInit {
         this.submitting = false;
       },
     });
+  }
+
+  deleteTransaction(): void {
+    if (confirm('Delete this transaction?')) {
+      this.submitting = true;
+      this.txRepo.delete(this.transaction.accountId, this.transaction.id).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.navigation.back();
+        },
+        error: err => {
+          console.error('Failed to delete transaction', err);
+          this.errorMessage = 'Failed to delete transaction.';
+          this.submitting = false;
+        }
+      });
+    }
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

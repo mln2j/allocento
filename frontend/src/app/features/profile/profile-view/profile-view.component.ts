@@ -8,13 +8,15 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserRepository } from '../../../core/repositories/user.repository';
 import { HouseholdRepository } from '../../../core/repositories/household.repository';
 import { OrganizationRepository } from '../../../core/repositories/organization.repository';
+import { ContainerComponent } from '../../../core/layout/container/container.component';
+import { TranslationService } from '../../../core/services/translation.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile-view',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ContainerComponent],
   templateUrl: './profile-view.component.html',
 })
 export class ProfileViewComponent implements OnInit {
@@ -24,6 +26,7 @@ export class ProfileViewComponent implements OnInit {
   private userRepo = inject(UserRepository);
   private householdRepo = inject(HouseholdRepository);
   private orgRepo = inject(OrganizationRepository);
+  private translationService = inject(TranslationService);
 
   user: User | null = null;
   householdName: string | null = null;
@@ -56,5 +59,9 @@ export class ProfileViewComponent implements OnInit {
     if (confirm('Delete account? This action cannot be undone.')) {
       this.userRepo.deleteAccount().subscribe(() => this.logout());
     }
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

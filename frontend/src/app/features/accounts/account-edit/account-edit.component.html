@@ -1,52 +1,101 @@
 <app-container>
-  <mat-card class="form-card">
-    <mat-card-header header>
-      <button mat-icon-button routerLink="/accounts" class="back-btn">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <mat-card-title>Edit Account</mat-card-title>
-    </mat-card-header>
+  <!-- Header Section -->
+  <header class="flex items-center gap-4 pb-6 border-b border-slate-100 mb-8 font-sans">
+    <button (click)="router.navigate(['/accounts'])" type="button"
+            class="p-2 text-slate-450 hover:text-brand-purple hover:bg-slate-50 border border-slate-200/50 rounded-xl transition-colors focus:outline-none cursor-pointer"
+            aria-label="Back">
+      <!-- Back Arrow Icon SVG -->
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+      </svg>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-800 font-mono">
+        {{ t('accounts.edit_title') || 'Edit Account' }}
+      </h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">
+        {{ t('accounts.edit_subtitle') || 'Update configuration for this digital pocket' }}
+      </p>
+    </div>
+  </header>
 
-    <mat-card-content>
-      @if (account) {
-        <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="modern-form">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Account Name</mat-label>
-            <input matInput formControlName="name" placeholder="e.g. My Savings">
-          </mat-form-field>
+  <!-- Form Container Card -->
+  <div class="glass-card max-w-xl mx-auto" *ngIf="account">
+    <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6 font-sans">
+      
+      <!-- Account Name Input -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          {{ t('accounts.name_label') || 'Account Name' }}
+        </label>
+        <input formControlName="name" type="text" [placeholder]="t('accounts.name_placeholder') || 'e.g. Daily Expenses'"
+               class="input-field text-sm font-sans font-medium text-slate-800" />
+      </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Type</mat-label>
-              <mat-select formControlName="type">
-                <mat-option value="personal">Personal</mat-option>
-                <mat-option value="household">Household</mat-option>
-                <mat-option value="organization">Organization</mat-option>
-              </mat-select>
-            </mat-form-field>
+      <!-- Grid for Type & Currency -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <!-- Account Type Selector -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+            {{ t('accounts.type_label') || 'Type' }}
+          </label>
+          <select formControlName="type" class="input-field font-sans font-medium text-slate-750 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%2522%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[size:1.25rem_1.25rem] bg-[position:right_1rem_center] bg-no-repeat pr-10">
+            <option value="personal">{{ t('accounts.type_personal') || 'Personal' }}</option>
+            <option value="household">{{ t('accounts.type_household') || 'Household' }}</option>
+            <option value="organization">{{ t('accounts.type_organization') || 'Organization' }}</option>
+          </select>
+        </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Currency</mat-label>
-              <mat-select formControlName="currency">
-                <mat-option value="EUR">EUR (€)</mat-option>
-                <mat-option value="USD">USD ($)</mat-option>
-                <mat-option value="GBP">GBP (£)</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+        <!-- Currency Selector -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+            {{ t('accounts.currency_label') || 'Currency' }}
+          </label>
+          <select formControlName="currency" class="input-field font-sans font-medium text-slate-750 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%2522%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[size:1.25rem_1.25rem] bg-[position:right_1rem_center] bg-no-repeat pr-10">
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="GBP">GBP (£)</option>
+          </select>
+        </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Initial Balance</mat-label>
-            <input matInput type="number" formControlName="balance">
-            <span matPrefix>{{ accountForm.get('currency')?.value === 'EUR' ? '€' : '$' }}&nbsp;</span>
-          </mat-form-field>
+      </div>
 
-          <div class="form-actions">
-            <app-button variant="ghost" (click)="router.navigate(['/accounts', accountId])" type="button">Cancel</app-button>
-            <app-button variant="primary" [block]="true" type="submit" [disabled]="accountForm.invalid">Save Changes</app-button>
-          </div>
-        </form>
-      }
-    </mat-card-content>
-  </mat-card>
+      <!-- Balance Input -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          {{ t('accounts.balance_label') || 'Balance' }}
+        </label>
+        <div class="relative flex items-center">
+          <span class="absolute left-4 font-mono font-bold text-slate-400 select-none text-base">
+            {{ accountForm.get('currency')?.value === 'USD' ? '$' : (accountForm.get('currency')?.value === 'GBP' ? '£' : '€') }}
+          </span>
+          <input formControlName="balance" type="number" step="0.01" placeholder="0.00"
+                 class="input-field pl-9 text-base font-mono font-bold text-slate-850" />
+        </div>
+      </div>
+
+      <!-- Error message display -->
+      <div *ngIf="errorMessage" class="text-red-500 text-xs font-mono font-bold text-center bg-red-50 p-3 rounded-xl border border-red-100 animate-pulse">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+        <button (click)="router.navigate(['/accounts'])" type="button"
+                class="flex-1 py-3 px-4 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-mono text-sm font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer focus:outline-none">
+          {{ t('common.cancel') || 'Cancel' }}
+        </button>
+        <button [disabled]="accountForm.invalid || submitting" type="submit"
+                class="flex-1 btn-primary py-3 px-4 font-mono text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer focus:outline-none disabled:opacity-50">
+          <svg *ngIf="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+          </svg>
+          {{ submitting ? (t('accounts.saving') || 'Saving...') : (t('accounts.save') || 'Save Changes') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
 </app-container>

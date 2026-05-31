@@ -1,20 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { Account } from '../../../core/models/account.model';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { ContainerComponent } from '../../../core/layout/container/container.component';
-import { ButtonComponent } from '../../../shared/button/button.component';
-import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { API_BASE_URL } from '../../../core/api.config';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-account-edit',
@@ -23,36 +14,29 @@ import { API_BASE_URL } from '../../../core/api.config';
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatSelectModule,
-    MatSnackBarModule,
-    ContainerComponent,
-    ButtonComponent
+    ContainerComponent
   ],
   templateUrl: './account-edit.component.html',
 })
 export class AccountEditComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  public router = inject(Router);
+  private accRepo = inject(AccountRepository);
+  private translationService = inject(TranslationService);
+
   accountId: number | null = null;
   account: Account | null = null;
   accountForm: FormGroup;
+  submitting = false;
+  errorMessage: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    public router: Router,
-    private accRepo: AccountRepository,
-    private http: HttpClient,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.accountForm = this.fb.group({
       name: ['', [Validators.required]],
       type: ['', [Validators.required]],
       currency: ['EUR', [Validators.required]],
-      balance: [0, [Validators.required]]
+      balance: [null, [Validators.required]]
     });
   }
 
@@ -80,16 +64,25 @@ export class AccountEditComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.accountForm.invalid || !this.accountId) return;
+    if (this.accountForm.invalid || !this.accountId || this.submitting) return;
 
-    this.http.put(`${API_BASE_URL}/accounts/${this.accountId}`, this.accountForm.value).subscribe({
+    this.submitting = true;
+    this.errorMessage = null;
+
+    this.accRepo.update(this.accountId, this.accountForm.value).subscribe({
       next: () => {
-        this.snackBar.open('Account updated!', 'Close', { duration: 3000 });
-        this.router.navigate(['/accounts', this.accountId]);
+        this.submitting = false;
+        this.router.navigate(['/accounts']);
       },
       error: (err) => {
-        this.snackBar.open(err.error?.message || 'Error updating account', 'Close', { duration: 3000 });
+        console.error('Error updating account', err);
+        this.errorMessage = 'Failed to update account.';
+        this.submitting = false;
       }
     });
+  }
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }
