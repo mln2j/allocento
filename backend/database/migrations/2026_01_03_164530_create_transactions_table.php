@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('account_id')->constrained('accounts')->cascadeOnDelete();
-            $table->foreignId('project_id')->nullable()
-                ->constrained('projects')->nullOnDelete();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
+            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('created_by_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->enum('type', ['income', 'expense']);
             $table->decimal('amount', 15, 2);
             $table->dateTime('date');
             $table->text('description')->nullable();
+            $table->json('tags')->nullable();
             $table->boolean('is_recurring')->default(false);
             $table->json('recurring_rule')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

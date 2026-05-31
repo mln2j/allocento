@@ -17,9 +17,31 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('password'),
         ]);
+
+        $workspace = \App\Models\Workspace::create([
+            'name' => 'Osobno',
+            'type' => 'personal',
+            'currency' => 'EUR',
+        ]);
+
+        $workspace->users()->attach($user->id, ['role' => 'owner']);
+        $user->update(['favorite_workspace_id' => $workspace->id]);
+
+        // Add a default account to the seeded workspace
+        $account = \App\Models\Account::create([
+            'name' => 'Tekući račun',
+            'type' => 'checking',
+            'created_by_user_id' => $user->id,
+            'currency' => 'EUR',
+            'balance' => 1000.00,
+            'opening_balance' => 1000.00,
+            'is_primary' => true,
+        ]);
+        $workspace->accounts()->attach($account->id);
     }
 }

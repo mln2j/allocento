@@ -4,72 +4,89 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use App\Models\Workspace;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
 
 class InvitationController extends Controller
 {
     /**
-     * Invite a user to a household or organization.
+     * Invite a user to a workspace.
      */
-    public function invite(Request $request)
+    public function invite(Request $request): JsonResponse
     {
-        $user = Auth::user();
+        $user = $request->user();
+        $workspace = $request->get('_workspace');
+
+        // Check if inviter has manager or owner role
+        $memberRole = $workspace->users()->where('users.id', $user->id)->first()?->pivot->role;
+        if (!in_array($memberRole, ['owner', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized to invite users to this workspace.'], 403);
+        }
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
-            'entity_type' => ['required', 'in:household,organization'],
-            'entity_id' => ['required', 'integer'],
+            'role' => ['sometimes', 'required', 'in:manager,member'],
         ]);
 
-        // Check if inviter is the owner
-        if ($validated['entity_type'] === 'household') {
-            if ($user->household_id != $validated['entity_id']) {
-                 return response()->json(['message' => 'Unauthorized'], 403);
-            }
-        } else {
-            if ($user->organization_id != $validated['entity_id']) {
-                 return response()->json(['message' => 'Unauthorized'], 403);
-            }
+        $role = $validated['role'] ?? 'member';
+
+        // Check if user is already a member
+        $isMember = $workspace->users()->where('email', $validated['email'])->exists();
+        if ($isMember) {
+            return response()->json(['message' => 'User is already a member of this workspace.'], 422);
+        }
+
+        // Check if pending invitation already exists
+        $pendingInvitation = Invitation::where('workspace_id', $workspace->id)
+            ->where('email', $validated['email'])
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+            })
+            ->first();
+
+        if ($pendingInvitation) {
+            return response()->json([
+                'message' => 'Pending invitation already exists for this email.',
+                'invitation' => $pendingInvitation
+            ], 422);
         }
 
         $invitation = Invitation::create([
+            'workspace_id' => $workspace->id,
             'email' => $validated['email'],
-            'entity_type' => $validated['entity_type'],
-            'entity_id' => $validated['entity_id'],
+            'role' => $role,
             'token' => Str::random(40),
             'expires_at' => now()->addDays(7),
-            'invited_by' => $user->id,
         ]);
 
-        // In a real app, send email here. For now, we return the token/link.
         return response()->json([
-            'message' => 'Invitation created.',
+            'message' => 'Invitation created successfully.',
             'invitation' => $invitation,
-            'invite_url' => url("/invitation/accept/{$invitation->token}")
+            'invite_url' => url("/api/invitations/accept/{$invitation->token}")
         ]);
     }
 
     /**
      * Get pending invitations for the authenticated user.
      */
-    public function pending(Request $request)
+    public function pending(Request $request): JsonResponse
     {
         $invitations = Invitation::where('email', $request->user()->email)
+            ->whereNull('accepted_at')
             ->where(function ($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
             })
             ->get();
 
-        // Optional: Load entity names (Household/Organization)
         foreach ($invitations as $invitation) {
-            if ($invitation->entity_type === 'household') {
-                $invitation->entity_name = \App\Models\Household::find($invitation->entity_id)?->name;
-            } else {
-                $invitation->entity_name = \App\Models\Organization::find($invitation->entity_id)?->name;
-            }
+            $invitation->workspace_name = Workspace::find($invitation->workspace_id)?->name;
         }
 
         return response()->json($invitations);
@@ -78,7 +95,7 @@ class InvitationController extends Controller
     /**
      * Reject an invitation.
      */
-    public function reject(Request $request, $token)
+    public function reject(Request $request, $token): JsonResponse
     {
         $invitation = Invitation::where('token', $token)
             ->where('email', $request->user()->email)
@@ -92,9 +109,9 @@ class InvitationController extends Controller
     /**
      * Accept an invitation.
      */
-    public function accept(Request $request, $token)
+    public function accept(Request $request, $token): JsonResponse
     {
-        $user = Auth::user();
+        $user = $request->user();
         $invitation = Invitation::where('token', $token)
             ->where('email', $user->email)
             ->firstOrFail();
@@ -103,20 +120,29 @@ class InvitationController extends Controller
             return response()->json(['message' => 'Invitation expired.'], 422);
         }
 
-        if ($invitation->entity_type === 'household') {
-            if ($user->household_id) {
-                return response()->json(['message' => 'You already belong to a household.'], 422);
-            }
-            $user->update(['household_id' => $invitation->entity_id]);
-        } else {
-            if ($user->organization_id) {
-                return response()->json(['message' => 'You already belong to an organization.'], 422);
-            }
-            $user->update(['organization_id' => $invitation->entity_id]);
+        $workspace = Workspace::find($invitation->workspace_id);
+        if (!$workspace) {
+            return response()->json(['message' => 'Workspace not found.'], 404);
         }
 
-        $invitation->delete();
+        // Attach user to workspace
+        DB::transaction(function () use ($workspace, $user, $invitation) {
+            $workspace->users()->syncWithoutDetaching([
+                $user->id => ['role' => $invitation->role]
+            ]);
 
-        return response()->json(['message' => "Successfully joined the {$invitation->entity_type}."]);
+            // Set as favorite if they don't have one
+            if (!$user->favorite_workspace_id) {
+                $user->update(['favorite_workspace_id' => $workspace->id]);
+            }
+
+            $invitation->update(['accepted_at' => now()]);
+            $invitation->delete(); // delete invitation after successful acceptance
+        });
+
+        return response()->json([
+            'message' => "Successfully joined the workspace '{$workspace->name}'.",
+            'workspace' => $workspace
+        ]);
     }
 }

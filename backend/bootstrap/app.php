@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('api', [
             SubstituteBindings::class,
         ]);
+        $middleware->alias([
+            'workspace' => \App\Http\Middleware\ResolveWorkspace::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(function (ModelNotFoundException|NotFoundHttpException $e, Request $request) {

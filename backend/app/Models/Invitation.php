@@ -7,20 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Invitation extends Model
 {
     protected $fillable = [
+        'workspace_id',
         'email',
-        'entity_type',
-        'entity_id',
         'token',
+        'role',
         'expires_at',
-        'invited_by',
+        'accepted_at',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
+        'accepted_at' => 'datetime',
     ];
 
-    public function inviter()
+    public function workspace()
     {
-        return $this->belongsTo(User::class, 'invited_by');
+        return $this->belongsTo(Workspace::class);
     }
 }

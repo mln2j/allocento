@@ -6,172 +6,146 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        $accounts = Account::query()
-            ->where(function ($q) use ($user) {
-                $q->where(function ($q) use ($user) {
-                    $q->where('type', 'personal')
-                        ->where('owner_user_id', $user->id);
-                })
-                    ->orWhere(function ($q) use ($user) {
-                        $q->where('type', 'household')
-                            ->where('household_id', $user->household_id);
-                    })
-                    ->orWhere(function ($q) use ($user) {
-                        $q->where('type', 'organization')
-                            ->where('organization_id', $user->organization_id);
-                    });
-            })
-            ->orderBy('name')
-            ->get();
-
+        $workspace = $request->get('_workspace');
+        $accounts = $workspace->accounts()->orderBy('name')->get();
         return response()->json($accounts);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
-            'type'    => ['required', 'in:personal,household,organization'],
-            'currency'=> ['required', 'string', 'size:3'],
+        $workspace = $request->get('_workspace');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'in:checking,savings,cash,credit,investment,other'],
+            'currency' => ['required', 'string', 'size:3'],
             'balance' => ['required', 'numeric'],
+            'opening_balance' => ['nullable', 'numeric'],
+            'is_primary' => ['nullable', 'boolean'],
         ]);
 
-        $user = $request->user();
+        $account = DB::transaction(function () use ($validated, $workspace, $request) {
+            $balance = $validated['balance'];
+            $openingBalance = $validated['opening_balance'] ?? $balance;
 
-        $data['owner_user_id']   = $user->id; // Always set owner to creator
-        $data['household_id']    = null;
-        $data['organization_id'] = null;
+            $account = Account::create([
+                'name' => $validated['name'],
+                'type' => $validated['type'],
+                'created_by_user_id' => $request->user()->id,
+                'currency' => $validated['currency'],
+                'balance' => $balance,
+                'opening_balance' => $openingBalance,
+                'is_primary' => $validated['is_primary'] ?? false,
+            ]);
 
-        if ($data['type'] === 'personal') {
-            // owner_user_id is already set
-        } elseif ($data['type'] === 'household') {
-            if (! $user->household_id) {
-                return response()->json(['message' => 'User does not belong to a household.'], 403);
+            // Sync account with the active workspace
+            $workspace->accounts()->attach($account->id);
+
+            // If set as primary, unmark other accounts in this workspace
+            if ($account->is_primary) {
+                $workspace->accounts()
+                    ->where('accounts.id', '!=', $account->id)
+                    ->update(['is_primary' => false]);
             }
-            $data['household_id'] = $user->household_id;
-        } elseif ($data['type'] === 'organization') {
-            if (! $user->organization_id) {
-                return response()->json(['message' => 'User does not belong to an organization.'], 403);
-            }
-            $data['organization_id'] = $user->organization_id;
-        }
 
-        $account = Account::create($data);
+            return $account;
+        });
 
         return response()->json($account, 201);
     }
 
-    public function show(Request $request, Account $account)
+    public function show(Request $request, $id): JsonResponse
     {
-        $user = $request->user();
+        $workspace = $request->get('_workspace');
+        $account = $workspace->accounts()->where('accounts.id', $id)->first();
 
-        $authorized =
-            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
-            ($account->type === 'household' && $account->household_id === $user->household_id) ||
-            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
-
-        if (! $authorized) {
+        if (!$account) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error'   => 'You do not have access to this account.',
+                'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }
 
         return response()->json($account);
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id): JsonResponse
     {
-        $user = Auth::user();
+        $workspace = $request->get('_workspace');
+        $account = $workspace->accounts()->where('accounts.id', $id)->first();
 
-        $account = Account::findOrFail($id);
-
-        $authorized =
-            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
-            ($account->type === 'household' && $account->household_id === $user->household_id) ||
-            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
-
-        if (! $authorized) {
+        if (!$account) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error'   => 'You do not have access to this account.',
+                'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }
 
-        $data = $request->validate([
-            'name'     => ['sometimes', 'string', 'max:255'],
-            'type'     => ['sometimes', 'in:personal,household,organization'],
-            'currency' => ['sometimes', 'string', 'size:3'],
-            'balance'  => ['sometimes', 'numeric'],
+        $validated = $request->validate([
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'type' => ['sometimes', 'required', 'in:checking,savings,cash,credit,investment,other'],
+            'currency' => ['sometimes', 'required', 'string', 'size:3'],
+            'balance' => ['sometimes', 'required', 'numeric'],
+            'is_primary' => ['sometimes', 'required', 'boolean'],
+            'is_archived' => ['sometimes', 'required', 'boolean'],
         ]);
 
-        if (array_key_exists('type', $data)) {
-            $data['owner_user_id']   = null;
-            $data['household_id']    = null;
-            $data['organization_id'] = null;
+        DB::transaction(function () use ($account, $validated, $workspace) {
+            $account->update($validated);
 
-            if ($data['type'] === 'personal') {
-                $data['owner_user_id'] = $user->id;
-            } elseif ($data['type'] === 'household') {
-                if (! $user->household_id) {
-                    return response()->json(['message' => 'User does not belong to a household.'], 403);
-                }
-                $data['household_id'] = $user->household_id;
-            } elseif ($data['type'] === 'organization') {
-                if (! $user->organization_id) {
-                    return response()->json(['message' => 'User does not belong to an organization.'], 403);
-                }
-                $data['organization_id'] = $user->organization_id;
+            if (isset($validated['is_primary']) && $validated['is_primary']) {
+                $workspace->accounts()
+                    ->where('accounts.id', '!=', $account->id)
+                    ->update(['is_primary' => false]);
             }
-        }
-
-        $account->update($data);
+        });
 
         return response()->json($account);
     }
 
-    public function destroy(int $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
-        $user = Auth::user();
+        $workspace = $request->get('_workspace');
+        $account = $workspace->accounts()->where('accounts.id', $id)->first();
 
-        $account = Account::findOrFail($id);
-
-        $authorized =
-            ($account->type === 'personal' && $account->owner_user_id === $user->id) ||
-            ($account->type === 'household' && $account->household_id === $user->household_id) ||
-            ($account->type === 'organization' && $account->organization_id === $user->organization_id);
-
-        if (! $authorized) {
+        if (!$account) {
             return response()->json([
                 'message' => 'Forbidden',
-                'error'   => 'You do not have access to this account.',
+                'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }
 
         $account->delete();
 
-        return response()->json([], Response::HTTP_NO_CONTENT);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function setPrimary(Request $request, int $id)
+    public function setPrimary(Request $request, $id): JsonResponse
     {
-        $user = Auth::user();
-        $account = Account::where('id', $id)->where('owner_user_id', $user->id)->firstOrFail();
+        $workspace = $request->get('_workspace');
+        $account = $workspace->accounts()->where('accounts.id', $id)->first();
 
-        // Remove primary status from all other accounts owned by user
-        Account::where('owner_user_id', $user->id)->update(['is_primary' => false]);
+        if (!$account) {
+            return response()->json([
+                'message' => 'Forbidden',
+                'error' => 'You do not have access to this account within the active workspace.',
+            ], 403);
+        }
 
-        // Set this one as primary
-        $account->update(['is_primary' => true]);
+        DB::transaction(function () use ($workspace, $account) {
+            // Remove primary status from all other accounts in active workspace
+            $workspace->accounts()->update(['is_primary' => false]);
+            // Set this one as primary
+            $account->update(['is_primary' => true]);
+        });
 
-        return response()->json(['message' => 'Account set as primary.']);
+        return response()->json(['message' => 'Account set as primary in workspace.']);
     }
 }

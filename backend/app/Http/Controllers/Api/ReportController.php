@@ -24,9 +24,12 @@ class ReportController extends Controller
         $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $end   = (clone $start)->endOfMonth();
 
+        $workspace = $request->get('_workspace');
+        $accountIds = $workspace->accounts()->pluck('accounts.id');
+
         $rows = Transaction::query()
             ->select('category_id', DB::raw('SUM(amount) as total_expense'))
-            ->where('user_id', $user->id)
+            ->whereIn('account_id', $accountIds)
             ->where('type', 'expense')
             ->whereBetween('date', [$start, $end])
             ->groupBy('category_id')
