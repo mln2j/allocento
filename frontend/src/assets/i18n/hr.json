@@ -92,7 +92,8 @@
     "cancel": "Odustani",
     "save": "Spremi",
     "saving": "Spremanje...",
-    "changePhoto": "Promijeni sliku"
+    "changePhoto": "Promijeni sliku",
+    "subtitle": "Upravljajte postavkama računa i preferencijama aplikacije."
   },
   "security": {
     "title": "Sigurnost",
