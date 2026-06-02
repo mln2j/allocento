@@ -24,7 +24,21 @@
     "settings": "Loading user preferences...",
     "workspace": "Preparing workspace...",
     "ready": "System ready. Launching...",
-    "offlineMode": "Running in offline mode..."
+    "offlineMode": "Running in offline mode...",
+    "dbNotInitialized": "Database not initialized.",
+    "dbInitError": "Critical error during database initialization."
+  },
+  "logs": {
+    "userFetchError": "Error fetching user context, switching to local cache",
+    "indexedDbError": "Critical error reading user profile from IndexedDB",
+    "invitationsLoadError": "Error loading pending invitations",
+    "notificationsOpened": "Notifications panel opened",
+    "notificationsClosed": "Notifications panel closed",
+    "invitationResponding": "Responding to invitation {id}: {endpoint}",
+    "invitationResponseFailed": "Failed to respond to invitation {id}",
+    "userLogout": "User initiated logout process",
+    "navigationActive": "Navigation active on route: {url}",
+    "dbCriticalSetupFailure": "Critical database setup failure. Could not open offline storage."
   },
   "error": {
     "criticalTitle": "System not available",
@@ -59,5 +73,39 @@
     "empty": "Empty!",
     "defaultWorkspace": "Shared Workspace",
     "sentBy": "Sent by"
+  },
+  "profile": {
+    "household": "Household",
+    "organization": "Organization",
+    "changePassword": "Change Password",
+    "logout": "Logout",
+    "deleteAccount": "Delete Account",
+    "deleteConfirmMsg": "Are you sure you want to delete your account? This action cannot be undone.",
+    "successUpdate": "Profile updated successfully!",
+    "photoUploadFailed": "Failed to upload photo.",
+    "updateFailed": "Error updating profile.",
+    "title": "Profile",
+    "editTitle": "Edit Profile",
+    "editBtn": "Edit Profile",
+    "nameLabel": "Full Name",
+    "emailLabel": "Email Address",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "changePhoto": "Change Photo"
+  },
+  "security": {
+    "title": "Security",
+    "subtitle": "Update your password to keep your account safe.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordSuccess": "Password changed successfully!",
+    "passwordError": "Incorrect current password or server error.",
+    "cancel": "Cancel",
+    "save": "Save Password",
+    "updating": "Updating...",
+    "changePasswordToggle": "🔒 WANT TO CHANGE PASSWORD?"
   }
 }

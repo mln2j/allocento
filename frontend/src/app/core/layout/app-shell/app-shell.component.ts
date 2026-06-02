@@ -1,8 +1,7 @@
 import { Component, OnInit, HostListener, inject } from '@angular/core';
-import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs';
 
 import { User } from '../../models/user.model';
 import { API_BASE_URL } from '../../api.config';
@@ -11,7 +10,7 @@ import { AppInitializerService } from '../../services/app-initializer';
 import { LocalDbService } from '../../services/local-db';
 import { InvitationRepository } from '../../repositories/invitation.repository';
 import { LoadingService } from '../../services/loading/loading.service';
-import { LoadingComponent } from '../../services/loading/loading.component'
+import { LoadingComponent } from '../../services/loading/loading.component';
 import { TranslationService } from '../../services/translation.service';
 import { LoggerService } from '../../services/logger.service';
 
@@ -31,8 +30,6 @@ import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
   templateUrl: './app-shell.component.html',
 })
 export class AppShellComponent implements OnInit {
-  title = 'Allocento';
-  pageTitle = 'Allocento';
   user: User | null = null;
   pendingInvitations: any[] = [];
   isNotificationsOpen = false;
@@ -52,22 +49,8 @@ export class AppShellComponent implements OnInit {
     return this.translationService.translate(key, params);
   }
 
-  private updatePageTitle(url: string): void {
-    const cleanUrl = url.split('/').slice(0, 2).join('/');
-    const titleKey = cleanUrl.replace('/', '') || 'dashboard';
-    this.pageTitle = this.t('pageTitles.' + titleKey);
-  }
-
   ngOnInit(): void {
     this.loadUserContext();
-    this.updatePageTitle(this.router.url);
-
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
-        this.updatePageTitle(event.urlAfterRedirects);
-        this.isNotificationsOpen = false;
-      });
   }
 
   @HostListener('document:click', ['$event'])
@@ -82,21 +65,30 @@ export class AppShellComponent implements OnInit {
   }
 
   private async loadUserContext(): Promise<void> {
-    if (this.appInitializer.isOnlineMode) {
-      this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
-        next: async (user) => {
-          this.user = user;
-          await this.localDb.put('user_profile', user);
-          this.loadPendingInvitations();
-        },
-        error: async (err) => {
-          this.logger.error('Greška pri dohvaćanju korisnika, prebacujem na lokalni cache', err);
-          await this.loadUserFromCache();
-        }
-      });
-    } else {
-      this.logger.warn('splash.offlineMode');
-      await this.loadUserFromCache();
+    try {
+      // PRVO I NAJVAŽNIJE: Pričekaj da se IndexedDB asinkrono podigne i otvori!
+      // Ovo sprječava prerano okidanje greške "Database not initialized"
+      await this.localDb.initDatabase();
+
+      // Nakon što je baza podignuta, TranslationService je sigurno spreman, a DB radi
+      if (this.appInitializer.isOnlineMode) {
+        this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
+          next: async (user) => {
+            this.user = user;
+            await this.localDb.put('user_profile', user);
+            this.loadPendingInvitations();
+          },
+          error: async (err) => {
+            this.logger.error(this.t('logs.userFetchError'), err);
+            await this.loadUserFromCache();
+          }
+        });
+      } else {
+        this.logger.warn(this.t('splash.offlineMode'));
+        await this.loadUserFromCache();
+      }
+    } catch (dbErr) {
+      this.logger.error(this.t('logs.dbCriticalSetupFailure'), dbErr);
     }
   }
 
@@ -109,7 +101,7 @@ export class AppShellComponent implements OnInit {
         this.user = { id: 0, name: 'Offline User', email: '' } as User;
       }
     } catch (err) {
-      this.logger.error('Kritična greška pri čitanju korisnika iz IndexedDB', err);
+      this.logger.error(this.t('logs.indexedDbError'), err);
     }
   }
 
@@ -121,7 +113,7 @@ export class AppShellComponent implements OnInit {
 
     this.inviteRepo.getPending().subscribe({
       next: (invites) => (this.pendingInvitations = invites),
-      error: (err) => this.logger.error('Greška pri učitavanju pozivnica', err)
+      error: (err) => this.logger.error(this.t('logs.invitationsLoadError'), err)
     });
   }
 
@@ -130,24 +122,27 @@ export class AppShellComponent implements OnInit {
       return;
     }
     this.isNotificationsOpen = !this.isNotificationsOpen;
-    this.logger.log(this.isNotificationsOpen ? 'Obavijesti otvorene' : 'Obavijesti zatvorene');
+
+    // Logovi prevedeni dinamički ovisno o stanju modala
+    const logKey = this.isNotificationsOpen ? 'logs.notificationsOpened' : 'logs.notificationsClosed';
+    this.logger.log(this.t(logKey));
   }
 
   respondToInvitation(id: number, accept: boolean) {
     const endpoint = accept ? 'accept' : 'reject';
-    this.logger.log(`Odgovor na pozivnicu ${id}: ${endpoint}`);
+    this.logger.log(this.t('logs.invitationResponding', { id, endpoint }));
 
     this.http.post(`${API_BASE_URL}/invitations/${id}/${endpoint}`, {}).subscribe({
       next: () => {
         this.loadPendingInvitations();
         this.http.get<User>(`${API_BASE_URL}/user`).subscribe(u => this.user = u);
       },
-      error: (err) => this.logger.error(`Neuspješan odgovor na pozivnicu ${id}`, err)
+      error: (err) => this.logger.error(this.t('logs.invitationResponseFailed', { id }), err)
     });
   }
 
   onLogout(): void {
-    this.logger.log('Korisnik pokrenuo odjavu');
+    this.logger.log(this.t('logs.userLogout'));
     this.authService.logout();
     this.localDb.clearStore('user_profile');
     this.router.navigate(['/auth/login']);

@@ -46,7 +46,15 @@ export class BottomNavComponent {
     effect(() => {
       const url = this.currentUrl();
       if (url) {
-        this.logger.log(`Navigacija aktivna na ruti: ${url}`);
+        // Prvo povučemo bazični prijevod "Navigation active on route: {url}"
+        const baseLog = this.t('logs.navigationActive');
+
+        // Ručno mijenjamo {url} sa stvarnom rutom kako bi izbjegli greške u parseru
+        const formattedLog = baseLog.includes('{url}')
+          ? baseLog.replace('{url}', url)
+          : `Navigation active on route: ${url}`; // fallback ako ključ fali
+
+        this.logger.log(formattedLog);
 
         // Pronađi indeks trenutne rute i ažuriraj signal
         const idx = this.navItems.findIndex(item => {
@@ -61,8 +69,8 @@ export class BottomNavComponent {
     });
   }
 
-  t(key: string): string {
-    return this.translationService.translate(key);
+  t(key: string, params?: any): string {
+    return this.translationService.translate(key, params);
   }
 
   isActive(itemPath: string): boolean {

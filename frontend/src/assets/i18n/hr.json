@@ -24,7 +24,21 @@
     "settings": "Učitavanje korisničkih postavki...",
     "workspace": "Priprema radnog okruženja...",
     "ready": "Sustav spreman. Pokretanje...",
-    "offlineMode": "Rad u lokalnom načinu..."
+    "offlineMode": "Rad u lokalnom načinu...",
+    "dbNotInitialized": "Database not initialized.",
+    "dbInitError": "Critical error during database initialization."
+  },
+  "logs": {
+    "userFetchError": "Greška pri dohvaćanju korisnika, prebacujem na lokalni cache",
+    "indexedDbError": "Kritična greška pri čitanju korisnika iz IndexedDB",
+    "invitationsLoadError": "Greška pri učitavanju pozivnica",
+    "notificationsOpened": "Obavijesti otvorene",
+    "notificationsClosed": "Obavijesti zatvorene",
+    "invitationResponding": "Odgovor na pozivnicu {id}: {endpoint}",
+    "invitationResponseFailed": "Neuspješan odgovor na pozivnicu {id}",
+    "userLogout": "Korisnik pokrenuo odjavu",
+    "navigationActive": "Navigacija je aktivna na: {url}",
+    "dbCriticalSetupFailure": "Kritična pogreška pri postavljanju baze podataka. Nije moguće otvoriti lokalnu pohranu."
   },
   "error": {
     "criticalTitle": "Sustav nije dostupan",
@@ -59,5 +73,39 @@
     "empty": "Sve čisto!",
     "defaultWorkspace": "Zajednički prostor",
     "sentBy": "Šalje"
+  },
+  "profile": {
+    "household": "Kućanstvo",
+    "organization": "Organizacija",
+    "changePassword": "Promijeni lozinku",
+    "logout": "Odjava",
+    "deleteAccount": "Obriši račun",
+    "deleteConfirmMsg": "Jeste li sigurni da želite obrisati račun? Ova radnja se ne može poništiti.",
+    "successUpdate": "Profil je uspješno ažuriran!",
+    "photoUploadFailed": "Spremanje fotografije nije uspjelo.",
+    "updateFailed": "Greška prilikom ažuriranja profila.",
+    "title": "Profil",
+    "editTitle": "Uređivanje profila",
+    "editBtn": "Uredi profil",
+    "nameLabel": "Ime i prezime",
+    "emailLabel": "Email adresa",
+    "cancel": "Odustani",
+    "save": "Spremi",
+    "saving": "Spremanje...",
+    "changePhoto": "Promijeni sliku"
+  },
+  "security": {
+    "title": "Sigurnost",
+    "subtitle": "Ažurirajte svoju lozinku kako biste očuvali sigurnost računa.",
+    "currentPassword": "Trenutna lozinka",
+    "newPassword": "Nova lozinka",
+    "confirmPassword": "Potvrdi novu lozinku",
+    "passwordMismatch": "Lozinke se ne podudaraju.",
+    "passwordSuccess": "Lozinka je uspješno promijenjena!",
+    "passwordError": "Neispravna trenutna lozinka ili pogreška na poslužitelju.",
+    "cancel": "Odustani",
+    "save": "Spremi lozinku",
+    "updating": "Ažuriranje...",
+    "changePasswordToggle": "ŽELIŠ PROMIJENITI LOZINKU?"
   }
 }
