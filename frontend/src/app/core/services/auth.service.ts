@@ -41,7 +41,6 @@ export class AuthService {
     );
   }
 
-
   setToken(token: string) {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
@@ -50,8 +49,13 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  logout() {
+  // NOVO: Eksplicitna metoda za čišćenje tokena pri neuspjeloj provjeri
+  clearToken() {
     localStorage.removeItem(this.TOKEN_KEY);
+  }
+
+  logout() {
+    this.clearToken();
   }
 
   isAuthenticated(): boolean {

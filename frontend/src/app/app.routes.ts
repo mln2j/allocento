@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { SplashComponent } from './features/splash/splash.component';
+import { SplashPage } from './pages/splash/splash.page';
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
-import { ErrorComponent } from './features/error/error.component';
+import { ErrorPage } from './pages/error/error.page';
 import { inject } from '@angular/core';
 import { AppInitializerService } from './core/services/app-initializer'; // Prilagodi putanju ako treba
 import { Router } from '@angular/router';
@@ -11,8 +11,8 @@ export const routes: Routes = [
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
 
   // 2. Početni ekran i kritične rute (Statički importi)
-  { path: 'splash', component: SplashComponent },
-  { path: 'error', component: ErrorComponent },
+  { path: 'splash', component: SplashPage },
+  { path: 'error', component: ErrorPage },
 
   // 3. Auth rute
   {
@@ -21,11 +21,11 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+        loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage)
       },
       {
         path: 'register',
-        loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+        loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage)
       }
     ]
   },

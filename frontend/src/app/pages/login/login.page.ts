@@ -1,17 +1,17 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgIf } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
-import { TranslationService } from '../../../core/services/translation.service';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, RouterLink],
-  templateUrl: './login.component.html',
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './login.page.html',
 })
-export class LoginComponent implements OnInit {
+export class LoginPage implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -31,13 +31,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Mali delay za efekt animacije
     setTimeout(() => {
       this.loaded = true;
     }, 50);
   }
 
-  // Funkcija za dohvat prijevoda identična onoj u ErrorComponent
   t(key: string): string {
     return this.translationService.translate(key);
   }
@@ -54,7 +52,6 @@ export class LoginComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-        // Prevedena poruka greške
         this.errorMessage = this.t('auth.invalidCredentials');
       }
     });
