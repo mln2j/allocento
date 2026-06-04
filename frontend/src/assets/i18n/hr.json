@@ -12,7 +12,15 @@
     "transactions": "Transakcije",
     "household": "Kućanstvo",
     "organization": "Organizacija",
-    "profile": "Profil"
+    "settings": "Postavke"
+  },
+  "settings": {
+    "subtitle": "Upravljajte postavkama računa i preferencijama aplikacije.",
+    "profileEditTitle": "Uređivanje profila",
+    "profileEditSubtitle": "Ažurirajte svoje osobne podatke i lozinku.",
+    "appSettingsTitle": "Postavke aplikacije",
+    "langLabel": "Jezik",
+    "langDesc": "Trenutno odabrani jezik aplikacije"
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",
@@ -66,7 +74,7 @@
     "transactions": "Transakcije",
     "accounts": "Računi",
     "workspace": "Radni prostor",
-    "profile": "Profil"
+    "settings": "Postavke"
   },
   "notifications": {
     "title": "Pozivnice",

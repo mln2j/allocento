@@ -10,12 +10,12 @@ import { UserRepository } from '../../core/repositories/user.repository';
 import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-settings',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './profile.component.html',
+  templateUrl: './settings.page.html',
 })
-export class ProfileComponent implements OnInit {
+export class SettingsPage implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -26,30 +26,37 @@ export class ProfileComponent implements OnInit {
   user: User | null = null;
   profileForm!: FormGroup;
 
-  // Stanja komponenti
+  // Stanja komponente
   isEditMode = false;
   isPasswordCollapsed = true;
   isSaving = false;
 
-  // Custom Language Switcher Stanje
-  currentLang = 'hr';
+  // Interaktivni Language Switcher Stanje
+  currentLang = 'en';
   isLangDropdownOpen = false;
 
-  // Slike
+  // Slike / Privremeni prikazi
   selectedFile: File | null = null;
   photoPreview: string | null = null;
 
   ngOnInit() {
-    this.currentLang = this.translationService.currentLang();
+    this.currentLang = this.translationService.currentLang() || 'en';
     this.loadUserData();
   }
 
   loadUserData() {
-    this.http.get<User>(`${API_BASE_URL}/user`).subscribe(user => {
-      this.user = user;
+    const timestamp = new Date().getTime();
+    this.http.get<User>(`${API_BASE_URL}/user?v=${timestamp}`).subscribe({
+      next: (user) => {
+        this.user = user;
+      },
+      error: () => {
+        alert(this.t('profile.loadFailed') || 'Failed to load user settings data.');
+      }
     });
   }
 
+  // Metode za upravljanje dropdownom jezika
   toggleLangDropdown() {
     this.isLangDropdownOpen = !this.isLangDropdownOpen;
   }
@@ -66,7 +73,7 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // Zatvaraj dropdown ako se klikne izvan pilla / liste
+  // Automatsko zatvaranje dropdowna ako se klikne izvan njega
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (!this.isLangDropdownOpen) return;
@@ -81,7 +88,7 @@ export class ProfileComponent implements OnInit {
     if (!this.user) return;
 
     this.profileForm = this.fb.group({
-      name: [this.user.name, Validators.required],
+      name: [this.user.name, [Validators.required, Validators.minLength(2)]],
       current_password: [''],
       password: [''],
       password_confirmation: ['']
@@ -113,6 +120,12 @@ export class ProfileComponent implements OnInit {
 
   cancelEdit() {
     this.isEditMode = false;
+    this.photoPreview = null;
+    this.selectedFile = null;
+    this.isPasswordCollapsed = true;
+    if (this.profileForm) {
+      this.profileForm.reset();
+    }
   }
 
   saveProfile() {
@@ -141,7 +154,7 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.isSaving = false;
-        alert(this.t('profile.updateFailed'));
+        alert(this.t('profile.updateFailed') || 'Profile update failed.');
       }
     });
   }
@@ -152,8 +165,11 @@ export class ProfileComponent implements OnInit {
   }
 
   deleteAccount() {
-    if (confirm(this.t('profile.deleteConfirmMsg'))) {
-      this.userRepo.deleteAccount().subscribe(() => this.logout());
+    if (confirm(this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?')) {
+      this.userRepo.deleteAccount().subscribe({
+        next: () => this.logout(),
+        error: () => alert('Failed to delete account. Please try again later.')
+      });
     }
   }
 

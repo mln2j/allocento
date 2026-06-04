@@ -77,8 +77,8 @@ export const routes: Routes = [
         loadComponent: () => import('./features/organization/organization.component').then(m => m.OrganizationComponent)
       },
       {
-        path: 'profile',
-        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+        path: 'settings',
+        loadComponent: () => import('./pages/setttings/settings.page').then(m => m.SettingsPage)
       }
     ]
   },

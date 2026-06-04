@@ -66,7 +66,7 @@
     "transactions": "Transactions",
     "accounts": "Accounts",
     "workspace": "Workspace",
-    "profile": "Profile"
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Invitations",
@@ -95,6 +95,14 @@
     "changePhoto": "Change Photo",
     "subtitle": "Manage your account settings and application preferences."
   },
+  "settings": {
+    "subtitle": "Manage your account settings and application preferences.",
+    "profileEditTitle": "Profile Edit",
+    "profileEditSubtitle": "Update your personal details and credentials.",
+    "appSettingsTitle": "Application Settings",
+    "langLabel": "Language",
+    "langDesc": "Current application language context"
+  },
   "security": {
     "title": "Security",
     "subtitle": "Update your password to keep your account safe.",
@@ -107,6 +115,6 @@
     "cancel": "Cancel",
     "save": "Save Password",
     "updating": "Updating...",
-    "changePasswordToggle": "🔒 WANT TO CHANGE PASSWORD?"
+    "changePasswordToggle": "WANT TO CHANGE PASSWORD?"
   }
 }
