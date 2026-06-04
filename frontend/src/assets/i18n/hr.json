@@ -5,7 +5,8 @@
     "accept": "Prihvati",
     "reject": "Odbij",
     "loading": "Učitavanje...",
-    "back": "Natrag"
+    "back": "Natrag",
+    "invite": "Pozovi"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -121,6 +122,9 @@
     "changePasswordToggle": "ŽELIŠ PROMIJENITI LOZINKU?"
   },
   "workspaces": {
+    "types": { "personal": "Osobni", "household": "Kućanstvo", "company": "Tvrtka" },
+    "roles": { "member": "Član", "owner": "Vlasnik" },
+    "currencyLabel": "Valuta",
     "member": "član",
     "members": "članova",
     "viewDetails": "Prikaži detalje",
@@ -131,6 +135,7 @@
     "subtitle": "Upravljaj svojim budžetima, timovima i financijama.",
     "addBtn": "Novi prostor",
     "loadFailed": "Greška pri učitavanju radnih prostora.",
-    "createFailed": "Greška pri kreiranju radnog prostora."
+    "createFailed": "Greška pri kreiranju radnog prostora.",
+    "deleteWorkspace": "Obriši radni prostor"
   }
 }

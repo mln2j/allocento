@@ -5,7 +5,8 @@
     "accept": "Accept",
     "reject": "Reject",
     "loading": "Loading...",
-    "back": "Back"
+    "back": "Back",
+    "invite": "Invite"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -121,6 +122,13 @@
     "changePasswordToggle": "WANT TO CHANGE PASSWORD?"
   },
   "workspaces": {
+    "roles": { "member": "Member", "owner": "Owner" },
+    "currencyLabel": "Currency",
+    "types": {
+      "personal": "Personal",
+      "household": "Household",
+      "company": "Company"
+    },
     "member": "member",
     "members": "members",
     "viewDetails": "View details",
@@ -131,6 +139,7 @@
     "subtitle": "Manage your budgets, teams and shared financial fields.",
     "addBtn": "New Workspace",
     "loadFailed": "Failed to load workspaces.",
-    "createFailed": "Failed to create workspace."
+    "createFailed": "Failed to create workspace.",
+    "deleteWorkspace": "Delete Workspace"
   }
 }

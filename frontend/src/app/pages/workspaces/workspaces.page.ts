@@ -1,13 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
 import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-workspaces',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './workspaces.page.html',
 })
 export class WorkspacesPage implements OnInit {
@@ -21,6 +21,7 @@ export class WorkspacesPage implements OnInit {
   isLoading = true;
   isModalOpen = false;
   isSaving = false;
+  isTypeDropdownOpen = false;
 
   selectedWorkspace: Workspace | null = null;
   isLoadingDetails = false;
@@ -76,6 +77,14 @@ export class WorkspacesPage implements OnInit {
       }
     });
   }
+  toggleTypeDropdown() {
+    this.isTypeDropdownOpen = !this.isTypeDropdownOpen;
+  }
+
+  selectType(type: string) {
+    this.workspaceForm.get('type')?.setValue(type);
+    this.isTypeDropdownOpen = false; // Zatvori nakon odabira
+  }
 
   // --- NOVO: Povratak na glavnu listu ---
   closeDetails() {
@@ -87,17 +96,24 @@ export class WorkspacesPage implements OnInit {
   // --- NOVO: Brisanje člana (povezano s tvojim removeMember na backendu) ---
   removeMember(userId: number) {
     if (!this.selectedWorkspace) return;
-    if (!confirm(this.t('workspaces.confirmRemoveMember'))) return;
+
+    // Koristi translation service za confirm poruku
+    if (!confirm(this.t('workspaces.confirmRemoveMember') || 'Are you sure?')) return;
 
     const wsId = this.selectedWorkspace.workspace_id || this.selectedWorkspace.id;
 
-    // Pretpostavljamo da si dodao removeMember u svoj WorkspaceRepository
-    // Ako nisi, poziv ide otprilike ovako kroz HttpClient ili ga dodaj u repo:
-    // this.http.delete(`${API_BASE_URL}/workspaces/${wsId}/members/${userId}`)
-    alert('Micanje člana s ID-em: ' + userId);
-
-    // Primjer lokalnog micanja iz polja nakon uspješnog API odgovora:
-    // this.selectedWorkspace.users = this.selectedWorkspace.users?.filter(u => u.id !== userId);
+    this.workspaceRepo.removeMember(wsId, userId).subscribe({
+      next: () => {
+        // Uspješno obrisano na backendu, sada osvježi lokalno stanje
+        if (this.selectedWorkspace && this.selectedWorkspace.users) {
+          this.selectedWorkspace.users = this.selectedWorkspace.users.filter(u => u.id !== userId);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        alert(this.t('workspaces.removeMemberFailed') || 'Failed to remove member.');
+      }
+    });
   }
 
   openCreateModal() {
@@ -117,12 +133,42 @@ export class WorkspacesPage implements OnInit {
     this.workspaceForm.get('icon')?.setValue(icon);
   }
 
+  deleteWorkspace() {
+    if (!this.selectedWorkspace || !confirm('Jesi li siguran da želiš obrisati ovaj workspace?')) return;
+
+    const id = this.selectedWorkspace.workspace_id || this.selectedWorkspace.id;
+
+    this.workspaceRepo.deleteWorkspace(id).subscribe(() => {
+      this.workspaces = this.workspaces.filter(ws => (ws.workspace_id || ws.id) !== id);
+      this.closeDetails();
+    });
+  }
+
+// Pozivanje člana
+  inviteEmail = ''; // Dodaj ovu varijablu na vrh klase
+  inviteMember() {
+    if (!this.selectedWorkspace || !this.inviteEmail) return;
+
+    const id = this.selectedWorkspace.workspace_id || this.selectedWorkspace.id;
+
+    this.workspaceRepo.inviteMember(id, this.inviteEmail).subscribe({
+      next: (res) => {
+        alert('Poziv poslan!');
+        this.inviteEmail = '';
+        // Osvježi detalje da se vidi novi član ako API vraća listu
+        this.viewDetails(this.selectedWorkspace!);
+      },
+      error: () => alert('Greška pri pozivanju.')
+    });
+  }
+
   createWorkspace() {
     if (this.workspaceForm.invalid || this.isSaving) return;
     this.isSaving = true;
 
     this.workspaceRepo.createWorkspace(this.workspaceForm.value).subscribe({
       next: (newWorkspace) => {
+        newWorkspace.users_count = 1;
         this.workspaces.push(newWorkspace);
         this.isSaving = false;
         this.closeModal();
