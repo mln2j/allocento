@@ -10,6 +10,11 @@ export class UserRepository {
 
   constructor(private http: HttpClient) {}
 
+  getCurrentUser(timestamp: number): Observable<User> {
+    return this.http.get<User>(`${API_BASE_URL}/user?v=${timestamp}`);
+  }
+  // ----------------------
+
   updateProfile(data: { name: string; email: string }): Observable<{ message: string; user: User }> {
     return this.http.put<{ message: string; user: User }>(this.baseUrl, data);
   }

@@ -5,7 +5,6 @@ import { ErrorPage } from './pages/error/error.page';
 import { inject } from '@angular/core';
 import { AppInitializerService } from './core/services/app-initializer'; // Prilagodi putanju ako treba
 import { Router } from '@angular/router';
-
 export const routes: Routes = [
   // 1. Ako je URL potpuno prazan, baci na splash
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
@@ -39,16 +38,8 @@ export const routes: Routes = [
         const initializer = inject(AppInitializerService);
         const router = inject(Router);
 
-        // Ako nemamo ni online mod ni lokalne podatke (nema tokena/cachea)
-        // Ovdje iskoristi zastavicu ili logiku iz svog initializer-a.
-        // Pretpostavljam da isOnlineMode ostaje false kad se dogodi krizni scenarij.
         if (!initializer.isOnlineMode) {
-          // 🚨 VAŽNO: Ako nemaš neku posebnu metodu poput .hasLocalData(),
-          // provjeri je li ovo stanje stvarno kritično. Ako jest -> bježi na error!
-
-          // Ovdje simuliramo provjeru: ako je isOnlineMode false, a nemamo spremljen cache:
-          // router.navigate(['/error']);
-          // return false;
+          // Ovdje po potrebi rješavaš krizni scenarij
         }
 
         return true;
@@ -59,7 +50,6 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-      // ... ostale pod-rute ostaju iste
       {
         path: 'accounts',
         loadComponent: () => import('./features/accounts/accounts.component').then(m => m.AccountsComponent)
@@ -68,13 +58,10 @@ export const routes: Routes = [
         path: 'transactions',
         loadComponent: () => import('./features/transactions/transactions.component').then(m => m.TransactionsComponent)
       },
+      // --- NOVE WORKSPACES RUTE (ZAMIJENE ZA HOUSEHOLD I ORG) ---
       {
-        path: 'household',
-        loadComponent: () => import('./features/household/household.component').then(m => m.HouseholdComponent)
-      },
-      {
-        path: 'organization',
-        loadComponent: () => import('./features/organization/organization.component').then(m => m.OrganizationComponent)
+        path: 'workspaces',
+        loadComponent: () => import('./pages/workspaces/workspaces.page').then(m => m.WorkspacesPage)
       },
       {
         path: 'settings',

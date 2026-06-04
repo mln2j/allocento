@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { forkJoin, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { User } from '../../core/models/user.model';
-import { API_BASE_URL } from '../../core/api.config';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRepository } from '../../core/repositories/user.repository';
 import { TranslationService } from '../../core/services/translation.service';
@@ -16,26 +16,22 @@ import { TranslationService } from '../../core/services/translation.service';
   templateUrl: './settings.page.html',
 })
 export class SettingsPage implements OnInit {
-  private http = inject(HttpClient);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private userRepo = inject(UserRepository);
+  private userRepo = inject(UserRepository); // <--- Sada ga koristimo punim plućima
   private translationService = inject(TranslationService);
 
   user: User | null = null;
   profileForm!: FormGroup;
 
-  // Stanja komponente
   isEditMode = false;
   isPasswordCollapsed = true;
   isSaving = false;
 
-  // Interaktivni Language Switcher Stanje
   currentLang = 'en';
   isLangDropdownOpen = false;
 
-  // Slike / Privremeni prikazi
   selectedFile: File | null = null;
   photoPreview: string | null = null;
 
@@ -44,9 +40,10 @@ export class SettingsPage implements OnInit {
     this.loadUserData();
   }
 
+  // KORIŠTENJE REPOZITORIJA ZA DOHVAT USERA
   loadUserData() {
     const timestamp = new Date().getTime();
-    this.http.get<User>(`${API_BASE_URL}/user?v=${timestamp}`).subscribe({
+    this.userRepo.getCurrentUser(timestamp).subscribe({
       next: (user) => {
         this.user = user;
       },
@@ -56,7 +53,6 @@ export class SettingsPage implements OnInit {
     });
   }
 
-  // Metode za upravljanje dropdownom jezika
   toggleLangDropdown() {
     this.isLangDropdownOpen = !this.isLangDropdownOpen;
   }
@@ -73,7 +69,6 @@ export class SettingsPage implements OnInit {
     }
   }
 
-  // Automatsko zatvaranje dropdowna ako se klikne izvan njega
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (!this.isLangDropdownOpen) return;
@@ -89,6 +84,7 @@ export class SettingsPage implements OnInit {
 
     this.profileForm = this.fb.group({
       name: [this.user.name, [Validators.required, Validators.minLength(2)]],
+      email: [this.user.email, [Validators.required, Validators.email]],
       current_password: [''],
       password: [''],
       password_confirmation: ['']
@@ -128,33 +124,68 @@ export class SettingsPage implements OnInit {
     }
   }
 
+  // KORIŠTENJE REPOZITORIJA ZA SPREMANJE PROFILA
   saveProfile() {
     if (this.profileForm.invalid || this.isSaving) return;
     this.isSaving = true;
 
-    const formData = new FormData();
-    formData.append('name', this.profileForm.get('name')?.value);
+    const requests: { [key: string]: Observable<any> } = {};
+
+    const profileData = {
+      name: this.profileForm.get('name')?.value,
+      email: this.profileForm.get('email')?.value
+    };
+
+    // Koristimo repozitorij umjesto direktnog http.put
+    requests['profile'] = this.userRepo.updateProfile(profileData);
 
     if (this.selectedFile) {
-      formData.append('profile_photo', this.selectedFile);
+      // Koristimo repozitorij za sliku
+      requests['photo'] = this.userRepo.uploadPhoto(this.selectedFile);
     }
 
     const password = this.profileForm.get('password')?.value;
     if (password) {
-      formData.append('current_password', this.profileForm.get('current_password')?.value);
-      formData.append('password', password);
-      formData.append('password_confirmation', this.profileForm.get('password_confirmation')?.value);
+      const passwordData = {
+        current_password: this.profileForm.get('current_password')?.value,
+        password: password,
+        password_confirmation: this.profileForm.get('password_confirmation')?.value
+      };
+      // Koristimo repozitorij za lozinku
+      requests['password'] = this.userRepo.changePassword(passwordData);
     }
 
-    this.http.post<User>(`${API_BASE_URL}/user/update`, formData).subscribe({
+    forkJoin(requests).pipe(
+      switchMap(() => {
+        const timestamp = new Date().getTime();
+        return this.userRepo.getCurrentUser(timestamp);
+      })
+    ).subscribe({
       next: (updatedUser) => {
+        // Kada vraćaš iz repozitorija, Laravel u updateProfile metodi omata objekt
+        // u listu sa strukturom { message, user }, pa nam u switchMapu s getCurrentUser()
+        // ponovo sjeda čisti User objekt na idućoj liniji:
         this.user = updatedUser;
         this.isEditMode = false;
         this.isSaving = false;
+        this.selectedFile = null;
+        this.photoPreview = null;
+
+        if (this.profileForm) {
+          this.profileForm.get('current_password')?.setValue('');
+          this.profileForm.get('password')?.setValue('');
+          this.profileForm.get('password_confirmation')?.setValue('');
+        }
       },
-      error: () => {
+      error: (err) => {
         this.isSaving = false;
-        alert(this.t('profile.updateFailed') || 'Profile update failed.');
+        console.error('Update failed:', err);
+
+        if (err.status === 422 && err.error?.message) {
+          alert(err.error.message);
+        } else {
+          alert(this.t('profile.updateFailed') || 'Profile update failed. Please check your data.');
+        }
       }
     });
   }
@@ -164,11 +195,18 @@ export class SettingsPage implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
+  // KORIŠTENJE REPOZITORIJA ZA BRISANJE RAČUNA
   deleteAccount() {
     if (confirm(this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?')) {
       this.userRepo.deleteAccount().subscribe({
         next: () => this.logout(),
-        error: () => alert('Failed to delete account. Please try again later.')
+        error: (err) => {
+          if (err.status === 403 && err.error?.message) {
+            alert(err.error.message);
+          } else {
+            alert('Failed to delete account. Please try again later.');
+          }
+        }
       });
     }
   }

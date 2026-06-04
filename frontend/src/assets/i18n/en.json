@@ -4,7 +4,8 @@
     "calculated": "Calculated & Successful",
     "accept": "Accept",
     "reject": "Reject",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "back": "Back"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -67,6 +68,7 @@
     "transactions": "Transactions",
     "accounts": "Accounts",
     "workspace": "Workspace",
+    "workspaces": "Workspaces",
     "settings": "Settings"
   },
   "notifications": {
@@ -94,10 +96,10 @@
     "save": "Save",
     "saving": "Saving...",
     "changePhoto": "Change Photo",
-    "subtitle": "Manage your account settings and application preferences."
+    "subtitle": "Manage your account and application settings."
   },
   "settings": {
-    "subtitle": "Manage your account settings and application preferences.",
+    "subtitle": "Manage your account and application settings..",
     "profileEditTitle": "Profile Edit",
     "profileEditSubtitle": "Update your personal details and credentials.",
     "appSettingsTitle": "Application Settings",
@@ -117,5 +119,18 @@
     "save": "Save Password",
     "updating": "Updating...",
     "changePasswordToggle": "WANT TO CHANGE PASSWORD?"
+  },
+  "workspaces": {
+    "member": "member",
+    "members": "members",
+    "viewDetails": "View details",
+    "membersManagement": "Members Management",
+    "linkedAccounts": "Linked Accounts",
+    "noAccounts": "No accounts linked to this workspace yet.",
+    "confirmRemoveMember": "Are you sure you want to remove this member?",
+    "subtitle": "Manage your budgets, teams and shared financial fields.",
+    "addBtn": "New Workspace",
+    "loadFailed": "Failed to load workspaces.",
+    "createFailed": "Failed to create workspace."
   }
 }

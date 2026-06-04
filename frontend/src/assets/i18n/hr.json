@@ -4,7 +4,8 @@
     "calculated": "Proračunato & Uspješno",
     "accept": "Prihvati",
     "reject": "Odbij",
-    "loading": "Učitavanje..."
+    "loading": "Učitavanje...",
+    "back": "Natrag"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -15,7 +16,7 @@
     "settings": "Postavke"
   },
   "settings": {
-    "subtitle": "Upravljajte postavkama računa i preferencijama aplikacije.",
+    "subtitle": "Upravljanje profilom i postavkama.",
     "profileEditTitle": "Uređivanje profila",
     "profileEditSubtitle": "Ažurirajte svoje osobne podatke i lozinku.",
     "appSettingsTitle": "Postavke aplikacije",
@@ -75,7 +76,8 @@
     "transactions": "Transakcije",
     "accounts": "Računi",
     "workspace": "Radni prostor",
-    "settings": "Postavke"
+    "settings": "Postavke",
+    "workspaces": "Radni prostori"
   },
   "notifications": {
     "title": "Pozivnice",
@@ -102,7 +104,7 @@
     "save": "Spremi",
     "saving": "Spremanje...",
     "changePhoto": "Promijeni sliku",
-    "subtitle": "Upravljajte postavkama računa i preferencijama aplikacije."
+    "subtitle": "Upravljajte postavkama računa i aplikacije."
   },
   "security": {
     "title": "Sigurnost",
@@ -117,5 +119,18 @@
     "save": "Spremi lozinku",
     "updating": "Ažuriranje...",
     "changePasswordToggle": "ŽELIŠ PROMIJENITI LOZINKU?"
+  },
+  "workspaces": {
+    "member": "član",
+    "members": "članova",
+    "viewDetails": "Prikaži detalje",
+    "membersManagement": "Upravljanje članovima",
+    "linkedAccounts": "Povezani računi",
+    "noAccounts": "Još nema povezanih računa s ovim prostorom.",
+    "confirmRemoveMember": "Jeste li sigurni da želite ukloniti ovog člana?",
+    "subtitle": "Upravljaj svojim budžetima, timovima i financijama.",
+    "addBtn": "Novi prostor",
+    "loadFailed": "Greška pri učitavanju radnih prostora.",
+    "createFailed": "Greška pri kreiranju radnog prostora."
   }
 }
