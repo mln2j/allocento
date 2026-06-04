@@ -6,7 +6,8 @@
     "reject": "Odbij",
     "loading": "Učitavanje...",
     "back": "Natrag",
-    "invite": "Pozovi"
+    "invite": "Pozovi",
+    "save": "Spremi"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -134,6 +135,8 @@
     "confirmRemoveMember": "Jeste li sigurni da želite ukloniti ovog člana?",
     "subtitle": "Upravljaj svojim budžetima, timovima i financijama.",
     "addBtn": "Novi prostor",
+    "nameLabel": "Naziv radnog prostora",
+    "type": "Vrsta radnog prostora",
     "loadFailed": "Greška pri učitavanju radnih prostora.",
     "createFailed": "Greška pri kreiranju radnog prostora.",
     "deleteWorkspace": "Obriši radni prostor"

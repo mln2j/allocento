@@ -6,7 +6,8 @@
     "reject": "Reject",
     "loading": "Loading...",
     "back": "Back",
-    "invite": "Invite"
+    "invite": "Invite",
+    "save": "Save"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -140,6 +141,8 @@
     "addBtn": "New Workspace",
     "loadFailed": "Failed to load workspaces.",
     "createFailed": "Failed to create workspace.",
-    "deleteWorkspace": "Delete Workspace"
+    "deleteWorkspace": "Delete Workspace",
+    "nameLabel": "Workspace Name",
+    "type": "Workspace Type"
   }
 }
