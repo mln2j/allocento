@@ -9,7 +9,7 @@ import { TranslationService } from '../translation.service';
   imports: [CommonModule],
   // HOST OBJEKT: Kontrolira klase na samom <app-global-loading> tagu ovisno o stanju signala!
   host: {
-    '[class]': '"absolute inset-0 rounded-2xl overflow-hidden z-50 transition-all duration-300"',
+    '[class]': '"absolute inset-0 w-full h-full overflow-hidden z-50 transition-all duration-300"',
     '[class.pointer-events-auto]': 'loadingService.loading()',
     '[class.pointer-events-none]': '!loadingService.loading()'
   },

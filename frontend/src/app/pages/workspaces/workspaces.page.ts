@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
 import { TranslationService } from '../../core/services/translation.service';
+import {LoadingService} from '../../core/services/loading/loading.service';
 
 @Component({
   selector: 'app-workspaces',
@@ -14,11 +15,11 @@ export class WorkspacesPage implements OnInit {
   private workspaceRepo = inject(WorkspaceRepository);
   private fb = inject(FormBuilder);
   private translationService = inject(TranslationService);
+  private loadingService = inject(LoadingService);
 
   workspaces: Workspace[] = [];
   workspaceForm!: FormGroup;
 
-  isLoading = true;
   isModalOpen = false;
   isSaving = false;
   isTypeDropdownOpen = false;
@@ -31,6 +32,22 @@ export class WorkspacesPage implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadWorkspaces();
+
+    window.addEventListener(
+      'workspace-updated',
+      this.handleWorkspaceRefresh
+    );
+  }
+
+  handleWorkspaceRefresh = () => {
+    this.loadWorkspaces();
+  };
+
+  ngOnDestroy() {
+    window.removeEventListener(
+      'workspace-updated',
+      this.handleWorkspaceRefresh
+    );
   }
 
   // Helper za prijevode
@@ -48,14 +65,14 @@ export class WorkspacesPage implements OnInit {
   }
 
   loadWorkspaces() {
-    this.isLoading = true;
+    this.loadingService.show();
     this.workspaceRepo.getWorkspaces().subscribe({
       next: (data) => {
         this.workspaces = data;
-        this.isLoading = false;
+        this.loadingService.hide();
       },
       error: () => {
-        this.isLoading = false;
+        this.loadingService.hide();
         alert(this.t('workspaces.loadFailed'));
       }
     });
@@ -144,19 +161,20 @@ export class WorkspacesPage implements OnInit {
     });
   }
 
-// Pozivanje člana
   inviteEmail = ''; // Dodaj ovu varijablu na vrh klase
   inviteMember() {
     if (!this.selectedWorkspace || !this.inviteEmail) return;
 
-    const id = this.selectedWorkspace.workspace_id || this.selectedWorkspace.id;
+    const wsId = this.selectedWorkspace.workspace_id || this.selectedWorkspace.id;
 
-    this.workspaceRepo.inviteMember(id, this.inviteEmail).subscribe({
-      next: (res) => {
+    this.workspaceRepo.inviteMember(wsId, this.inviteEmail).subscribe({
+      next: () => {
         alert('Poziv poslan!');
         this.inviteEmail = '';
-        // Osvježi detalje da se vidi novi član ako API vraća listu
-        this.viewDetails(this.selectedWorkspace!);
+
+        if (this.selectedWorkspace) {
+          this.viewDetails(this.selectedWorkspace);
+        }
       },
       error: () => alert('Greška pri pozivanju.')
     });

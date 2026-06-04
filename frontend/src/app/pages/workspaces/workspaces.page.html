@@ -17,11 +17,7 @@
       </button>
     </div>
 
-    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20 space-y-3 font-mono text-xs text-slate-400">
-      <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-brand-purple"></div>
-    </div>
-
-    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div *ngFor="let ws of workspaces"
            (click)="viewDetails(ws)"
            class="glass-card hover:border-brand-purple/30 p-5 flex flex-col justify-between h-40 cursor-pointer group transition-all duration-200">
@@ -132,7 +128,7 @@
     </div>
   </ng-container>
 
-  <div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-110 flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>
 
     <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-6 animate-in zoom-in-95 duration-200">

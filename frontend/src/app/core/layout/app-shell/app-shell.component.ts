@@ -128,16 +128,18 @@ export class AppShellComponent implements OnInit {
     this.logger.log(this.t(logKey));
   }
 
-  respondToInvitation(id: number, accept: boolean) {
-    const endpoint = accept ? 'accept' : 'reject';
-    this.logger.log(this.t('logs.invitationResponding', { id, endpoint }));
+  respondToInvitation(invite: any, accept: boolean) {
+    const action = accept ? this.inviteRepo.accept : this.inviteRepo.reject;
 
-    this.http.post(`${API_BASE_URL}/invitations/${id}/${endpoint}`, {}).subscribe({
+    action.call(this.inviteRepo, invite.token).subscribe({
       next: () => {
         this.loadPendingInvitations();
-        this.http.get<User>(`${API_BASE_URL}/user`).subscribe(u => this.user = u);
+
+        this.http.get<User>(`${API_BASE_URL}/user`)
+          .subscribe(u => this.user = u);
       },
-      error: (err) => this.logger.error(this.t('logs.invitationResponseFailed', { id }), err)
+      error: (err) =>
+        this.logger.error(this.t('logs.invitationResponseFailed'), err)
     });
   }
 

@@ -60,7 +60,7 @@ export class SplashPage implements OnInit {
       if (targetRoute === 'login') {
         this.router.navigate(['/auth/login']);
       } else {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/settings']);
       }
 
     } catch (error) {

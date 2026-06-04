@@ -27,7 +27,7 @@ export class WorkspaceRepository {
   }
 
   setFavoriteWorkspace(id: string | number): Observable<any> {
-    return this.http.post(`${API_BASE_URL}/workspaces/${id}/favorite`, {});
+    return this.http.post(`${API_BASE_URL}/workspaces/${id}/set-favorite`, {});
   }
 
   removeMember(wsId: string | number, userId: number): Observable<any> {
@@ -51,6 +51,9 @@ export class WorkspaceRepository {
   }
 
   inviteMember(wsId: string | number, email: string): Observable<any> {
-    return this.http.post(`${API_BASE_URL}/workspaces/${wsId}/members`, { email });
+    return this.http.post(
+      `${API_BASE_URL}/workspaces/${wsId}/invitations`,
+      { email }
+    );
   }
 }
