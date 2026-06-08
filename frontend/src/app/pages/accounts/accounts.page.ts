@@ -5,12 +5,15 @@ import { AccountRepository } from '../../core/repositories/account.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { LoadingService } from '../../core/services/loading/loading.service';
+import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { Account, AccountType } from '../../core/models/account.model';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
   templateUrl: './accounts.page.html',
 })
 export class AccountsPage implements OnInit {
@@ -19,6 +22,8 @@ export class AccountsPage implements OnInit {
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private loadingService = inject(LoadingService);
+  private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
 
   accounts = signal<Account[]>([]);
   isOnline = signal<boolean>(true);
@@ -63,7 +68,7 @@ export class AccountsPage implements OnInit {
       error: (err) => {
         this.loadingService.hide();
         console.error('Failed to load accounts:', err);
-        alert(this.t('workspaces.loadFailed'));
+        this.toastService.error(this.t('accounts.loadFailed') || 'Failed to load accounts.');
       }
     });
   }
@@ -75,7 +80,7 @@ export class AccountsPage implements OnInit {
 
   openCreateModal() {
     if (!this.isOnline()) {
-      alert('Adding accounts is disabled in offline mode.');
+      this.toastService.warning(this.t('accounts.offlineNotice') || 'Offline: Add/Edit disabled');
       return;
     }
     this.editingAccountId = null;
@@ -90,7 +95,7 @@ export class AccountsPage implements OnInit {
 
   openEditModal(acc: Account) {
     if (!this.isOnline()) {
-      alert('Editing accounts is disabled in offline mode.');
+      this.toastService.warning(this.t('accounts.offlineNotice') || 'Offline: Add/Edit disabled');
       return;
     }
     this.editingAccountId = acc.id;
@@ -128,11 +133,12 @@ export class AccountsPage implements OnInit {
         next: () => {
           this.isSaving = false;
           this.closeModal();
+          this.toastService.success(this.t('accounts.updateSuccess') || 'Account updated successfully!');
           this.loadAccounts();
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Failed to update account.');
+          this.toastService.error(err.error?.message || this.t('accounts.updateFailed') || 'Failed to update account.');
         }
       });
     } else {
@@ -140,11 +146,12 @@ export class AccountsPage implements OnInit {
         next: () => {
           this.isSaving = false;
           this.closeModal();
+          this.toastService.success(this.t('accounts.createSuccess') || 'Account created successfully!');
           this.loadAccounts();
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Failed to create account.');
+          this.toastService.error(err.error?.message || this.t('accounts.createFailed') || 'Failed to create account.');
         }
       });
     }
@@ -157,11 +164,12 @@ export class AccountsPage implements OnInit {
     this.loadingService.show();
     this.accountRepo.setPrimary(acc.id).subscribe({
       next: () => {
+        this.toastService.success(this.t('accounts.setPrimarySuccess') || 'Primary account updated successfully!');
         this.loadAccounts();
       },
       error: () => {
         this.loadingService.hide();
-        alert('Failed to set primary account.');
+        this.toastService.error(this.t('accounts.setPrimaryFailed') || 'Failed to set primary account.');
       }
     });
   }
@@ -170,17 +178,25 @@ export class AccountsPage implements OnInit {
     event.stopPropagation();
     if (!this.isOnline()) return;
 
-    if (!confirm('Are you sure you want to delete this account?')) return;
+    this.dialogService.confirm(
+      this.t('accounts.deleteTitle') || 'Delete Account',
+      this.t('accounts.deleteConfirm') || 'Are you sure you want to delete this account?',
+      this.t('common.delete') || 'Delete',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
 
-    this.loadingService.show();
-    this.accountRepo.delete(acc.id).subscribe({
-      next: () => {
-        this.loadAccounts();
-      },
-      error: () => {
-        this.loadingService.hide();
-        alert('Failed to delete account.');
-      }
+      this.loadingService.show();
+      this.accountRepo.delete(acc.id).subscribe({
+        next: () => {
+          this.toastService.success(this.t('accounts.deleteSuccess') || 'Account deleted successfully!');
+          this.loadAccounts();
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          this.toastService.error(err.error?.message || this.t('accounts.deleteFailed') || 'Failed to delete account.');
+        }
+      });
     });
   }
 

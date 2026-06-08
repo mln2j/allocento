@@ -13,6 +13,7 @@ import { LoadingService } from '../../services/loading/loading.service';
 import { LoadingComponent } from '../../services/loading/loading.component';
 import { TranslationService } from '../../services/translation.service';
 import { LoggerService } from '../../services/logger.service';
+import { ToastService } from '../../services/toast.service';
 
 import { HeaderComponent } from '../header/header.component';
 import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
@@ -44,6 +45,7 @@ export class AppShellComponent implements OnInit {
   public loadingService = inject(LoadingService);
   public appInitializer = inject(AppInitializerService);
   private localDb = inject(LocalDbService);
+  public toastService = inject(ToastService);
 
   t(key: string, params?: any): string {
     return this.translationService.translate(key, params);

@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Household;
-use App\Models\Organization;
 
 class ProfileController extends Controller
 {
@@ -106,16 +104,15 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Check ownership
-        if (Household::where('owner_id', $user->id)->exists()) {
-            return response()->json([
-                'message' => 'Cannot delete account. You are the owner of a household. Please transfer ownership or delete the household first.'
-            ], 403);
-        }
+        // Check workspace ownership
+        $ownsSharedWorkspaces = $user->workspaces()
+            ->wherePivot('role', 'owner')
+            ->where('type', '!=', 'personal')
+            ->exists();
 
-        if (Organization::where('owner_id', $user->id)->exists()) {
+        if ($ownsSharedWorkspaces) {
             return response()->json([
-                'message' => 'Cannot delete account. You are the owner of an organization. Please transfer ownership or delete the organization first.'
+                'message' => 'Cannot delete account. You are the owner of a shared workspace. Please transfer ownership or delete the workspace first.'
             ], 403);
         }
 

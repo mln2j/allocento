@@ -5,11 +5,14 @@ import { WorkspaceRepository, Workspace } from '../../core/repositories/workspac
 import { TranslationService } from '../../core/services/translation.service';
 import { LoadingService } from '../../core/services/loading/loading.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
+import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-workspaces',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
   templateUrl: './workspaces.page.html',
 })
 export class WorkspacesPage implements OnInit, OnDestroy {
@@ -18,6 +21,8 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private loadingService = inject(LoadingService);
   private appInitializer = inject(AppInitializerService);
+  private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
 
   workspaces = signal<Workspace[]>([]);
   workspaceForm!: FormGroup;
@@ -77,7 +82,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       },
       error: () => {
         this.loadingService.hide();
-        alert(this.t('workspaces.loadFailed'));
+        this.toastService.error(this.t('workspaces.loadFailed') || 'Failed to load workspaces.');
       }
     });
   }
@@ -96,7 +101,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       error: () => {
         this.isLoadingDetails = false;
         this.loadingService.hide();
-        alert('Failed to load workspace details.');
+        this.toastService.error(this.t('workspaces.loadDetailsFailed') || 'Failed to load workspace details.');
       }
     });
   }
@@ -117,39 +122,47 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   removeMember(userId: number) {
     if (!this.isOnline()) {
-      alert('Removing members is disabled in offline mode.');
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
       return;
     }
 
-    if (!confirm(this.t('workspaces.confirmRemoveMember') || 'Are you sure?')) return;
+    this.dialogService.confirm(
+      this.t('workspaces.membersManagement') || 'Members Management',
+      this.t('workspaces.confirmRemoveMember') || 'Are you sure you want to remove this member?',
+      this.t('common.reject') || 'Remove',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
 
-    const currentWS = this.selectedWorkspace();
-    if (!currentWS) return;
+      const currentWS = this.selectedWorkspace();
+      if (!currentWS) return;
 
-    const wsId = currentWS.workspace_id || currentWS.id;
-    this.loadingService.show();
+      const wsId = currentWS.workspace_id || currentWS.id;
+      this.loadingService.show();
 
-    this.workspaceRepo.removeMember(wsId, userId).subscribe({
-      next: () => {
-        this.loadingService.hide();
-        // Update local state
-        const updated = { ...currentWS };
-        if (updated.users) {
-          updated.users = updated.users.filter(u => u.id !== userId);
+      this.workspaceRepo.removeMember(wsId, userId).subscribe({
+        next: () => {
+          this.loadingService.hide();
+          this.toastService.success(this.t('workspaces.removeMemberSuccess') || 'Member removed successfully!');
+          // Update local state
+          const updated = { ...currentWS };
+          if (updated.users) {
+            updated.users = updated.users.filter(u => u.id !== userId);
+          }
+          this.selectedWorkspace.set(updated);
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          console.error(err);
+          this.toastService.error(err.error?.message || this.t('workspaces.removeMemberFailed') || 'Failed to remove member.');
         }
-        this.selectedWorkspace.set(updated);
-      },
-      error: (err) => {
-        this.loadingService.hide();
-        console.error(err);
-        alert(this.t('workspaces.removeMemberFailed') || 'Failed to remove member.');
-      }
+      });
     });
   }
 
   openCreateModal() {
     if (!this.isOnline()) {
-      alert('Creating workspaces is disabled in offline mode.');
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
       return;
     }
     this.workspaceForm.reset({
@@ -170,33 +183,41 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   deleteWorkspace() {
     if (!this.isOnline()) {
-      alert('Deleting workspaces is disabled in offline mode.');
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
       return;
     }
 
     const currentWS = this.selectedWorkspace();
     if (!currentWS) return;
 
-    if (!confirm('Are you sure you want to delete this workspace?')) return;
+    this.dialogService.confirm(
+      this.t('workspaces.deleteWorkspace') || 'Delete Workspace',
+      this.t('workspaces.deleteConfirm') || 'Are you sure you want to delete this workspace?',
+      this.t('common.reject') || 'Delete',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
 
-    const id = currentWS.workspace_id || currentWS.id;
-    this.loadingService.show();
+      const id = currentWS.workspace_id || currentWS.id;
+      this.loadingService.show();
 
-    this.workspaceRepo.deleteWorkspace(id).subscribe({
-      next: () => {
-        this.loadingService.hide();
-        this.closeDetails();
-      },
-      error: () => {
-        this.loadingService.hide();
-        alert('Failed to delete workspace.');
-      }
+      this.workspaceRepo.deleteWorkspace(id).subscribe({
+        next: () => {
+          this.loadingService.hide();
+          this.toastService.success(this.t('workspaces.deleteSuccess') || 'Workspace deleted successfully!');
+          this.closeDetails();
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          this.toastService.error(err.error?.message || this.t('workspaces.deleteFailed') || 'Failed to delete workspace.');
+        }
+      });
     });
   }
 
   inviteMember() {
     if (!this.isOnline()) {
-      alert('Inviting members is disabled in offline mode.');
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
       return;
     }
 
@@ -209,13 +230,13 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.workspaceRepo.inviteMember(wsId, this.inviteEmail).subscribe({
       next: () => {
         this.loadingService.hide();
-        alert('Poziv poslan!');
+        this.toastService.success(this.t('workspaces.inviteSuccess') || 'Invitation sent successfully!');
         this.inviteEmail = '';
         this.viewDetails(currentWS);
       },
-      error: () => {
+      error: (err) => {
         this.loadingService.hide();
-        alert('Greška pri pozivanju.');
+        this.toastService.error(err.error?.message || this.t('workspaces.inviteFailed') || 'Failed to send invitation.');
       }
     });
   }
@@ -235,15 +256,12 @@ export class WorkspacesPage implements OnInit, OnDestroy {
         this.isSaving = false;
         this.loadingService.hide();
         this.closeModal();
+        this.toastService.success(this.t('workspaces.createSuccess') || 'Workspace created successfully!');
       },
       error: (err) => {
         this.isSaving = false;
         this.loadingService.hide();
-        if (err.status === 422 && err.error?.message) {
-          alert(err.error.message);
-        } else {
-          alert(this.t('workspaces.createFailed') || 'Failed to create workspace.');
-        }
+        this.toastService.error(err.error?.message || this.t('workspaces.createFailed') || 'Failed to create workspace.');
       }
     });
   }

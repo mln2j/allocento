@@ -1,10 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-  MatDialogModule,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
 export interface ConfirmDialogData {
@@ -19,29 +15,34 @@ export interface ConfirmDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
-    <div class="dialog-header">
-      <h2 mat-dialog-title>{{ data.title }}</h2>
+    <div class="p-6 max-w-sm bg-white rounded-2xl flex flex-col items-center text-center">
+      <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </div>
+
+      <h2 class="text-base font-bold font-mono text-slate-900 mb-2">{{ data.title }}</h2>
+      <p class="text-xs text-slate-500 font-sans leading-relaxed mb-6">{{ data.message }}</p>
+
+      <div class="grid grid-cols-2 gap-3 w-full font-mono text-xs">
+        <button 
+          (click)="onCancel()"
+          class="h-11 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer outline-none"
+        >
+          {{ data.cancelText || 'Cancel' }}
+        </button>
+        <button 
+          (click)="onConfirm()"
+          class="h-11 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all cursor-pointer outline-none shadow-md"
+        >
+          {{ data.confirmText || 'Confirm' }}
+        </button>
+      </div>
     </div>
-
-    <mat-dialog-content>
-      <p class="dialog-msg">{{ data.message }}</p>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button class="btn btn-ghost btn-cancel" (click)="onCancel()">
-        {{ data.cancelText || 'Cancel' }}
-      </button>
-      <button class="btn btn-danger btn-confirm" (click)="onConfirm()">
-        {{ data.confirmText || 'Delete' }}
-      </button>
-    </mat-dialog-actions>
   `,
   styles: [`
-    :host { display: block; padding: 8px; }
-    h2 { font-weight: 800; color: #1e293b; margin-bottom: 8px; }
-    .dialog-msg { color: #64748b; font-size: 1rem; line-height: 1.5; }
-    mat-dialog-actions { padding: 16px 0 8px; gap: 8px; }
-    .btn-cancel, .btn-confirm { border-radius: 12px; height: 44px; font-weight: 600; }
+    :host { display: block; }
   `]
 })
 export class ConfirmDialogComponent {

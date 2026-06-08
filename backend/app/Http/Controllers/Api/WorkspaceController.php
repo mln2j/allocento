@@ -153,7 +153,7 @@ class WorkspaceController extends Controller
             return response()->json(['error' => 'You do not have permission to manage members.'], 403);
         }
 
-        $targetUser = $workspace->users()->where('user_id', $userId)->first();
+        $targetUser = $workspace->users()->where('users.id', $userId)->first();
         if (!$targetUser) {
             return response()->json(['error' => 'Member not found in this workspace.'], 404);
         }

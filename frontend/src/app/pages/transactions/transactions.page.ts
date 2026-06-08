@@ -6,13 +6,15 @@ import { AccountRepository } from '../../core/repositories/account.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { LoadingService } from '../../core/services/loading/loading.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { Account } from '../../core/models/account.model';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
   templateUrl: './transactions.page.html',
 })
 export class TransactionsPage implements OnInit {
@@ -21,6 +23,7 @@ export class TransactionsPage implements OnInit {
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private loadingService = inject(LoadingService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
   transactions = signal<Transaction[]>([]);
@@ -109,6 +112,7 @@ export class TransactionsPage implements OnInit {
       error: (err) => {
         this.loadingService.hide();
         console.error('Failed to load transactions:', err);
+        this.toastService.error(this.t('transactions.loadFailed') || 'Failed to load transactions.');
       }
     });
   }
@@ -155,7 +159,7 @@ export class TransactionsPage implements OnInit {
   getSelectedAccountName(): string {
     const id = this.transactionForm.get('accountId')?.value;
     const acc = this.accounts().find(a => a.id === id);
-    return acc ? acc.name : 'Select Account';
+    return acc ? acc.name : (this.t('transactions.selectAccount') || 'Select Account');
   }
 
   setTxType(type: 'income' | 'expense') {
@@ -173,11 +177,12 @@ export class TransactionsPage implements OnInit {
       next: () => {
         this.isSaving = false;
         this.closeModal();
+        this.toastService.success(this.t('transactions.createSuccess') || 'Transaction recorded successfully!');
         this.loadData();
       },
       error: (err) => {
         this.isSaving = false;
-        alert(err.error?.message || 'Failed to record transaction.');
+        this.toastService.error(err.error?.message || this.t('transactions.createFailed') || 'Failed to record transaction.');
       }
     });
   }
@@ -195,11 +200,12 @@ export class TransactionsPage implements OnInit {
     yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return this.t('common.today') || 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return this.t('common.yesterday') || 'Yesterday';
     } else {
-      return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      const locale = this.translationService.currentLang() === 'hr' ? 'hr-HR' : 'en-US';
+      return date.toLocaleDateString(locale, { weekday: 'long', month: 'short', day: 'numeric' });
     }
   }
 

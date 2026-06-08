@@ -9,6 +9,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserRepository } from '../../core/repositories/user.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
+import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
 
 @Component({
   selector: 'app-settings',
@@ -23,6 +25,8 @@ export class SettingsPage implements OnInit {
   private userRepo = inject(UserRepository);
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
+  private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
 
   user = signal<User | null>(null);
   profileForm!: FormGroup;
@@ -51,7 +55,7 @@ export class SettingsPage implements OnInit {
         this.user.set(u);
       },
       error: () => {
-        alert(this.t('profile.loadFailed') || 'Failed to load user settings.');
+        this.toastService.error(this.t('profile.loadFailed') || 'Failed to load user settings.');
       }
     });
   }
@@ -84,7 +88,7 @@ export class SettingsPage implements OnInit {
 
   enableEditMode() {
     if (!this.isOnline()) {
-      alert('Editing profile is disabled in offline mode.');
+      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
       return;
     }
 
@@ -136,7 +140,7 @@ export class SettingsPage implements OnInit {
 
   saveProfile() {
     if (!this.isOnline()) {
-      alert('Saving profile changes is disabled in offline mode.');
+      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
       return;
     }
 
@@ -178,6 +182,7 @@ export class SettingsPage implements OnInit {
         this.isSaving = false;
         this.selectedFile = null;
         this.photoPreview = null;
+        this.toastService.success(this.t('profile.successUpdate') || 'Profile updated successfully!');
 
         if (this.profileForm) {
           this.profileForm.get('current_password')?.setValue('');
@@ -190,9 +195,9 @@ export class SettingsPage implements OnInit {
         console.error('Update failed:', err);
 
         if (err.status === 422 && err.error?.message) {
-          alert(err.error.message);
+          this.toastService.error(err.error.message);
         } else {
-          alert(this.t('profile.updateFailed') || 'Profile update failed.');
+          this.toastService.error(this.t('profile.updateFailed') || 'Profile update failed.');
         }
       }
     });
@@ -205,22 +210,32 @@ export class SettingsPage implements OnInit {
 
   deleteAccount() {
     if (!this.isOnline()) {
-      alert('Deleting your account is disabled in offline mode.');
+      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
       return;
     }
 
-    if (confirm(this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?')) {
+    this.dialogService.confirm(
+      this.t('profile.deleteAccount') || 'Delete Account',
+      this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?',
+      this.t('common.reject') || 'Delete',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
+
       this.userRepo.deleteAccount().subscribe({
-        next: () => this.logout(),
+        next: () => {
+          this.toastService.success(this.t('profile.deleteSuccess') || 'Account deleted successfully.');
+          this.logout();
+        },
         error: (err) => {
           if (err.status === 403 && err.error?.message) {
-            alert(err.error.message);
+            this.toastService.error(err.error.message);
           } else {
-            alert('Failed to delete account.');
+            this.toastService.error(this.t('profile.deleteFailed') || 'Failed to delete account.');
           }
         }
       });
-    }
+    });
   }
 
   t(key: string): string {
