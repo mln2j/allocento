@@ -1,23 +1,67 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
   imports: [CommonModule],
+  styles: [`
+    .modal-overlay {
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
+    .modal-overlay.closed {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .modal-sheet {
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease-out;
+    }
+    @media (max-width: 639px) {
+      .modal-sheet.closed {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+      .modal-sheet.open {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    @media (min-width: 640px) {
+      .modal-sheet.closed {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      .modal-sheet.open {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  `],
   template: `
     <div 
-      [class]="'fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0 transition-all duration-300 ease-in-out ' + (isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')"
+      class="fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0 modal-overlay"
+      [class.open]="isOpen"
+      [class.closed]="!isOpen"
     >
       <!-- Backdrop -->
       <div 
-        [class]="'fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 ease-in-out ' + (isOpen ? 'opacity-100' : 'opacity-0')"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 ease-in-out"
+        [style.opacity]="isOpen ? '1' : '0'"
         (click)="close.emit()"
       ></div>
 
       <!-- Modal Content Wrapper -->
       <div 
-        [class]="'relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 transition-all duration-300 ease-out transform ' + (isOpen ? 'translate-y-0 scale-100 opacity-100' : 'max-sm:translate-y-full sm:scale-95 sm:opacity-0') + ' ' + sizeClass"
+        class="relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 modal-sheet"
+        [class.open]="isOpen"
+        [class.closed]="!isOpen"
+        [ngClass]="sizeClass"
       >
         <!-- Mobile Notch Indicator -->
         <div class="sm:hidden w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>

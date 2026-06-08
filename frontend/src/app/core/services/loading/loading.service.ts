@@ -1,6 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Injectable({
@@ -18,6 +17,7 @@ export class LoadingService {
 
   private isRouting = false;
   private showTimeout: any = null;
+  private minDisplayTimeout: any = null; // Minimalno trajanje prikaza
 
   constructor() {
     // Slušamo ruter događaje za instantno paljenje na klik
@@ -38,31 +38,38 @@ export class LoadingService {
         this.startLoading();
       } else {
         this.isRouting = false;
-        this.stopLoading();
+        this.tryStopLoading();
       }
     });
   }
 
   /**
-   * Pokreće loading s odgodom od 200ms
+   * Pokreće loading s odgodom od 200ms — sprječava flash za brze zahtjeve
    */
   private startLoading() {
-    if (this._loading() || this.showTimeout) {
-      return;
-    }
+    if (this.showTimeout) return;
+    if (this._loading()) return; // Već prikazano, ne resetiraj min-timer
 
     this.showTimeout = setTimeout(() => {
       this.showTimeout = null;
       if (this.activeRequests > 0 || this.isRouting) {
         this._loading.set(true);
+        // Nakon što se prikaže, postavi minimalno trajanje od 300ms
+        this.minDisplayTimeout = setTimeout(() => {
+          this.minDisplayTimeout = null;
+          this.tryStopLoading();
+        }, 300);
       }
-    }, 200); // Odgodi prikazivanje za 200ms
+    }, 200);
   }
 
   /**
-   * Pokušava ugasiti loading i čisti timer
+   * Pokušava ugasiti loading — samo ako: nema aktivnih zahtjeva, nije routing, i min-timer je gotov
    */
-  private stopLoading() {
+  private tryStopLoading() {
+    if (this.activeRequests > 0 || this.isRouting) return;
+    if (this.minDisplayTimeout) return; // Čekaj minimalno trajanje
+
     if (this.showTimeout) {
       clearTimeout(this.showTimeout);
       this.showTimeout = null;
@@ -83,6 +90,6 @@ export class LoadingService {
    */
   hide() {
     this.activeRequests = Math.max(0, this.activeRequests - 1);
-    this.stopLoading();
+    this.tryStopLoading();
   }
 }

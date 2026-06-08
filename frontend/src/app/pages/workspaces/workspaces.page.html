@@ -70,7 +70,7 @@
 
       <!-- Add Space dashed card -->
       <button 
-        *ngIf="isOnline()"
+        *ngIf="isOnline() && !isLoading()"
         (click)="openCreateModal()"
         class="w-full bg-slate-50/50 border border-dashed border-slate-200 rounded-xl p-4 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-brand-purple/30 transition-all group cursor-pointer outline-none min-h-[56px]"
       >

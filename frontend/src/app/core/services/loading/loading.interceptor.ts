@@ -5,7 +5,7 @@ import { LoadingService } from './loading.service';
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const loadingService = inject(LoadingService);
-  const skipLoader = req.headers.has('X-Skip-Loader') || req.method === 'GET';
+  const skipLoader = req.headers.has('X-Skip-Loader');
 
   if (skipLoader) {
     const cleanedReq = req.clone({
