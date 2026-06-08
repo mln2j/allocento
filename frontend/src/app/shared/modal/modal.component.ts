@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   styles: [`
     .modal-overlay {
+      opacity: 0;
       transition: opacity 0.3s ease-in-out;
     }
     .modal-overlay.entering {
@@ -17,7 +18,14 @@ import { CommonModule } from '@angular/common';
     }
 
     .modal-sheet {
+      opacity: 0;
       transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease-out;
+    }
+    .modal-sheet.entering {
+      opacity: 1;
+    }
+    .modal-sheet.leaving {
+      opacity: 0;
     }
 
     @media (max-width: 639px) {
@@ -47,7 +55,6 @@ import { CommonModule } from '@angular/common';
         class="fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0 modal-overlay"
         [class.entering]="isVisible"
         [class.leaving]="!isVisible"
-        style="opacity: 0;"
       >
         <!-- Backdrop -->
         <div
@@ -57,7 +64,7 @@ import { CommonModule } from '@angular/common';
 
         <!-- Sheet -->
         <div
-          class="relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 modal-sheet leaving"
+          class="relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 modal-sheet"
           [class.entering]="isVisible"
           [class.leaving]="!isVisible"
           [ngClass]="sizeClass"
