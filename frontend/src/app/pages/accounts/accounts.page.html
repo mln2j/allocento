@@ -121,7 +121,7 @@
 
     <!-- Empty State / Add Card -->
     <button 
-      *ngIf="isOnline() && !isLoading()"
+      *ngIf="isOnline()"
       (click)="openCreateModal()"
       class="bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[190px] hover:bg-slate-50 hover:border-brand-purple/30 transition-all group cursor-pointer outline-none"
     >

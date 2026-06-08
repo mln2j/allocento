@@ -311,7 +311,6 @@
 
   <!-- Floating Action Button (FAB) for Recording Transaction -->
   <button 
-    *ngIf="!isLoading()"
     (click)="openCreateModal()"
     class="fixed bottom-24 sm:bottom-10 right-6 xl:right-[calc((100vw-80rem)/2+1.5rem)] z-40 bg-brand-purple hover:bg-[#4a1772] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(98,30,149,0.3)] hover:shadow-[0_8px_30px_rgba(98,30,149,0.5)] active:scale-95 transition-all duration-200 group cursor-pointer outline-none border-none"
     [title]="t('transactions.recordTitle')"
