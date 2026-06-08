@@ -6,5 +6,7 @@ export interface Account {
   type: AccountType;
   currency: string;
   balance: number;
+  opening_balance?: number;
   is_primary?: boolean;
+  workspaces?: any[];
 }

@@ -7,6 +7,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { LoadingService } from '../../core/services/loading/loading.service';
 import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { Account } from '../../core/models/account.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -24,6 +25,7 @@ export class TransactionsPage implements OnInit {
   private appInitializer = inject(AppInitializerService);
   private loadingService = inject(LoadingService);
   private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
 
   transactions = signal<Transaction[]>([]);
@@ -97,7 +99,7 @@ export class TransactionsPage implements OnInit {
         
         // Default to primary account if available
         const primary = accs.find(a => a.is_primary) || accs[0];
-        if (primary) {
+        if (primary && !this.editingTxId) {
           this.transactionForm.get('accountId')?.setValue(primary.id);
         }
       }
@@ -142,6 +144,50 @@ export class TransactionsPage implements OnInit {
     this.isModalOpen = true;
   }
 
+  openEditModal(tx: Transaction, event: Event) {
+    event.stopPropagation();
+    this.editingTxId = tx.id;
+
+    // Format date for datetime-local input YYYY-MM-DDTHH:MM
+    const d = new Date(tx.date);
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - offset * 60 * 1000);
+    const dateStr = localDate.toISOString().substring(0, 16);
+
+    this.transactionForm.reset({
+      accountId: tx.accountId,
+      type: tx.type,
+      amount: tx.amount,
+      date: dateStr,
+      description: tx.description
+    });
+    this.isModalOpen = true;
+  }
+
+  deleteTransaction(tx: Transaction, event: Event) {
+    event.stopPropagation();
+    this.dialogService.confirm(
+      this.t('transactions.deleteTitle') || 'Delete Transaction',
+      this.t('transactions.deleteConfirm') || 'Are you sure you want to delete this transaction?',
+      this.t('common.delete') || 'Delete',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
+
+      this.loadingService.show();
+      this.transactionRepo.delete(tx.accountId, tx.id).subscribe({
+        next: () => {
+          this.toastService.success(this.t('transactions.deleteSuccess') || 'Transaction deleted successfully!');
+          this.loadData();
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          this.toastService.error(err.error?.message || this.t('transactions.deleteFailed') || 'Failed to delete transaction.');
+        }
+      });
+    });
+  }
+
   closeModal() {
     this.isModalOpen = false;
     this.isAccountDropdownOpen = false;
@@ -173,18 +219,33 @@ export class TransactionsPage implements OnInit {
     const payload = this.transactionForm.value;
     const accId = payload.accountId;
 
-    this.transactionRepo.create(accId, payload).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.closeModal();
-        this.toastService.success(this.t('transactions.createSuccess') || 'Transaction recorded successfully!');
-        this.loadData();
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this.toastService.error(err.error?.message || this.t('transactions.createFailed') || 'Failed to record transaction.');
-      }
-    });
+    if (this.editingTxId) {
+      this.transactionRepo.update(accId, this.editingTxId, payload).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.closeModal();
+          this.toastService.success(this.t('transactions.updateSuccess') || 'Transaction updated successfully!');
+          this.loadData();
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.toastService.error(err.error?.message || this.t('transactions.updateFailed') || 'Failed to update transaction.');
+        }
+      });
+    } else {
+      this.transactionRepo.create(accId, payload).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.closeModal();
+          this.toastService.success(this.t('transactions.createSuccess') || 'Transaction recorded successfully!');
+          this.loadData();
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.toastService.error(err.error?.message || this.t('transactions.createFailed') || 'Failed to record transaction.');
+        }
+      });
+    }
   }
 
   formatAmount(amount: number | string): string {

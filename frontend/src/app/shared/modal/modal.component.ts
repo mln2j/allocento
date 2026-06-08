@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="isOpen" class="fixed inset-0 z-110 flex items-center justify-center p-4">
+    <div *ngIf="isOpen" class="fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0">
       <!-- Backdrop -->
       <div 
         class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300" 
@@ -15,17 +15,20 @@ import { CommonModule } from '@angular/common';
 
       <!-- Modal Content Wrapper -->
       <div 
-        [class]="'relative w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-6 animate-in zoom-in-95 duration-200 ' + sizeClass"
+        [class]="'relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 max-sm:animate-slide-up sm:animate-zoom-in ' + sizeClass"
       >
+        <!-- Mobile Notch Indicator -->
+        <div class="sm:hidden w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-5">
           <h2 class="text-base font-bold font-mono text-slate-900 flex items-center gap-2">
             <span *ngIf="icon">{{ icon }}</span> {{ title }}
           </h2>
           <button 
             type="button"
             (click)="close.emit()" 
-            class="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none"
+            class="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none border-none bg-transparent"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

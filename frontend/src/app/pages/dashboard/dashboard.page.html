@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <!-- Card B (Linked Primary Account) -->
+    <!-- Card B (Linked Primary Account / Project) -->
     <div class="md:col-span-4 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden min-h-[160px]">
       <div class="absolute -right-4 -bottom-4 opacity-5 text-brand-purple">
         <svg class="w-32 h-32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -38,17 +38,17 @@
             <h3 class="font-bold text-base text-slate-900 tracking-tight">
               {{ primaryAccount()?.name || t('workspaces.linkedAccounts') }}
             </h3>
-            <p class="text-[10px] font-mono text-slate-400 uppercase tracking-wider mt-0.5">
+            <p class="text-[10px] font-mono text-slate-400 uppercase tracking-wider mt-0.5" *ngIf="activeWorkspace()?.type !== 'company'">
               {{ primaryAccount()?.type || 'No primary account' }}
             </p>
           </div>
-          <span *ngIf="primaryAccount()" class="bg-brand-purple/10 text-brand-purple font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+          <span *ngIf="primaryAccount() && activeWorkspace()?.type !== 'company'" class="bg-brand-purple/10 text-brand-purple font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
             Primary
           </span>
         </div>
 
         <div *ngIf="primaryAccount()" class="mt-4">
-          <div class="font-mono text-xs text-slate-400 tracking-widest mb-1">**** **** **** {{ primaryAccount()?.id + 1000 }}</div>
+          <div class="font-mono text-xs text-slate-400 tracking-widest mb-1" *ngIf="activeWorkspace()?.type !== 'company'">**** **** **** {{ primaryAccount()?.id + 1000 }}</div>
           <div class="font-bold font-mono text-2xl text-slate-900">
             {{ formatAmount(primaryAccount()?.balance) }} <span class="text-xs font-normal text-slate-400">{{ primaryAccount()?.currency }}</span>
           </div>
@@ -60,41 +60,175 @@
       </div>
     </div>
 
-    <!-- Card C (Spending Analysis) -->
+    <!-- Card C (Spending Analysis with Tabs) -->
     <div class="md:col-span-12 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 class="font-bold font-mono text-sm text-slate-800 uppercase tracking-wider">Spending Analysis</h3>
-        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.875V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-        </svg>
-      </div>
-
-      <!-- Vertical Bars list -->
-      <div class="h-44 flex items-end justify-around gap-3 border-b border-slate-100 pb-3 px-2">
-        <ng-container *ngFor="let stat of spendingStats()">
-          <div class="w-10 flex flex-col items-center h-full justify-end group cursor-pointer">
-            <!-- Bar -->
-            <div
-              class="w-8 rounded-t-lg transition-all duration-300 relative hover:brightness-95 flex justify-center"
-              [style.height.%]="stat.amount > 0 ? 90 : 5"
-              [style.backgroundColor]="stat.color || '#621E95'">
-              <!-- Tooltip on hover -->
-              <span class="absolute -top-7 bg-slate-900 text-white text-[10px] font-mono px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
-                {{ formatAmount(stat.amount) }} EUR
-              </span>
-            </div>
-          </div>
-        </ng-container>
-        <div *ngIf="spendingStats().length === 0" class="w-full h-full flex items-center justify-center text-xs font-mono text-slate-400 py-12">
-          No spending records in the last 30 days.
+        
+        <!-- Tab Switcher -->
+        <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+          <button 
+            type="button"
+            (click)="activeTab.set('categories')"
+            [ngClass]="activeTab() === 'categories' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-600'"
+            class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer outline-none border-none"
+          >
+            Categories
+          </button>
+          <button 
+            type="button"
+            (click)="activeTab.set('days')"
+            [ngClass]="activeTab() === 'days' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-600'"
+            class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer outline-none border-none"
+          >
+            By Days
+          </button>
         </div>
       </div>
 
-      <!-- Labels -->
-      <div class="flex justify-around mt-3 text-[10px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-        <span *ngFor="let stat of spendingStats()" class="w-10 text-center truncate">
-          {{ stat.name }}
-        </span>
+      <!-- Categories Donut Chart Tab -->
+      <div *ngIf="activeTab() === 'categories'" class="flex flex-col md:flex-row items-center justify-center gap-8 py-4 animate-in fade-in duration-200">
+        <!-- Donut Circle -->
+        <div class="relative w-40 h-40 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner" [style.background]="getDonutGradientStyle()">
+          <!-- Center Hole -->
+          <div class="w-28 h-28 bg-white rounded-full flex flex-col items-center justify-center shadow-xs">
+            <span class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">Total Spent</span>
+            <span class="text-sm font-bold font-mono text-slate-800 mt-0.5">
+              {{ formatAmount(getTotalSpending()) }} <span class="text-[9px] font-normal text-slate-400">EUR</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Category Legend list -->
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+          <div 
+            *ngFor="let stat of spendingStats()"
+            class="flex items-center justify-between p-3 bg-slate-50/50 border border-slate-100/60 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <span class="w-3 h-3 rounded-full flex-shrink-0" [style.backgroundColor]="stat.color || '#621E95'"></span>
+              <span class="font-bold text-xs text-slate-700 truncate">{{ stat.name }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-right pl-2 flex-shrink-0">
+              <span class="text-[10px] font-mono text-slate-400">{{ getCategoryPercentage(stat.amount) }}%</span>
+              <span class="font-mono text-xs font-bold text-slate-800">
+                {{ formatAmount(stat.amount) }} <span class="text-[9px] font-normal text-slate-400">EUR</span>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="spendingStats().length === 0" class="col-span-2 text-center py-8 text-xs font-mono text-slate-400">
+            No spending stats by category.
+          </div>
+        </div>
+      </div>
+
+      <!-- By Days Line Chart Tab -->
+      <div *ngIf="activeTab() === 'days'" class="space-y-4 py-2 animate-in fade-in duration-200">
+        <!-- SVG Container -->
+        <div class="relative w-full overflow-hidden">
+          <svg 
+            viewBox="0 0 700 200" 
+            class="w-full h-auto overflow-visible" 
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <!-- Definitions for gradients -->
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7f5af0" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#7f5af0" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Grid Lines -->
+            <g class="stroke-slate-100 stroke-1 stroke-dasharray-[4,4]">
+              <line x1="50" y1="30" x2="650" y2="30" />
+              <line x1="50" y1="100" x2="650" y2="100" />
+              <line x1="50" y1="160" x2="650" y2="160" />
+            </g>
+
+            <!-- Area Path with Gradient -->
+            <path 
+              *ngIf="dailySpending().length > 0"
+              [attr.d]="getLineChartAreaPath()" 
+              fill="url(#chartGradient)" 
+            />
+
+            <!-- Line Path -->
+            <path 
+              *ngIf="dailySpending().length > 0"
+              [attr.d]="getLineChartPath()" 
+              fill="none" 
+              class="stroke-brand-purple stroke-3 stroke-linecap-round stroke-linejoin-round"
+            />
+
+            <!-- Interactive Points -->
+            <g *ngFor="let p of getLineChartPoints(); let i = index" class="group/point">
+              <!-- Grid line at point's X position on hover -->
+              <line 
+                [attr.x1]="p.x" 
+                y1="30" 
+                [attr.x2]="p.x" 
+                y2="160" 
+                class="stroke-brand-purple/20 stroke-1 stroke-dasharray-[2,2] opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none" 
+              />
+              
+              <!-- Shaded Circle behind -->
+              <circle 
+                [attr.cx]="p.x" 
+                [attr.cy]="p.y" 
+                r="10" 
+                class="fill-brand-purple/10 opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none" 
+              />
+
+              <!-- Point Circle -->
+              <circle 
+                [attr.cx]="p.x" 
+                [attr.cy]="p.y" 
+                r="5" 
+                class="fill-brand-purple stroke-white stroke-2 shadow-sm transition-all duration-200 group-hover/point:r-6 cursor-pointer" 
+              />
+
+              <!-- Tooltip Popup -->
+              <g class="opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none z-30">
+                <!-- Tooltip Background Rect -->
+                <rect 
+                  [attr.x]="p.x - 55" 
+                  [attr.y]="p.y - 40" 
+                  width="110" 
+                  height="30" 
+                  rx="6" 
+                  class="fill-slate-900 shadow-xl" 
+                />
+                <!-- Tooltip Text -->
+                <text 
+                  [attr.x]="p.x" 
+                  [attr.y]="p.y - 21" 
+                  class="fill-white font-mono text-[10px] font-bold" 
+                  text-anchor="middle"
+                >
+                  {{ formatAmount(p.amount) }} EUR
+                </text>
+                <!-- Small Tooltip Arrow -->
+                <polygon 
+                  [attr.points]="(p.x - 4) + ',' + (p.y - 10) + ' ' + (p.x + 4) + ',' + (p.y - 10) + ' ' + p.x + ',' + (p.y - 6)"
+                  class="fill-slate-900" 
+                />
+              </g>
+            </g>
+          </svg>
+
+          <!-- Fallback when empty -->
+          <div *ngIf="dailySpending().length === 0" class="w-full h-44 flex items-center justify-center text-xs font-mono text-slate-400 py-12">
+            No spending records in the last 7 days.
+          </div>
+        </div>
+
+        <!-- Labels -->
+        <div class="flex justify-between px-[50px] text-[10px] font-bold font-mono text-slate-400 uppercase tracking-wider">
+          <span *ngFor="let stat of dailySpending()" class="w-16 text-center truncate">
+            {{ stat.date | date:'EEE' }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -104,14 +238,14 @@
         <h3 class="font-bold font-mono text-sm text-slate-800 uppercase tracking-wider">
           {{ t('nav.transactions') }}
         </h3>
-        <button routerLink="/transactions" class="text-xs font-bold font-mono text-brand-purple hover:underline cursor-pointer outline-none">
+        <button type="button" routerLink="/transactions" class="text-xs font-bold font-mono text-brand-purple hover:underline cursor-pointer border-none bg-transparent outline-none">
           View All →
         </button>
       </div>
 
       <div class="divide-y divide-slate-100">
         <div *ngFor="let tx of recentTransactions()" class="flex items-center justify-between p-4 hover:bg-slate-50/40 transition-colors">
-          <div class="flex items-center gap-4 truncate">
+          <div class="flex items-center gap-4 min-w-0 flex-1">
             <!-- Type Icon Indicator -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                  [ngClass]="tx.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-500'">
@@ -122,16 +256,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
               </svg>
             </div>
-            <div class="truncate">
+            <div class="min-w-0 flex-1 truncate">
               <div class="font-bold text-sm text-slate-800 truncate leading-tight">{{ tx.description || 'No description' }}</div>
-              <div class="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider">
+              <div class="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider truncate">
                 {{ tx.date | date:'dd.MM.yyyy, HH:mm' }} |
                 <span class="font-sans font-medium text-slate-500">{{ tx.createdBy?.name || tx.user?.name || 'Local user' }}</span>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-4 text-right flex-shrink-0">
+          <div class="flex items-center gap-4 text-right flex-shrink-0 pl-2">
             <span *ngIf="tx.category" class="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider">
               {{ tx.category?.name }}
             </span>

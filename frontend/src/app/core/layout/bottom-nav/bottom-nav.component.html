@@ -15,7 +15,7 @@
         [routerLink]="item.path"
         class="flex-1 flex items-center justify-center h-full relative z-10 outline-none transition-colors duration-200 group"
         [ngClass]="isActive(item.path) ? 'text-brand-purple' : 'text-slate-400 hover:text-slate-600'"
-        [attr.aria-label]="t(item.translationKey)"
+        [attr.aria-label]="t(getTranslationKey(item))"
       >
 
         <svg
@@ -30,7 +30,7 @@
         </svg>
 
         <span class="absolute -top-10 bg-slate-900 text-white text-[10px] font-mono px-2.5 py-1 rounded-md opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-md">
-          {{ t(item.translationKey) }}
+          {{ t(getTranslationKey(item)) }}
         </span>
 
       </a>

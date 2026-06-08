@@ -36,3 +36,7 @@ Thumbs.db
 *.tsbuildinfo
 # Angular
 .angular/
+
+# Local plans and walkthroughs
+IMPLEMENTATION_PLAN.md
+WALKTHROUGH.md

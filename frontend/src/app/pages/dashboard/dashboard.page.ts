@@ -7,6 +7,7 @@ import { LocalDbService } from '../../core/services/local-db';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { API_BASE_URL } from '../../core/api.config';
 import { firstValueFrom } from 'rxjs';
+import { WorkspaceService } from '../../core/services/workspace.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,14 +21,20 @@ export class DashboardPage implements OnInit {
   private localDb = inject(LocalDbService);
   private appInitializer = inject(AppInitializerService);
   private router = inject(Router);
+  private workspaceService = inject(WorkspaceService);
 
   // Reaktivna stanja
   totalBalance = signal<number>(0);
   primaryAccount = signal<any>(null);
   recentTransactions = signal<any[]>([]);
   spendingStats = signal<any[]>([]);
+  dailySpending = signal<any[]>([]);
   activeWorkspaceName = signal<string>('');
   isOnline = signal<boolean>(true);
+  activeWorkspace = this.workspaceService.activeWorkspace;
+
+  // Tab switcher state
+  activeTab = signal<'categories' | 'days'>('categories');
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
@@ -52,6 +59,7 @@ export class DashboardPage implements OnInit {
       this.primaryAccount.set(data.summary?.primary_account ?? null);
       this.recentTransactions.set(data.recent_transactions ?? []);
       this.spendingStats.set(data.spending_stats ?? []);
+      this.dailySpending.set(data.daily_spending ?? []);
       this.activeWorkspaceName.set(data.workspace?.name ?? '');
 
       // Spremi u IndexedDB cache za offline pristup
@@ -71,6 +79,7 @@ export class DashboardPage implements OnInit {
         primary_account: data.summary?.primary_account,
         recent_transactions: data.recent_transactions,
         spending_stats: data.spending_stats,
+        daily_spending: data.daily_spending,
         workspace_name: data.workspace?.name
       });
     } catch (e) {
@@ -87,6 +96,7 @@ export class DashboardPage implements OnInit {
         this.primaryAccount.set(dashboardCache.primary_account ?? null);
         this.recentTransactions.set(dashboardCache.recent_transactions ?? []);
         this.spendingStats.set(dashboardCache.spending_stats ?? []);
+        this.dailySpending.set(dashboardCache.daily_spending ?? []);
         this.activeWorkspaceName.set(dashboardCache.workspace_name ?? '');
       }
     } catch (e) {
@@ -94,7 +104,8 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  formatAmount(amount: number | string): string {
+  formatAmount(amount: number | string | null | undefined): string {
+    if (amount === null || amount === undefined) return '0,00';
     const val = typeof amount === 'string' ? parseFloat(amount) : amount;
     return val.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
@@ -105,5 +116,91 @@ export class DashboardPage implements OnInit {
 
   getTxSign(tx: any): string {
     return tx.type === 'income' ? '+' : '-';
+  }
+
+  // Categories Donut Chart Gradient generator
+  getDonutGradientStyle(): string {
+    const stats = this.spendingStats();
+    if (!stats || stats.length === 0) {
+      return 'conic-gradient(#f1f5f9 0% 100%)';
+    }
+    const total = stats.reduce((sum, item) => sum + item.amount, 0);
+    if (total === 0) {
+      return 'conic-gradient(#f1f5f9 0% 100%)';
+    }
+    let accumulatedPercent = 0;
+    const slices = stats.map(item => {
+      const percent = (item.amount / total) * 100;
+      const start = accumulatedPercent;
+      accumulatedPercent += percent;
+      return `${item.color || '#621E95'} ${start.toFixed(1)}% ${accumulatedPercent.toFixed(1)}%`;
+    });
+    return `conic-gradient(${slices.join(', ')})`;
+  }
+
+  getCategoryPercentage(amount: number): number {
+    const stats = this.spendingStats();
+    const total = stats.reduce((sum, item) => sum + item.amount, 0);
+    if (total === 0) return 0;
+    return Math.round((amount / total) * 100);
+  }
+
+  getDayBarHeight(amount: number): number {
+    const days = this.dailySpending();
+    const max = Math.max(...days.map(d => d.amount), 0);
+    if (max === 0) return 5;
+    return Math.max(5, Math.round((amount / max) * 90));
+  }
+
+  getLineChartPoints() {
+    const days = this.dailySpending();
+    if (!days || days.length === 0) return [];
+    
+    const max = Math.max(...days.map(d => Number(d.amount)), 0);
+    const maxVal = max === 0 ? 1 : max;
+    
+    const width = 700;
+    const height = 200;
+    const paddingLeftRight = 50;
+    const paddingTop = 30;
+    const paddingBottom = 40;
+    const usableWidth = width - (paddingLeftRight * 2);
+    const usableHeight = height - paddingTop - paddingBottom;
+    
+    return days.map((d, i) => {
+      const x = paddingLeftRight + (days.length > 1 ? (i * usableWidth / (days.length - 1)) : 0);
+      const amount = Number(d.amount);
+      const y = (height - paddingBottom) - (amount / maxVal) * usableHeight;
+      return {
+        x,
+        y,
+        amount,
+        date: d.date,
+        dayName: d.day_name
+      };
+    });
+  }
+
+  getLineChartPath(): string {
+    const pts = this.getLineChartPoints();
+    if (pts.length === 0) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  }
+
+  getLineChartAreaPath(): string {
+    const pts = this.getLineChartPoints();
+    if (pts.length === 0) return '';
+    const linePath = this.getLineChartPath();
+    const height = 200;
+    const paddingBottom = 40;
+    const yBaseline = height - paddingBottom;
+    const firstPt = pts[0];
+    const lastPt = pts[pts.length - 1];
+    
+    return `${linePath} L ${lastPt.x.toFixed(1)} ${yBaseline} L ${firstPt.x.toFixed(1)} ${yBaseline} Z`;
+  }
+
+  getTotalSpending(): number {
+    return this.spendingStats().reduce((sum, item) => sum + (item.amount || 0), 0);
   }
 }

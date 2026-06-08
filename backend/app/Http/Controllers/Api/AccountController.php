@@ -14,7 +14,7 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $workspace = $request->get('_workspace');
-        $accounts = $workspace->accounts()->orderBy('name')->get();
+        $accounts = $workspace->accounts()->with('workspaces')->orderBy('name')->get();
         return response()->json($accounts);
     }
 
@@ -58,7 +58,7 @@ class AccountController extends Controller
             return $account;
         });
 
-        return response()->json($account, 201);
+        return response()->json($account->load('workspaces'), 201);
     }
 
     public function show(Request $request, $id): JsonResponse
@@ -107,7 +107,7 @@ class AccountController extends Controller
             }
         });
 
-        return response()->json($account);
+        return response()->json($account->load('workspaces'));
     }
 
     public function destroy(Request $request, $id): JsonResponse

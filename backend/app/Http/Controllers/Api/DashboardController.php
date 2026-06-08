@@ -51,6 +51,22 @@ class DashboardController extends Controller
                 ];
             });
 
+        // 6. Daily spending for the last 7 days
+        $dailySpending = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dateString = $date->toDateString();
+            $total = Transaction::whereIn('account_id', $accountIds)
+                ->where('type', 'expense')
+                ->whereDate('date', $dateString)
+                ->sum('amount');
+            $dailySpending[] = [
+                'date' => $dateString,
+                'day_name' => $date->format('D'), // e.g. Mon, Tue...
+                'amount' => (float)$total,
+            ];
+        }
+
         return response()->json([
             'workspace' => $workspace,
             'summary' => [
@@ -60,6 +76,7 @@ class DashboardController extends Controller
             'accounts' => $accounts,
             'recent_transactions' => $recentTransactions,
             'spending_stats' => $spendingByCategory,
+            'daily_spending' => $dailySpending,
         ]);
     }
 }

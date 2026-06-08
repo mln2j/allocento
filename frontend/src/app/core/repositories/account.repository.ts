@@ -97,6 +97,7 @@ export class AccountRepository {
         type: payload.type,
         currency: payload.currency,
         balance: payload.balance,
+        opening_balance: payload.balance,
         is_primary: false
       };
 
@@ -152,6 +153,11 @@ export class AccountRepository {
       map(acc => this.mapApiToAccount(acc)),
       tap(async (acc) => {
         try {
+          const list = await this.localDb.getAll('accounts');
+          const existing = list.find(item => item.id === acc.id);
+          if (existing && acc.workspaces === undefined) {
+            acc.workspaces = existing.workspaces;
+          }
           await this.localDb.put('accounts', this.mapAccountToLocal(acc));
         } catch (e) {
           console.warn('Failed to update cached account', acc.id, e);
@@ -196,37 +202,60 @@ export class AccountRepository {
     );
   }
 
+  shareWithWorkspace(workspaceUuid: string, accountId: number): Observable<any> {
+    return this.api.post(`/workspaces/${workspaceUuid}/accounts/${accountId}/share`, {});
+  }
+
+  unshareFromWorkspace(workspaceUuid: string, accountId: number): Observable<any> {
+    return this.api.delete(`/workspaces/${workspaceUuid}/accounts/${accountId}/share`);
+  }
+
   private mapApiToAccount(apiData: any): Account {
-    return {
+    const mapped: Account = {
       id: apiData.id,
       name: apiData.name,
       type: apiData.type,
       currency: apiData.currency,
       balance: Number(apiData.balance ?? 0),
+      opening_balance: Number(apiData.opening_balance ?? apiData.balance ?? 0),
       is_primary: !!apiData.is_primary,
     };
+    if (apiData.workspaces !== undefined) {
+      mapped.workspaces = apiData.workspaces ? apiData.workspaces.map((ws: any) => ws.id || ws) : [];
+    }
+    return mapped;
   }
 
   private mapLocalToAccount(local: any): Account {
-    return {
+    const mapped: Account = {
       id: local.id,
       name: local.name,
       type: local.type,
       currency: local.currency,
       balance: Number(local.balance ?? 0),
-      is_primary: !!local.is_primary
+      opening_balance: Number(local.opening_balance ?? local.balance ?? 0),
+      is_primary: !!local.is_primary,
     };
+    if (local.workspaces !== undefined) {
+      mapped.workspaces = local.workspaces;
+    }
+    return mapped;
   }
 
   private mapAccountToLocal(acc: Account): any {
-    return {
+    const local: any = {
       id: acc.id,
       name: acc.name,
       type: acc.type,
       currency: acc.currency,
       balance: acc.balance,
-      is_primary: acc.is_primary
+      opening_balance: acc.opening_balance,
+      is_primary: acc.is_primary,
     };
+    if (acc.workspaces !== undefined) {
+      local.workspaces = acc.workspaces;
+    }
+    return local;
   }
 }
 

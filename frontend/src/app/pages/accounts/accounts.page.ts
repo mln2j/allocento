@@ -9,6 +9,9 @@ import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { Account, AccountType } from '../../core/models/account.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { WorkspaceService } from '../../core/services/workspace.service';
+import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-accounts',
@@ -18,30 +21,36 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 })
 export class AccountsPage implements OnInit {
   private accountRepo = inject(AccountRepository);
+  private workspaceRepo = inject(WorkspaceRepository);
   private fb = inject(FormBuilder);
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private loadingService = inject(LoadingService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
+  private workspaceService = inject(WorkspaceService);
 
   accounts = signal<Account[]>([]);
   isOnline = signal<boolean>(true);
   totalLiquidBalance = signal<number>(0);
+  activeWorkspace = this.workspaceService.activeWorkspace;
+
+  // Sharing workspaces checklist
+  workspacesList = signal<Workspace[]>([]);
+  selectedWorkspacesMap: { [id: number]: boolean } = {};
+  initialWorkspacesMap: { [id: number]: boolean } = {};
 
   // Modal State
   isModalOpen = false;
   isSaving = false;
   accountForm!: FormGroup;
   editingAccountId: number | null = null;
-  isTypeDropdownOpen = false;
-
-  accountTypes: AccountType[] = ['checking', 'savings', 'cash', 'credit', 'investment', 'other'];
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadAccounts();
+    this.loadWorkspacesForSharing();
   }
 
   t(key: string): string {
@@ -54,6 +63,16 @@ export class AccountsPage implements OnInit {
       type: ['checking', [Validators.required]],
       currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
       balance: [0, [Validators.required, Validators.min(0)]]
+    });
+  }
+
+  loadWorkspacesForSharing() {
+    if (!this.isOnline()) return;
+    this.workspaceRepo.getWorkspaces().subscribe({
+      next: (data) => {
+        // Only show household/company workspaces as share targets
+        this.workspacesList.set(data.filter(ws => ws.type !== 'personal'));
+      }
     });
   }
 
@@ -84,6 +103,8 @@ export class AccountsPage implements OnInit {
       return;
     }
     this.editingAccountId = null;
+    this.selectedWorkspacesMap = {};
+    this.initialWorkspacesMap = {};
     this.accountForm.reset({
       name: '',
       type: 'checking',
@@ -99,6 +120,17 @@ export class AccountsPage implements OnInit {
       return;
     }
     this.editingAccountId = acc.id;
+    
+    // Map existing shared workspaces
+    const linkedIds = acc.workspaces || [];
+    this.selectedWorkspacesMap = {};
+    this.initialWorkspacesMap = {};
+    this.workspacesList().forEach(ws => {
+      const isLinked = linkedIds.includes(ws.id);
+      this.selectedWorkspacesMap[ws.id] = isLinked;
+      this.initialWorkspacesMap[ws.id] = isLinked;
+    });
+
     this.accountForm.reset({
       name: acc.name,
       type: acc.type,
@@ -110,16 +142,6 @@ export class AccountsPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
-    this.isTypeDropdownOpen = false;
-  }
-
-  toggleTypeDropdown() {
-    this.isTypeDropdownOpen = !this.isTypeDropdownOpen;
-  }
-
-  selectType(type: AccountType) {
-    this.accountForm.get('type')?.setValue(type);
-    this.isTypeDropdownOpen = false;
   }
 
   saveAccount() {
@@ -129,12 +151,35 @@ export class AccountsPage implements OnInit {
     const payload = this.accountForm.value;
 
     if (this.editingAccountId) {
+      // Build sharing sync calls
+      const sharePromises: Promise<any>[] = [];
+      this.workspacesList().forEach(ws => {
+        const isChecked = !!this.selectedWorkspacesMap[ws.id];
+        const wasChecked = !!this.initialWorkspacesMap[ws.id];
+        if (isChecked && !wasChecked) {
+          sharePromises.push(firstValueFrom(this.accountRepo.shareWithWorkspace(ws.workspace_id || String(ws.id), this.editingAccountId!)));
+        } else if (!isChecked && wasChecked) {
+          sharePromises.push(firstValueFrom(this.accountRepo.unshareFromWorkspace(ws.workspace_id || String(ws.id), this.editingAccountId!)));
+        }
+      });
+
       this.accountRepo.update(this.editingAccountId, payload).subscribe({
-        next: () => {
-          this.isSaving = false;
-          this.closeModal();
-          this.toastService.success(this.t('accounts.updateSuccess') || 'Account updated successfully!');
-          this.loadAccounts();
+        next: async () => {
+          try {
+            if (sharePromises.length > 0) {
+              await Promise.all(sharePromises);
+            }
+            this.isSaving = false;
+            this.closeModal();
+            this.toastService.success(this.t('accounts.updateSuccess') || 'Account updated successfully!');
+            this.loadAccounts();
+          } catch (err) {
+            console.error('Failed to sync account sharing:', err);
+            this.isSaving = false;
+            this.toastService.error('Account saved but failed to update workspace sharing options.');
+            this.closeModal();
+            this.loadAccounts();
+          }
         },
         error: (err) => {
           this.isSaving = false;
@@ -174,13 +219,19 @@ export class AccountsPage implements OnInit {
     });
   }
 
-  deleteAccount(acc: Account, event: MouseEvent) {
-    event.stopPropagation();
+  deleteAccount(acc: Account, event?: MouseEvent) {
+    if (event) {
+      event.stopPropagation();
+    }
     if (!this.isOnline()) return;
 
+    const isCompany = this.activeWorkspace()?.type === 'company';
+    const deleteTitle = isCompany ? (this.t('accounts.deleteTitle')?.replace('Account', 'Project')?.replace('Račun', 'Projekt') || 'Delete Project') : (this.t('accounts.deleteTitle') || 'Delete Account');
+    const deleteConfirm = isCompany ? (this.t('accounts.deleteConfirm')?.replace('account', 'project')?.replace('račun', 'projekt') || 'Are you sure you want to delete this project?') : (this.t('accounts.deleteConfirm') || 'Are you sure you want to delete this account?');
+
     this.dialogService.confirm(
-      this.t('accounts.deleteTitle') || 'Delete Account',
-      this.t('accounts.deleteConfirm') || 'Are you sure you want to delete this account?',
+      deleteTitle,
+      deleteConfirm,
       this.t('common.delete') || 'Delete',
       this.t('common.cancel') || 'Cancel'
     ).subscribe(confirmed => {
@@ -189,7 +240,8 @@ export class AccountsPage implements OnInit {
       this.loadingService.show();
       this.accountRepo.delete(acc.id).subscribe({
         next: () => {
-          this.toastService.success(this.t('accounts.deleteSuccess') || 'Account deleted successfully!');
+          this.toastService.success(isCompany ? 'Project deleted successfully!' : (this.t('accounts.deleteSuccess') || 'Account deleted successfully!'));
+          this.closeModal();
           this.loadAccounts();
         },
         error: (err) => {
@@ -200,7 +252,22 @@ export class AccountsPage implements OnInit {
     });
   }
 
+  deleteAccountFromModal() {
+    if (!this.editingAccountId) return;
+    const acc = this.accounts().find(a => a.id === this.editingAccountId);
+    if (acc) {
+      this.deleteAccount(acc);
+    }
+  }
+
   formatAmount(amount: number): string {
     return amount.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  getBudgetSpentPercent(acc: Account): number {
+    const total = acc.opening_balance || acc.balance || 0;
+    if (total === 0) return 0;
+    const spent = Math.max(0, total - acc.balance);
+    return Math.min(100, Math.round((spent / total) * 100));
   }
 }

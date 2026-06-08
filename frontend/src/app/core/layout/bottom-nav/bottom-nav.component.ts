@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslationService } from '../../services/translation.service';
 import { LoggerService } from '../../services/logger.service';
+import { WorkspaceService } from '../../services/workspace.service';
 
 interface NavItem {
   path: string;
@@ -22,6 +23,7 @@ export class BottomNavComponent {
   private router = inject(Router);
   private translationService = inject(TranslationService);
   private logger = inject(LoggerService);
+  private workspaceService = inject(WorkspaceService);
 
   // Signal koji drži indeks aktivnog gumba za pokretanje animacije
   activeIndex = signal<number>(0);
@@ -91,6 +93,16 @@ export class BottomNavComponent {
 
   t(key: string, params?: any): string {
     return this.translationService.translate(key, params);
+  }
+
+  getTranslationKey(item: NavItem): string {
+    if (item.path === '/accounts') {
+      const activeWS = this.workspaceService.activeWorkspace();
+      if (activeWS?.type === 'company') {
+        return 'nav.projects';
+      }
+    }
+    return item.translationKey;
   }
 
   isActive(itemPath: string): boolean {
