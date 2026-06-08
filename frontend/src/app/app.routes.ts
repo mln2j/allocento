@@ -46,18 +46,18 @@ export const routes: Routes = [
       }
     ],
     children: [
-      // {
-      //   path: 'dashboard',
-      //   loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      // },
-      // {
-      //   path: 'accounts',
-      //   loadComponent: () => import('./features/accounts/accounts.component').then(m => m.AccountsComponent)
-      // },
-      // {
-      //   path: 'transactions',
-      //   loadComponent: () => import('./features/transactions/transactions.component').then(m => m.TransactionsComponent)
-      // },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/dashboard/dashboard.page').then(m => m.DashboardPage)
+      },
+      {
+        path: 'accounts',
+        loadComponent: () => import('./pages/accounts/accounts.page').then(m => m.AccountsPage)
+      },
+      {
+        path: 'transactions',
+        loadComponent: () => import('./pages/transactions/transactions.page').then(m => m.TransactionsPage)
+      },
       // --- NOVE WORKSPACES RUTE (ZAMIJENE ZA HOUSEHOLD I ORG) ---
       {
         path: 'workspaces',

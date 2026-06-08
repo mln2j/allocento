@@ -61,3 +61,13 @@ src/environments/*.ts
 .vscode
 .DS_Store
 
+/api-tests/http-client.private.env.json
+
+# Design and Stitch files
+/DESIGN.md
+/stitch_allocento_financial_web_app v1/
+/stitch_allocento_financial_web_app v2/
+
+# API tests
+/api-tests/
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import { Component, OnInit, inject, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,6 +8,7 @@ import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRepository } from '../../core/repositories/user.repository';
 import { TranslationService } from '../../core/services/translation.service';
+import { AppInitializerService } from '../../core/services/app-initializer';
 
 @Component({
   selector: 'app-settings',
@@ -19,10 +20,11 @@ export class SettingsPage implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private userRepo = inject(UserRepository); // <--- Sada ga koristimo punim plućima
+  private userRepo = inject(UserRepository);
   private translationService = inject(TranslationService);
+  private appInitializer = inject(AppInitializerService);
 
-  user: User | null = null;
+  user = signal<User | null>(null);
   profileForm!: FormGroup;
 
   isEditMode = false;
@@ -31,24 +33,25 @@ export class SettingsPage implements OnInit {
 
   currentLang = 'en';
   isLangDropdownOpen = false;
+  isOnline = signal<boolean>(true);
 
   selectedFile: File | null = null;
   photoPreview: string | null = null;
 
   ngOnInit() {
+    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.currentLang = this.translationService.currentLang() || 'en';
     this.loadUserData();
   }
 
-  // KORIŠTENJE REPOZITORIJA ZA DOHVAT USERA
   loadUserData() {
     const timestamp = new Date().getTime();
     this.userRepo.getCurrentUser(timestamp).subscribe({
-      next: (user) => {
-        this.user = user;
+      next: (u) => {
+        this.user.set(u);
       },
       error: () => {
-        alert(this.t('profile.loadFailed') || 'Failed to load user settings data.');
+        alert(this.t('profile.loadFailed') || 'Failed to load user settings.');
       }
     });
   }
@@ -80,11 +83,17 @@ export class SettingsPage implements OnInit {
   }
 
   enableEditMode() {
-    if (!this.user) return;
+    if (!this.isOnline()) {
+      alert('Editing profile is disabled in offline mode.');
+      return;
+    }
+
+    const currentUser = this.user();
+    if (!currentUser) return;
 
     this.profileForm = this.fb.group({
-      name: [this.user.name, [Validators.required, Validators.minLength(2)]],
-      email: [this.user.email, [Validators.required, Validators.email]],
+      name: [currentUser.name, [Validators.required, Validators.minLength(2)]],
+      email: [currentUser.email, [Validators.required, Validators.email]],
       current_password: [''],
       password: [''],
       password_confirmation: ['']
@@ -103,6 +112,7 @@ export class SettingsPage implements OnInit {
   }
 
   onFileSelected(event: any) {
+    if (!this.isOnline()) return;
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
@@ -124,8 +134,12 @@ export class SettingsPage implements OnInit {
     }
   }
 
-  // KORIŠTENJE REPOZITORIJA ZA SPREMANJE PROFILA
   saveProfile() {
+    if (!this.isOnline()) {
+      alert('Saving profile changes is disabled in offline mode.');
+      return;
+    }
+
     if (this.profileForm.invalid || this.isSaving) return;
     this.isSaving = true;
 
@@ -136,11 +150,9 @@ export class SettingsPage implements OnInit {
       email: this.profileForm.get('email')?.value
     };
 
-    // Koristimo repozitorij umjesto direktnog http.put
     requests['profile'] = this.userRepo.updateProfile(profileData);
 
     if (this.selectedFile) {
-      // Koristimo repozitorij za sliku
       requests['photo'] = this.userRepo.uploadPhoto(this.selectedFile);
     }
 
@@ -151,7 +163,6 @@ export class SettingsPage implements OnInit {
         password: password,
         password_confirmation: this.profileForm.get('password_confirmation')?.value
       };
-      // Koristimo repozitorij za lozinku
       requests['password'] = this.userRepo.changePassword(passwordData);
     }
 
@@ -162,10 +173,7 @@ export class SettingsPage implements OnInit {
       })
     ).subscribe({
       next: (updatedUser) => {
-        // Kada vraćaš iz repozitorija, Laravel u updateProfile metodi omata objekt
-        // u listu sa strukturom { message, user }, pa nam u switchMapu s getCurrentUser()
-        // ponovo sjeda čisti User objekt na idućoj liniji:
-        this.user = updatedUser;
+        this.user.set(updatedUser);
         this.isEditMode = false;
         this.isSaving = false;
         this.selectedFile = null;
@@ -184,7 +192,7 @@ export class SettingsPage implements OnInit {
         if (err.status === 422 && err.error?.message) {
           alert(err.error.message);
         } else {
-          alert(this.t('profile.updateFailed') || 'Profile update failed. Please check your data.');
+          alert(this.t('profile.updateFailed') || 'Profile update failed.');
         }
       }
     });
@@ -195,8 +203,12 @@ export class SettingsPage implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
-  // KORIŠTENJE REPOZITORIJA ZA BRISANJE RAČUNA
   deleteAccount() {
+    if (!this.isOnline()) {
+      alert('Deleting your account is disabled in offline mode.');
+      return;
+    }
+
     if (confirm(this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?')) {
       this.userRepo.deleteAccount().subscribe({
         next: () => this.logout(),
@@ -204,7 +216,7 @@ export class SettingsPage implements OnInit {
           if (err.status === 403 && err.error?.message) {
             alert(err.error.message);
           } else {
-            alert('Failed to delete account. Please try again later.');
+            alert('Failed to delete account.');
           }
         }
       });

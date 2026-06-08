@@ -20,8 +20,15 @@ export const appConfig: ApplicationConfig = {
           if (!token) {
             return next(req);
           }
+          const headers: Record<string, string> = {
+            Authorization: `Bearer ${token}`
+          };
+          const wsId = localStorage.getItem('active_workspace_id');
+          if (wsId) {
+            headers['X-Workspace-ID'] = wsId;
+          }
           const authReq = req.clone({
-            setHeaders: { Authorization: `Bearer ${token}` },
+            setHeaders: headers,
           });
           return next(authReq);
         },
