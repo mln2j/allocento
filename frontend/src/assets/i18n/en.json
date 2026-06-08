@@ -227,6 +227,12 @@
     "deleteTitle": "Delete Transaction",
     "deleteConfirm": "Are you sure you want to delete this transaction?",
     "deleteSuccess": "Transaction deleted successfully!",
-    "deleteFailed": "Failed to delete transaction."
+    "deleteFailed": "Failed to delete transaction.",
+    "uncategorized": "Uncategorized",
+    "categoryLabel": "Category",
+    "selectCategory": "Select Category",
+    "statusSettled": "Settled",
+    "statusFuture": "Future",
+    "statusQueued": "Queued Offline"
   }
 }

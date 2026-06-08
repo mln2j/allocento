@@ -46,14 +46,20 @@ export class DashboardPage implements OnInit {
   }
 
   async loadDashboardData() {
+    // Učitaj iz IndexedDB cachea odmah da izbjegneš prazne render države
+    await this.loadFromCache();
+
     if (!this.isOnline()) {
-      // Učitavanje iz IndexedDB cachea ako je korisnik offline
-      await this.loadFromCache();
       return;
     }
 
     try {
-      const data = await firstValueFrom(this.http.get<any>(`${API_BASE_URL}/dashboard`));
+      // Background revalidation bez blokiranja korisničkog sučelja
+      const data = await firstValueFrom(
+        this.http.get<any>(`${API_BASE_URL}/dashboard`, {
+          headers: { 'X-Skip-Loader': 'true' }
+        })
+      );
       
       this.totalBalance.set(data.summary?.total_balance ?? 0);
       this.primaryAccount.set(data.summary?.primary_account ?? null);
@@ -65,8 +71,7 @@ export class DashboardPage implements OnInit {
       // Spremi u IndexedDB cache za offline pristup
       await this.saveToCache(data);
     } catch (error) {
-      console.warn('Greška pri učitavanju dashboarda s poslužitelja, pokušavam iz cachea...', error);
-      await this.loadFromCache();
+      console.warn('Greška pri učitavanju dashboarda s poslužitelja:', error);
     }
   }
 
@@ -116,6 +121,11 @@ export class DashboardPage implements OnInit {
 
   getTxSign(tx: any): string {
     return tx.type === 'income' ? '+' : '-';
+  }
+
+  isFuture(tx: any): boolean {
+    if (!tx || !tx.date) return false;
+    return new Date(tx.date).getTime() > Date.now();
   }
 
   // Categories Donut Chart Gradient generator

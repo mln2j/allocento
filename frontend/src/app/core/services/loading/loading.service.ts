@@ -16,9 +16,8 @@ export class LoadingService {
   private _loading = signal<boolean>(false);
   loading = this._loading.asReadonly();
 
-  // Zastavice za kontrolu minimalnog trajanja (250ms)
-  private isLocked = false;
-  private shouldHideAfterUnlock = false;
+  private isRouting = false;
+  private showTimeout: any = null;
 
   constructor() {
     // Slušamo ruter događaje za instantno paljenje na klik
@@ -31,45 +30,44 @@ export class LoadingService {
       )
     ).subscribe(event => {
       if (event instanceof NavigationStart) {
+        // Preskoči prikazivanje loadera ako navigiramo sa splash screena ili početne rute
+        if (this.router.url === '/splash' || this.router.url === '/') {
+          return;
+        }
+        this.isRouting = true;
         this.startLoading();
       } else {
-        // Kada ruter završi, nemoj odmah gasiti nego samo signaliziraj završetak tog dijela
+        this.isRouting = false;
         this.stopLoading();
       }
     });
   }
 
   /**
-   * Pokreće loading i zaključava ga na minimalno 250ms
+   * Pokreće loading s odgodom od 200ms
    */
   private startLoading() {
-    if (!this._loading()) {
-      this._loading.set(true);
-      this.isLocked = true;
-      this.shouldHideAfterUnlock = false;
-
-      // Pokreni timer od 250ms koji drži loader zaključanim bez prekida
-      setTimeout(() => {
-        this.isLocked = false;
-        // Kada se otključa, provjeri je li u međuvremenu stigao zahtjev da se ugasi
-        if (this.shouldHideAfterUnlock && this.activeRequests === 0) {
-          this._loading.set(false);
-        }
-      }, 250); // Minimalno trajanje loadera
+    if (this._loading() || this.showTimeout) {
+      return;
     }
+
+    this.showTimeout = setTimeout(() => {
+      this.showTimeout = null;
+      if (this.activeRequests > 0 || this.isRouting) {
+        this._loading.set(true);
+      }
+    }, 200); // Odgodi prikazivanje za 200ms
   }
 
   /**
-   * Pokušava ugasiti loading, ali poštuje zaključavanje i aktivne HTTP zahtjeve
+   * Pokušava ugasiti loading i čisti timer
    */
   private stopLoading() {
-    if (this.isLocked || this.activeRequests > 0) {
-      // Ako je zaključan ili još uvijek čekamo Laravel API, samo zabilježi da želimo ugasiti čim bude slobodno
-      this.shouldHideAfterUnlock = true;
-    } else {
-      // Ako je sve čisto i timer je prošao, gasi odmah
-      this._loading.set(false);
+    if (this.showTimeout) {
+      clearTimeout(this.showTimeout);
+      this.showTimeout = null;
     }
+    this._loading.set(false);
   }
 
   /**

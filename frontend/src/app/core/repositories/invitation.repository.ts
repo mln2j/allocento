@@ -8,7 +8,9 @@ export class InvitationRepository {
   private http = inject(HttpClient);
 
   getPending(): Observable<any[]> {
-    return this.http.get<any[]>(`${API_BASE_URL}/invitations/pending`);
+    return this.http.get<any[]>(`${API_BASE_URL}/invitations/pending`, {
+      headers: { 'X-Skip-Loader': 'true' }
+    });
   }
 
   accept(token: string): Observable<any> {

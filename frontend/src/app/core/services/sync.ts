@@ -64,11 +64,10 @@ export class SyncService {
    * Šalje pojedinačnu stavku na Laravel i briše je iz lokalnog queue-a nakon uspjeha
    */
   private async sendItemToBackend(item: any): Promise<void> {
-    const { localId, ...payload } = item; // Maknemo lokalni ID prije slanja na Laravel
+    const { localId, accountId, ...payload } = item; // Maknemo lokalni ID i accountId iz payload-a
 
     return new Promise((resolve) => {
-      // Prilagodi endpoint ovisno o tome kamo šalješ transakcije (npr. /transactions)
-      this.http.post(`${API_BASE_URL}/transactions`, payload).subscribe({
+      this.http.post(`${API_BASE_URL}/accounts/${accountId}/transactions`, payload).subscribe({
         next: async (response) => {
           console.log(`✅ Stavka unutar baze s lokalnim ID-em ${localId} je uspješno sinkronizirana.`);
           // Brišemo iz IndexedDB reda čekanja jer je uspješno spremljeno na serveru

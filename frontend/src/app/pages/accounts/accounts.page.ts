@@ -34,6 +34,7 @@ export class AccountsPage implements OnInit {
   isOnline = signal<boolean>(true);
   totalLiquidBalance = signal<number>(0);
   activeWorkspace = this.workspaceService.activeWorkspace;
+  isLoading = signal<boolean>(false);
 
   // Sharing workspaces checklist
   workspacesList = signal<Workspace[]>([]);
@@ -77,15 +78,15 @@ export class AccountsPage implements OnInit {
   }
 
   loadAccounts() {
-    this.loadingService.show();
+    this.isLoading.set(true);
     this.accountRepo.listForCurrentUser().subscribe({
       next: (data) => {
         this.accounts.set(data);
         this.calculateTotalBalance(data);
-        this.loadingService.hide();
+        this.isLoading.set(false);
       },
       error: (err) => {
-        this.loadingService.hide();
+        this.isLoading.set(false);
         console.error('Failed to load accounts:', err);
         this.toastService.error(this.t('accounts.loadFailed') || 'Failed to load accounts.');
       }

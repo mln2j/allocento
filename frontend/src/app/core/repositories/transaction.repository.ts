@@ -121,7 +121,15 @@ export class TransactionRepository {
       );
     }
 
-    return this.api.post<any>(`/accounts/${accountId}/transactions`, payload).pipe(
+    const apiPayload: any = {
+      type: payload.type,
+      amount: payload.amount,
+      date: payload.date,
+      description: payload.description,
+      category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
+    };
+
+    return this.api.post<any>(`/accounts/${accountId}/transactions`, apiPayload).pipe(
       map(api => this.mapApiToTransaction(api)),
       tap(async (tx) => {
         try {
@@ -146,7 +154,8 @@ export class TransactionRepository {
               type: payload.type || localItem.type,
               amount: payload.amount !== undefined ? payload.amount : localItem.amount,
               date: payload.date || localItem.date,
-              description: payload.description !== undefined ? payload.description : localItem.description
+              description: payload.description !== undefined ? payload.description : localItem.description,
+              categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId
             };
             await this.localDb.put('transactions', updated);
             return this.mapLocalToTransaction(updated);
@@ -156,7 +165,15 @@ export class TransactionRepository {
       );
     }
 
-    return this.api.put<any>(`/accounts/${accountId}/transactions/${transactionId}`, payload).pipe(
+    const apiPayload: any = {
+      type: payload.type,
+      amount: payload.amount,
+      date: payload.date,
+      description: payload.description,
+      category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
+    };
+
+    return this.api.put<any>(`/accounts/${accountId}/transactions/${transactionId}`, apiPayload).pipe(
       map(api => this.mapApiToTransaction(api)),
       tap(async (tx) => {
         try {
@@ -240,5 +257,12 @@ export class TransactionRepository {
       account: tx.account,
       category: tx.category
     };
+  }
+
+  getCategories(): Observable<any[]> {
+    if (!this.appInitializer.isOnlineMode) {
+      return of([]);
+    }
+    return this.api.get<any[]>('/categories');
   }
 }

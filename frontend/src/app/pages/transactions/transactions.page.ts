@@ -30,7 +30,9 @@ export class TransactionsPage implements OnInit {
 
   transactions = signal<Transaction[]>([]);
   accounts = signal<Account[]>([]);
+  categories = signal<any[]>([]);
   isOnline = signal<boolean>(true);
+  isLoading = signal<boolean>(false);
 
   // Search & Filter State
   searchQuery = signal<string>('');
@@ -45,6 +47,7 @@ export class TransactionsPage implements OnInit {
   transactionForm!: FormGroup;
   editingTxId: number | null = null;
   isAccountDropdownOpen = false;
+  isCategoryDropdownOpen = false;
 
   // Filtered transactions computed signal
   filteredTransactions = computed(() => {
@@ -85,13 +88,13 @@ export class TransactionsPage implements OnInit {
       type: ['expense', [Validators.required]],
       amount: [0, [Validators.required, Validators.min(0.01)]],
       date: [new Date().toISOString().substring(0, 16), [Validators.required]],
-      description: ['', [Validators.maxLength(255)]]
+      description: ['', [Validators.maxLength(255)]],
+      categoryId: ['']
     });
   }
 
   loadData() {
-    this.loadingService.show();
-    
+    this.isLoading.set(true);
     // Load accounts list for selector dropdown
     this.accountRepo.listForCurrentUser().subscribe({
       next: (accs) => {
@@ -105,14 +108,21 @@ export class TransactionsPage implements OnInit {
       }
     });
 
+    // Load categories list
+    this.transactionRepo.getCategories().subscribe({
+      next: (cats) => {
+        this.categories.set(cats);
+      }
+    });
+
     // Load transactions list
     this.transactionRepo.listAll().subscribe({
       next: (data) => {
         this.transactions.set(data);
-        this.loadingService.hide();
+        this.isLoading.set(false);
       },
       error: (err) => {
-        this.loadingService.hide();
+        this.isLoading.set(false);
         console.error('Failed to load transactions:', err);
         this.toastService.error(this.t('transactions.loadFailed') || 'Failed to load transactions.');
       }
@@ -139,7 +149,8 @@ export class TransactionsPage implements OnInit {
       type: 'expense',
       amount: 0,
       date: new Date().toISOString().substring(0, 16),
-      description: ''
+      description: '',
+      categoryId: ''
     });
     this.isModalOpen = true;
   }
@@ -159,7 +170,8 @@ export class TransactionsPage implements OnInit {
       type: tx.type,
       amount: tx.amount,
       date: dateStr,
-      description: tx.description
+      description: tx.description,
+      categoryId: tx.categoryId || ''
     });
     this.isModalOpen = true;
   }
@@ -191,6 +203,7 @@ export class TransactionsPage implements OnInit {
   closeModal() {
     this.isModalOpen = false;
     this.isAccountDropdownOpen = false;
+    this.isCategoryDropdownOpen = false;
   }
 
   toggleAccountDropdown() {
@@ -208,6 +221,22 @@ export class TransactionsPage implements OnInit {
     return acc ? acc.name : (this.t('transactions.selectAccount') || 'Select Account');
   }
 
+  toggleCategoryDropdown() {
+    this.isCategoryDropdownOpen = !this.isCategoryDropdownOpen;
+  }
+
+  selectCategory(catId: number | string | null) {
+    this.transactionForm.get('categoryId')?.setValue(catId || '');
+    this.isCategoryDropdownOpen = false;
+  }
+
+  getSelectedCategoryName(): string {
+    const id = this.transactionForm.get('categoryId')?.value;
+    if (!id) return this.t('transactions.uncategorized') || 'Uncategorized';
+    const cat = this.categories().find(c => c.id === Number(id));
+    return cat ? cat.name : (this.t('transactions.uncategorized') || 'Uncategorized');
+  }
+
   setTxType(type: 'income' | 'expense') {
     this.transactionForm.get('type')?.setValue(type);
   }
@@ -216,7 +245,12 @@ export class TransactionsPage implements OnInit {
     if (this.transactionForm.invalid || this.isSaving) return;
     this.isSaving = true;
 
-    const payload = this.transactionForm.value;
+    const payload = { ...this.transactionForm.value };
+    if (payload.categoryId === '') {
+      payload.categoryId = null;
+    } else {
+      payload.categoryId = Number(payload.categoryId);
+    }
     const accId = payload.accountId;
 
     if (this.editingTxId) {
@@ -246,6 +280,23 @@ export class TransactionsPage implements OnInit {
         }
       });
     }
+  }
+
+  getTransactionStatus(tx: Transaction): string {
+    if (tx.id < 0) {
+      return this.t('transactions.statusQueued') || 'Queued Offline';
+    }
+    const txTime = new Date(tx.date).getTime();
+    const now = Date.now();
+    if (txTime > now) {
+      return this.t('transactions.statusFuture') || 'Future';
+    }
+    return this.t('transactions.statusSettled') || 'Settled';
+  }
+
+  isFuture(tx: Transaction): boolean {
+    if (!tx || !tx.date) return false;
+    return new Date(tx.date).getTime() > Date.now();
   }
 
   formatAmount(amount: number | string): string {

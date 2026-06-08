@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div 
-      [class]="'fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0 transition-all duration-300 ease-in-out ' + (isOpen ? 'pointer-events-auto opacity-100 visible' : 'pointer-events-none opacity-0 invisible')"
+      [class]="'fixed inset-0 z-110 flex sm:items-center items-end justify-center sm:p-4 p-0 transition-all duration-300 ease-in-out ' + (isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')"
     >
       <!-- Backdrop -->
       <div 

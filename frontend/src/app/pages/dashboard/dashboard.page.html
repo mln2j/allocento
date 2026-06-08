@@ -266,9 +266,14 @@
           </div>
 
           <div class="flex items-center gap-4 text-right flex-shrink-0 pl-2">
-            <span *ngIf="tx.category" class="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider">
-              {{ tx.category?.name }}
-            </span>
+            <div class="flex flex-col items-end gap-1">
+              <span *ngIf="isFuture(tx)" class="px-2 py-0.5 rounded bg-blue-50 text-[9px] font-bold font-mono text-blue-600 uppercase tracking-wider">
+                {{ t('transactions.statusFuture') }}
+              </span>
+              <span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider">
+                {{ tx.category ? tx.category.name : t('transactions.uncategorized') }}
+              </span>
+            </div>
             <div class="font-mono text-sm" [ngClass]="getTxAmountClass(tx)">
               {{ getTxSign(tx) }}{{ formatAmount(tx.amount) }} <span class="text-[10px] text-slate-400 font-normal">EUR</span>
             </div>

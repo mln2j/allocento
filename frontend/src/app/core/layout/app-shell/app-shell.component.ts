@@ -74,7 +74,9 @@ export class AppShellComponent implements OnInit {
 
       // Nakon što je baza podignuta, TranslationService je sigurno spreman, a DB radi
       if (this.appInitializer.isOnlineMode) {
-        this.http.get<User>(`${API_BASE_URL}/user`).subscribe({
+        this.http.get<User>(`${API_BASE_URL}/user`, {
+          headers: { 'X-Skip-Loader': 'true' }
+        }).subscribe({
           next: async (user) => {
             this.user = user;
             await this.localDb.put('user_profile', user);
@@ -137,8 +139,9 @@ export class AppShellComponent implements OnInit {
       next: () => {
         this.loadPendingInvitations();
 
-        this.http.get<User>(`${API_BASE_URL}/user`)
-          .subscribe(u => this.user = u);
+        this.http.get<User>(`${API_BASE_URL}/user`, {
+          headers: { 'X-Skip-Loader': 'true' }
+        }).subscribe(u => this.user = u);
       },
       error: (err) =>
         this.logger.error(this.t('logs.invitationResponseFailed'), err)

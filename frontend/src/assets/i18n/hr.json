@@ -223,6 +223,12 @@
     "deleteTitle": "Obriši transakciju",
     "deleteConfirm": "Jeste li sigurni da želite obrisati ovu transakciju?",
     "deleteSuccess": "Transakcija je uspješno obrisana!",
-    "deleteFailed": "Brisanje transakcije nije uspjelo."
+    "deleteFailed": "Brisanje transakcije nije uspjelo.",
+    "uncategorized": "Nekategorizirano",
+    "categoryLabel": "Kategorija",
+    "selectCategory": "Odaberi kategoriju",
+    "statusSettled": "Provedeno",
+    "statusFuture": "Buduća",
+    "statusQueued": "U redu čekanja"
   }
 }

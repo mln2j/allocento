@@ -31,6 +31,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   isSaving = false;
   isTypeDropdownOpen = false;
   isOnline = signal<boolean>(true);
+  isLoading = signal<boolean>(false);
 
   selectedWorkspace = signal<Workspace | null>(null);
   isLoadingDetails = false;
@@ -74,14 +75,14 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   }
 
   loadWorkspaces() {
-    this.loadingService.show();
+    this.isLoading.set(true);
     this.workspaceRepo.getWorkspaces().subscribe({
       next: (data) => {
         this.workspaces.set(data);
-        this.loadingService.hide();
+        this.isLoading.set(false);
       },
       error: () => {
-        this.loadingService.hide();
+        this.isLoading.set(false);
         this.toastService.error(this.t('workspaces.loadFailed') || 'Failed to load workspaces.');
       }
     });
@@ -89,18 +90,17 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   viewDetails(workspace: Workspace) {
     const id = workspace.workspace_id || workspace.id;
+    // Set shallow info immediately to transition view instantly
+    this.selectedWorkspace.set(workspace);
     this.isLoadingDetails = true;
-    this.loadingService.show();
 
     this.workspaceRepo.getWorkspaceDetails(id).subscribe({
       next: (fullWorkspace) => {
         this.selectedWorkspace.set(fullWorkspace);
         this.isLoadingDetails = false;
-        this.loadingService.hide();
       },
       error: () => {
         this.isLoadingDetails = false;
-        this.loadingService.hide();
         this.toastService.error(this.t('workspaces.loadDetailsFailed') || 'Failed to load workspace details.');
       }
     });
