@@ -6,12 +6,13 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 40px 0; color: #0f172a; }
         .container { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); }
-        .header { background-color: #6d28d9; padding: 30px 20px; text-align: center; }
+        .header { background-color: #10B981; padding: 30px 20px; text-align: center; }
+        .header img { height: 32px; margin-bottom: 12px; }
         .header h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
         .dev-banner { background-color: #ef4444; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 12px; letter-spacing: 1px; }
         .content { padding: 30px; text-align: center; }
         .content p { font-size: 16px; line-height: 1.5; color: #475569; margin-top: 0; margin-bottom: 24px; }
-        .code-box { background-color: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; font-size: 32px; font-weight: 800; letter-spacing: 10px; color: #6d28d9; margin-bottom: 24px; font-family: monospace; }
+        .code-box { background-color: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; font-size: 32px; font-weight: 800; letter-spacing: 10px; color: #10B981; margin-bottom: 24px; font-family: monospace; }
         .footer { padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
     </style>
 </head>
@@ -21,6 +22,7 @@
     @endif
     <div class="container">
         <div class="header">
+            <img src="https://allocento.komsiluk.org/logo/white-logo.svg" alt="Allocento Logo" />
             <h1>{{ __('emails.reset_title', [], $locale) }}</h1>
         </div>
         <div class="content">
