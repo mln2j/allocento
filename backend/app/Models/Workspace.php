@@ -16,7 +16,15 @@ class Workspace extends Model
         'type',
         'icon',
         'currency',
+        'enabled_features',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'enabled_features' => 'array',
+        ];
+    }
 
     public function users(): BelongsToMany
     {
@@ -34,6 +42,11 @@ class Workspace extends Model
     public function recurringTemplates(): HasMany
     {
         return $this->hasMany(RecurringTemplate::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
     }
 
     /**

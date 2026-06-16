@@ -18,8 +18,9 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'nav_preferences' => ['sometimes', 'array'],
         ]);
 
         $user->update($validated);
@@ -104,20 +105,34 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Check workspace ownership
-        $ownsSharedWorkspaces = $user->workspaces()
+        // Find shared workspaces owned by user
+        $sharedOwnedWorkspaces = $user->workspaces()
             ->wherePivot('role', 'owner')
             ->where('type', '!=', 'personal')
-            ->exists();
+            ->get();
 
-        if ($ownsSharedWorkspaces) {
-            return response()->json([
-                'message' => 'Cannot delete account. You are the owner of a shared workspace. Please transfer ownership or delete the workspace first.'
-            ], 403);
+        $emptySharedWorkspaces = [];
+
+        foreach ($sharedOwnedWorkspaces as $workspace) {
+            // If the workspace has other members, block deletion
+            if ($workspace->users()->count() > 1) {
+                return response()->json([
+                    'message' => 'Cannot delete account. You are the owner of a shared workspace that has other members. Please transfer ownership or delete the workspace first.'
+                ], 403);
+            }
+            $emptySharedWorkspaces[] = $workspace;
         }
 
-        // Delete personal accounts
-        $user->accounts()->where('type', 'personal')->delete();
+        // Delete personal workspaces
+        $personalWorkspaces = $user->workspaces()->where('type', 'personal')->get();
+        foreach ($personalWorkspaces as $workspace) {
+            $workspace->delete();
+        }
+        
+        // Delete shared workspaces where user is the only member
+        foreach ($emptySharedWorkspaces as $workspace) {
+            $workspace->delete();
+        }
 
         // Soft delete user (revokes tokens automatically via Sanctum usually, but let's be sure)
         $user->tokens()->delete();

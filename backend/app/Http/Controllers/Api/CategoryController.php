@@ -11,9 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::orderBy('name')->get();
+        $workspaceId = $request->header('X-Workspace-Id');
+        if (!$workspaceId) {
+            return response()->json(['error' => 'Workspace ID is required.'], 400);
+        }
+
+        $categories = Category::where(function($q) use ($workspaceId) {
+            $q->where('workspace_id', $workspaceId)
+              ->orWhereNull('workspace_id'); // Global ones
+        })->orderBy('name')->get();
 
         return response()->json($categories);
     }
@@ -26,6 +34,12 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'exists:categories,id'],
         ]);
 
+        $workspaceId = $request->header('X-Workspace-Id');
+        if (!$workspaceId) {
+            return response()->json(['error' => 'Workspace ID is required.'], 400);
+        }
+
+        $data['workspace_id'] = $workspaceId;
         $category = Category::create($data);
 
         return response()->json($category, Response::HTTP_CREATED);
@@ -39,20 +53,30 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'exists:categories,id'],
         ]);
 
+        if ($category->workspace_id !== null && $category->workspace_id != $request->header('X-Workspace-Id')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $category->update($data);
 
         return response()->json($category);
     }
 
-    public function destroy(Category $category)
+    public function destroy(Request $request, Category $category)
     {
+        if ($category->workspace_id !== null && $category->workspace_id != $request->header('X-Workspace-Id')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $category->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
-    public function merge(int $fromId, int $toId)
+    public function merge(Request $request, int $fromId, int $toId)
     {
+        $workspaceId = $request->header('X-Workspace-Id');
+        
         if ($fromId === $toId) {
             return response()->json([
                 'message' => 'Cannot merge category into itself',
@@ -68,11 +92,12 @@ class CategoryController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        if ($from->type !== $to->type) {
-            return response()->json([
-                'message' => 'Cannot merge categories of different types',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        if (($from->workspace_id !== null && $from->workspace_id != $workspaceId) ||
+            ($to->workspace_id !== null && $to->workspace_id != $workspaceId)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
+
+
 
         DB::transaction(function () use ($from, $to) {
             Transaction::where('category_id', $from->id)

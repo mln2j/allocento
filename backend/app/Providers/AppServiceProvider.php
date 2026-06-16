@@ -27,6 +27,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Auth\Notifications\VerifyEmail::createUrlUsing(function ($notifiable) {
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:4200');
+
+            $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'verification.verify',
+                \Illuminate\Support\Carbon::now()->addMinutes(\Illuminate\Support\Facades\Config::get('auth.verification.expire', 60)),
+                [
+                    'id' => $notifiable->getKey(),
+                    'hash' => sha1($notifiable->getEmailForVerification()),
+                ]
+            );
+
+            $queryString = parse_url($verifyUrl, PHP_URL_QUERY);
+            
+            return $frontendUrl . '/auth/verify-email?id=' . $notifiable->getKey() . '&hash=' . sha1($notifiable->getEmailForVerification()) . '&' . $queryString;
+        });
+        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, string $token) {
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:4200');
+            return $frontendUrl . '/auth/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+        });
     }
 }

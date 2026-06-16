@@ -14,6 +14,7 @@ class Transaction extends Model
         'account_id',
         'created_by_user_id',
         'category_id',
+        'project_id',
         'type',
         'amount',
         'date',
@@ -44,6 +45,11 @@ class Transaction extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 }
 

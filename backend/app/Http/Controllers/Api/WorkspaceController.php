@@ -33,6 +33,7 @@ class WorkspaceController extends Controller
                 'type' => $validated['type'],
                 'icon' => $validated['icon'] ?? '💼',
                 'currency' => $validated['currency'] ?? 'EUR',
+                'enabled_features' => ['categories', 'projects'],
             ]);
 
             $workspace->users()->attach($request->user()->id, ['role' => 'owner']);

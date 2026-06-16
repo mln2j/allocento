@@ -25,6 +25,10 @@ Route::any('/health', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/email/verify-code', [AuthController::class, 'verifyEmailCode']);
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +149,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('categories/{category}', [CategoryController::class, 'update']);
         Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
         Route::post('categories/{from}/merge-into/{to}', [CategoryController::class, 'merge']);
+
+        /*
+        |-------------------------
+        | Projects
+        |-------------------------
+        */
+
+        Route::get('projects', [\App\Http\Controllers\Api\ProjectController::class, 'index']);
+        Route::post('projects', [\App\Http\Controllers\Api\ProjectController::class, 'store']);
+        Route::get('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'show']);
+        Route::put('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'update']);
+        Route::delete('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'destroy']);
 
         /*
         |-------------------------
