@@ -9,7 +9,7 @@ import { TranslationService } from '../translation.service';
   imports: [CommonModule],
   // z-50: iznad sadržaja stranice, ispod bottom-nav (z-60) i headera (z-60)
   host: {
-    '[class]': '"fixed inset-0 w-full h-full overflow-hidden z-[999] transition-all duration-300"',
+    '[class]': '"fixed inset-0 w-full h-full overflow-hidden z-50 transition-all duration-300"',
     '[class.pointer-events-auto]': 'loadingService.loading()',
     '[class.pointer-events-none]': '!loadingService.loading()'
   },
