@@ -53,7 +53,9 @@ export class RegisterPage implements OnInit {
 
     this.auth.register(this.form.value).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        // Redirekcija na splash kako bi AppInitializerService povukao novi user profile
+        // i usmjerio korisnika na email verification
+        window.location.href = '/splash';
       },
       error: () => {
         this.loading = false;

@@ -48,7 +48,7 @@ export class LoginPage implements OnInit {
 
     this.auth.login(this.form.value.email, this.form.value.password).subscribe({
       next: () => {
-        this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard');
+        window.location.href = this.route.snapshot.queryParamMap.get('returnUrl') || '/splash';
       },
       error: () => {
         this.loading = false;

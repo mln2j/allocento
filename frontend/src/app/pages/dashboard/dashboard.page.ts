@@ -31,6 +31,7 @@ export class DashboardPage implements OnInit {
   dailySpending = signal<any[]>([]);
   activeWorkspaceName = signal<string>('');
   isOnline = signal<boolean>(true);
+  isLoading = signal<boolean>(true);
   activeWorkspace = this.workspaceService.activeWorkspace;
 
   // Tab switcher state
@@ -72,6 +73,8 @@ export class DashboardPage implements OnInit {
       await this.saveToCache(data);
     } catch (error) {
       console.warn('Greška pri učitavanju dashboarda s poslužitelja:', error);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
@@ -103,6 +106,7 @@ export class DashboardPage implements OnInit {
         this.spendingStats.set(dashboardCache.spending_stats ?? []);
         this.dailySpending.set(dashboardCache.daily_spending ?? []);
         this.activeWorkspaceName.set(dashboardCache.workspace_name ?? '');
+        this.isLoading.set(false); // Podaci odmah dostupni
       }
     } catch (e) {
       console.error('Greška pri učitavanju dashboard cachea', e);

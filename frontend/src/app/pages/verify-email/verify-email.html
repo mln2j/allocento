@@ -1,0 +1,75 @@
+<div class="fixed inset-0 flex flex-col items-center justify-center bg-brand-mint p-6">
+  <div class="w-full max-w-sm flex flex-col items-center opacity-100 translate-y-0 transition-all duration-700 ease-out">
+    <div class="text-center mb-10">
+      <div class="w-30 h-30 mx-auto flex items-center justify-center mb-4">
+        <img src="logo/white-logo.svg" alt="Allocento Logo" class="w-full h-full">
+      </div>
+      <h1 class="text-brand-purple text-3xl font-bold tracking-tighter" style="font-family: 'Space Mono', monospace;">
+        {{ loading() ? t('auth.verifying') : (mode() === 'waiting' ? t('auth.verify_email_title') : (mode() === 'success' ? t('auth.verify_success_title') : t('auth.verify_error_title'))) }}
+      </h1>
+    </div>
+
+    <!-- WAITING MODE -->
+    <div *ngIf="mode() === 'waiting'" class="w-full space-y-6 text-center animate-in fade-in zoom-in-95 duration-500">
+      <p class="text-brand-purple/80 text-lg" style="font-family: 'Space Mono', monospace;" [innerHTML]="t('auth.verify_desc')"></p>
+
+      <form [formGroup]="codeForm" (ngSubmit)="verifyCode()" class="space-y-4 mt-6">
+        <input 
+          type="text" 
+          formControlName="code"
+          maxlength="6"
+          autocomplete="one-time-code"
+          class="w-full h-16 text-center text-3xl font-bold tracking-[1em] pl-[1em] rounded-xl border-2 border-brand-purple/20 focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10 outline-none text-brand-purple placeholder:text-brand-purple/30 transition-all bg-white shadow-inner"
+          placeholder="000000"
+          style="font-family: 'Space Mono', monospace;"
+        >
+        
+        <button
+          type="submit"
+          [disabled]="loading() || codeForm.invalid"
+          class="w-full py-4 bg-brand-purple hover:bg-[#4a1772] text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-purple/20 transition-all duration-200 disabled:opacity-50"
+          style="font-family: 'Space Mono', monospace;">
+          {{ loading() ? t('auth.checking') : t('auth.verify_btn') }}
+        </button>
+      </form>
+      
+      <div class="mt-8 space-y-4 text-center">
+        <button (click)="resendEmail()" [disabled]="loading()" class="text-brand-purple/70 font-bold text-sm underline hover:text-[#4a1772] bg-transparent outline-none cursor-pointer" style="font-family: 'Space Mono', monospace;">
+          {{ t('auth.did_not_receive') }}
+        </button>
+        <br>
+        <a routerLink="/auth/login" class="inline-block mt-2 text-brand-purple font-bold text-sm underline hover:text-[#4a1772]" style="font-family: 'Space Mono', monospace;">
+          {{ t('auth.back_to_login') || 'Nazad na Prijavu' }}
+        </a>
+      </div>
+    </div>
+
+    <!-- SUCCESS MODE -->
+    <div *ngIf="mode() === 'success'" class="w-full space-y-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <p class="text-green-600 text-lg font-bold" style="font-family: 'Space Mono', monospace;">
+        {{ t('auth.verify_success_desc') }}
+      </p>
+      <button
+        (click)="continueToApp()"
+        class="w-full py-4 mt-6 bg-brand-purple hover:bg-[#4a1772] text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-purple/20 transition-all duration-200"
+        style="font-family: 'Space Mono', monospace;">
+        {{ t('auth.continue_to_app') }}
+      </button>
+    </div>
+
+    <!-- ERROR MODE -->
+    <div *ngIf="mode() === 'error'" class="w-full space-y-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <p class="text-red-600 text-lg font-bold" style="font-family: 'Space Mono', monospace;">
+        {{ errorMessage() }}
+      </p>
+      <button
+        (click)="resendEmail()"
+        [disabled]="loading()"
+        class="w-full py-4 mt-6 bg-brand-purple hover:bg-[#4a1772] text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-purple/20 transition-all duration-200 disabled:opacity-50"
+        style="font-family: 'Space Mono', monospace;">
+        {{ t('auth.resend_link') }}
+      </button>
+    </div>
+
+  </div>
+</div>

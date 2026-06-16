@@ -21,7 +21,7 @@ export class TranslationService {
   // Pomoćna metoda za detekciju jezika i fallback
   private detectDefaultLanguage(): LangCode {
     if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-      return 'en'; // Fallback za SSR/server okruženja
+      return 'hr'; // Fallback za SSR/server okruženja
     }
 
     // 1. Provjera ručno odabranog jezika iz localStorage
@@ -30,14 +30,8 @@ export class TranslationService {
       return saved;
     }
 
-    // 2. Detekcija jezika preglednika
-    const browserLang = (navigator.language || 'en').split('-')[0].toLowerCase();
-    if (browserLang === 'hr' || browserLang === 'en') {
-      return browserLang as LangCode;
-    }
-
-    // 3. Fallback na engleski
-    return 'en';
+    // 2. Fallback na hrvatski
+    return 'hr';
   }
 
   // Promjena jezika

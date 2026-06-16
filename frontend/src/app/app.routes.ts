@@ -25,6 +25,22 @@ export const routes: Routes = [
       {
         path: 'register',
         loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage)
+      },
+      {
+        path: 'verify-email',
+        loadComponent: () => import('./pages/verify-email/verify-email').then(m => m.VerifyEmail)
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./pages/forgot-password/forgot-password').then(m => m.ForgotPassword)
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword)
+      },
+      {
+        path: 'onboarding',
+        loadComponent: () => import('./pages/onboarding/onboarding').then(m => m.Onboarding)
       }
     ]
   },
@@ -66,6 +82,18 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./pages/setttings/settings.page').then(m => m.SettingsPage)
+      },
+      {
+        path: 'menu',
+        loadComponent: () => import('./pages/menu/menu.page').then(m => m.MenuPage)
+      },
+      {
+        path: 'projects',
+        loadComponent: () => import('./pages/projects/projects.page').then(m => m.ProjectsPage)
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage)
       }
     ]
   },

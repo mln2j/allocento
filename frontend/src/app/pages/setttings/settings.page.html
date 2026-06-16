@@ -78,6 +78,29 @@
             </div>
           </div>
         </div>
+        <!-- Navigation Preferences -->
+        <div class="flex items-start justify-between py-1 gap-1 relative mt-2 pt-4 border-t border-slate-100 flex-col">
+          <div class="space-y-0.5 mb-2">
+            <div class="text-sm font-bold text-slate-700 font-mono">{{ t('settings.navPrefsLabel') || 'Mobilna Navigacija' }}</div>
+            <div class="text-xs text-slate-400 font-sans">{{ t('settings.navPrefsDesc') || 'Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 4).' }}</div>
+          </div>
+          <div class="grid grid-cols-2 gap-y-3 gap-x-6 font-mono text-xs w-full mb-2">
+            <label *ngFor="let option of availableNavOptions" class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox"
+                     [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 4"
+                     [checked]="selectedNavPrefs.includes(option.id)"
+                     (change)="toggleNavPref(option.id, $event)"
+                     class="w-4 h-4 text-brand-purple rounded border-slate-300 focus:ring-brand-purple focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="text-slate-700 font-bold" [class.opacity-50]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 4">{{ t(option.translationKey) }}</span>
+            </label>
+          </div>
+          <div class="w-full flex justify-end">
+            <button type="button" *ngIf="hasNavChanges" (click)="saveNavPrefs()" class="px-4 py-2 bg-brand-purple text-white font-bold font-mono text-[10px] rounded-xl cursor-pointer shadow-sm disabled:opacity-50">
+              {{ isSaving ? t('profile.saving') : t('profile.save') }}
+            </button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Actions (Logout & Delete Account) -->
@@ -95,6 +118,51 @@
           {{ t('profile.deleteAccount') }}
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- App Modules Grid -->
+  <div *ngIf="!isEditMode" class="mt-6 pt-6 border-t border-slate-100">
+    <div class="text-xs font-bold text-slate-400 font-mono uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+      {{ t('settings.appModules') || 'Moduli Aplikacije' }}
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a routerLink="/dashboard" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.dashboard') }}</h3>
+      </a>
+      <a routerLink="/accounts" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.accounts') }}</h3>
+      </a>
+      <a routerLink="/transactions" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.transactions') }}</h3>
+      </a>
+      <a routerLink="/workspaces" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.workspaces') }}</h3>
+      </a>
+      <a *ngIf="hasFeature('categories')" routerLink="/categories" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.categories') || 'Kategorije' }}</h3>
+      </a>
+      <a *ngIf="hasFeature('projects')" routerLink="/projects" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.projects') || 'Projekti' }}</h3>
+      </a>
     </div>
   </div>
 

@@ -4,18 +4,19 @@
 
     <div
       class="absolute h-full top-0 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-      [style.width.%]="100 / navItems.length"
+      [style.width.%]="100 / navItems().length"
       [style.transform]="'translateX(' + (activeIndex() * 100) + '%)'"
     >
       <div class="w-4/5 h-10 bg-brand-purple/10 rounded-full"></div>
     </div>
 
-    @for (item of navItems; track item.path; let i = $index) {
+    @for (item of navItems(); track item.path; let i = $index) {
       <a
         [routerLink]="item.path"
         class="flex-1 flex items-center justify-center h-full relative z-10 outline-none transition-colors duration-200 group"
         [ngClass]="isActive(item.path) ? 'text-brand-purple' : 'text-slate-400 hover:text-slate-600'"
         [attr.aria-label]="t(getTranslationKey(item))"
+        (click)="activeIndex.set(i)"
       >
 
         <svg

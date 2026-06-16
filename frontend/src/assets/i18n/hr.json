@@ -11,7 +11,20 @@
     "today": "Danas",
     "yesterday": "Jučer",
     "cancel": "Odustani",
-    "delete": "Obriši"
+    "delete": "Obriši",
+    "active": "Aktivno",
+    "viewAll": "Prikaži sve",
+    "localUser": "Lokalni korisnik",
+    "days": {
+      "Mon": "Pon",
+      "Tue": "Uto",
+      "Wed": "Sri",
+      "Thu": "Čet",
+      "Fri": "Pet",
+      "Sat": "Sub",
+      "Sun": "Ned"
+    },
+    "continue": "Nastavi"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -26,6 +39,9 @@
     "profileEditTitle": "Uređivanje profila",
     "profileEditSubtitle": "Ažurirajte svoje osobne podatke i lozinku.",
     "appSettingsTitle": "Postavke aplikacije",
+    "appModules": "Moduli Aplikacije",
+    "navPrefsLabel": "Mobilna Navigacija",
+    "navPrefsDesc": "Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 4).",
     "langLabel": "Jezik",
     "langDesc": "Trenutno odabrani jezik aplikacije"
   },
@@ -75,16 +91,57 @@
     "confirm_password_placeholder": "Potvrdi lozinku",
     "passwords_mismatch": "Lozinke se ne podudaraju.",
     "creating_account": "Izrada računa...",
-    "registrationFailed": "Registracija nije uspjela. Provjerite podatke."
+    "registrationFailed": "Registracija nije uspjela. Provjerite podatke.",
+    "forgot_password": "Zaboravljena lozinka?",
+    "sendCode": "Pošalji kod",
+    "enterCode": "Unesite 6-znamenkasti kod",
+    "newPassword": "Nova lozinka",
+    "resetPasswordBtn": "Promijeni lozinku",
+    "codeSent": "Kod je uspješno poslan na vaš e-mail.",
+    "resetSuccess": "Lozinka je uspješno promijenjena. Možete se prijaviti.",
+    "invalidCode": "Neispravan ili istekao kod.",
+    "forgot_password_title": "Zaboravljena lozinka",
+    "confirmPassword": "Potvrdi novu lozinku",
+    "forgot_password_desc": "Upiši svoj email i poslat ćemo ti kod za resetiranje lozinke.",
+    "check_email_title": "Provjeri Email",
+    "check_email_desc": "Poslali smo 6-znamenkasti kod na",
+    "new_password_title": "Nova Lozinka",
+    "new_password_desc": "Unesite novu lozinku za račun:",
+    "back_to_login": "Nazad na Prijavu",
+    "back": "Nazad",
+    "verify_email_title": "Verificiraj Email",
+    "verifying": "Verifikacija...",
+    "verify_success_title": "Uspješno!",
+    "verify_error_title": "Greška",
+    "verify_desc": "Poslali smo ti 6-znamenkasti kod za potvrdu na tvoj e-mail.<br><br>Unesi ga ispod kako bi nastavio.",
+    "verify_btn": "Potvrdi Kod",
+    "checking": "Provjeravam...",
+    "did_not_receive": "Nisi primio kod? Pošalji ponovo",
+    "verify_success_desc": "Tvoj email je uspješno verificiran! 🎉",
+    "continue_to_app": "Nastavi u Aplikaciju",
+    "resend_link": "Pošalji novi kod"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Nadzorna Ploča",
     "transactions": "Transakcije",
     "accounts": "Računi",
     "projects": "Projekti",
     "workspace": "Prostor",
     "settings": "Postavke",
-    "workspaces": "Prostori"
+    "workspaces": "Prostori",
+    "categories": "Kategorije",
+    "menu": "Meni"
+  },
+  "dashboard": {
+    "spendingAnalysis": "Analiza potrošnje",
+    "categories": "Kategorije",
+    "byDays": "Po danima",
+    "totalSpent": "Ukupno potrošeno",
+    "noSpendingStats": "Nema statistike potrošnje po kategorijama.",
+    "noSpendingRecords": "Nema zapisa o potrošnji u zadnjih 7 dana.",
+    "createPrimaryAccount": "Kreirajte ili postavite račun kao primarni za prikaz ovdje.",
+    "noTransactions": "Još nema zabilježenih transakcija u ovom prostoru.",
+    "title": "Nadzorna Ploča"
   },
   "notifications": {
     "title": "Pozivnice",
@@ -131,18 +188,29 @@
     "changePasswordToggle": "ŽELIŠ PROMIJENITI LOZINKU?"
   },
   "workspaces": {
-    "types": { "personal": "Osobni", "household": "Kućanstvo", "company": "Tvrtka" },
-    "roles": { "member": "Član", "owner": "Vlasnik" },
+    "types": {
+      "personal": "Osobni",
+      "household": "Kućanstvo",
+      "company": "Tvrtka"
+    },
+    "roles": {
+      "member": "Član",
+      "owner": "Vlasnik"
+    },
+    "setActive": "Postavi kao aktivno",
+    "setActiveSuccess": "Prostor postavljen kao aktivan.",
+    "active": "Aktivno",
     "currencyLabel": "Valuta",
     "member": "član",
     "members": "članova",
+    "namePlaceholder": "npr. Kućni budžet",
+    "addBtn": "Dodaj prostor",
     "viewDetails": "Prikaži detalje",
     "membersManagement": "Upravljanje članovima",
     "linkedAccounts": "Povezani računi",
     "noAccounts": "Još nema povezanih računa s ovim prostorom.",
     "confirmRemoveMember": "Jeste li sigurni da želite ukloniti ovog člana?",
     "subtitle": "Upravljaj svojim budžetima, timovima i financijama.",
-    "addBtn": "Novi prostor",
     "nameLabel": "Naziv prostora",
     "type": "Vrsta prostora",
     "loadFailed": "Greška pri učitavanju prostora.",
@@ -162,7 +230,8 @@
     "inviteSuccess": "Pozivnica je uspješno poslana!",
     "inviteFailed": "Slanje pozivnice nije uspjelo.",
     "removeMemberSuccess": "Član je uspješno uklonjen!",
-    "removeMemberFailed": "Uklanjanje člana nije uspjelo."
+    "removeMemberFailed": "Uklanjanje člana nije uspjelo.",
+    "empty": "Nema dostupnih prostora."
   },
   "accounts": {
     "title": "Računi",
@@ -173,7 +242,17 @@
     "openNew": "Otvorite novi račun",
     "nameLabel": "Naziv računa",
     "typeLabel": "Vrsta računa",
+    "types": {
+      "checking": "Tekući",
+      "savings": "Štednja",
+      "cash": "Gotovina",
+      "credit": "Kreditni",
+      "investment": "Investicije",
+      "other": "Ostalo"
+    },
     "currencyLabel": "Valuta",
+    "namePlaceholder": "npr. Tekući račun",
+    "currencyPlaceholder": "npr. EUR",
     "balanceLabel": "Početno stanje",
     "saveBtn": "Spremi račun",
     "offlineNotice": "Offline: Dodavanje/uređivanje onemogućeno",
@@ -194,7 +273,11 @@
     "projectBudget": "Proračun projekta",
     "spent": "Potrošeno",
     "remaining": "Preostalo",
-    "shareWithSpaces": "Podijeli s prostorima"
+    "shareWithSpaces": "Podijeli s prostorima",
+    "noPrimaryAccount": "Nema primarnog računa",
+    "primary": "Primarni",
+    "localWallet": "Lokalni novčanik",
+    "balancePlaceholder": "npr. 5000.00"
   },
   "transactions": {
     "title": "Transakcije",
@@ -229,6 +312,52 @@
     "selectCategory": "Odaberi kategoriju",
     "statusSettled": "Provedeno",
     "statusFuture": "Buduća",
-    "statusQueued": "U redu čekanja"
+    "statusQueued": "U redu čekanja",
+    "noDescription": "Nema opisa",
+    "noDetails": "Nema detalja.",
+    "descPlaceholder": "npr. Kava s prijateljima",
+    "amountPlaceholder": "npr. 15.00"
+  },
+  "onboarding": {
+    "step1Title": "Dobrodošli u Allocento",
+    "step1Subtitle": "Kako planirate koristiti aplikaciju?",
+    "personal": "Osobne financije",
+    "personalDesc": "Praćenje osobnih troškova i prihoda",
+    "household": "Kućanstvo",
+    "householdDesc": "Zajednički budžet i troškovi kućanstva",
+    "company": "Poslovanje",
+    "companyDesc": "Praćenje poslovnih financija i projekata",
+    "step2Title": "Početni računi",
+    "step2Subtitle": "Odaberite koje račune želite automatski kreirati.",
+    "wallet": "Novčanik",
+    "walletDesc": "Gotovina koju imate kod sebe",
+    "checking": "Tekući račun",
+    "checkingDesc": "Glavni račun u banci",
+    "savings": "Štednja",
+    "savingsDesc": "Račun za štednju",
+    "businessAccount": "Poslovni račun",
+    "businessAccountDesc": "Glavni račun tvrtke",
+    "pettyCash": "Blagajna",
+    "pettyCashDesc": "Gotovina u tvrtki",
+    "finish": "Završi",
+    "creating": "Kreiranje..."
+  },
+  "projects": {
+    "emptyTitle": "Nema projekata",
+    "emptyDesc": "Kreirajte svoj prvi projekt za upravljanje zadacima i troškovima.",
+    "createFirst": "Kreiraj projekt",
+    "editTitle": "Uredi projekt",
+    "createTitle": "Novi projekt"
+  },
+  "status": {
+    "active": "Aktivno",
+    "completed": "Završeno"
+  },
+  "categories": {
+    "emptyTitle": "Nema kategorija",
+    "emptyDesc": "Kreirajte prvu kategoriju za praćenje troškova.",
+    "createFirst": "Kreiraj kategoriju",
+    "editTitle": "Uredi kategoriju",
+    "createTitle": "Nova kategorija"
   }
 }

@@ -11,11 +11,13 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { RouterModule } from '@angular/router';
+import { WorkspaceService } from '../../core/services/workspace.service';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './settings.page.html',
 })
 export class SettingsPage implements OnInit {
@@ -23,6 +25,7 @@ export class SettingsPage implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private userRepo = inject(UserRepository);
+  private workspaceService = inject(WorkspaceService);
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private toastService = inject(ToastService);
@@ -42,6 +45,22 @@ export class SettingsPage implements OnInit {
   selectedFile: File | null = null;
   photoPreview: string | null = null;
 
+  availableNavOptions = [
+    { id: 'dashboard', translationKey: 'nav.dashboard' },
+    { id: 'transactions', translationKey: 'nav.transactions' },
+    { id: 'accounts', translationKey: 'nav.accounts' },
+    { id: 'workspaces', translationKey: 'nav.workspace' },
+    { id: 'categories', translationKey: 'nav.categories' },
+    { id: 'projects', translationKey: 'nav.projects' }
+  ];
+  selectedNavPrefs: string[] = [];
+  hasNavChanges = false;
+
+  hasFeature(feature: string): boolean {
+    const ws = this.workspaceService.activeWorkspace();
+    return ws?.enabled_features?.includes(feature) || false;
+  }
+
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.currentLang = this.translationService.currentLang() || 'en';
@@ -53,6 +72,7 @@ export class SettingsPage implements OnInit {
     this.userRepo.getCurrentUser(timestamp).subscribe({
       next: (u) => {
         this.user.set(u);
+        this.selectedNavPrefs = u.nav_preferences || ['dashboard', 'transactions', 'accounts'];
       },
       error: () => {
         this.toastService.error(this.t('profile.loadFailed') || 'Failed to load user settings.');
@@ -217,7 +237,7 @@ export class SettingsPage implements OnInit {
     this.dialogService.confirm(
       this.t('profile.deleteAccount') || 'Delete Account',
       this.t('profile.deleteConfirmMsg') || 'Are you sure you want to permanently delete your account?',
-      this.t('common.reject') || 'Delete',
+      this.t('common.accept') || 'Delete',
       this.t('common.cancel') || 'Cancel'
     ).subscribe(confirmed => {
       if (!confirmed) return;
@@ -228,7 +248,7 @@ export class SettingsPage implements OnInit {
           this.logout();
         },
         error: (err) => {
-          if (err.status === 403 && err.error?.message) {
+          if (err.error && err.error.message) {
             this.toastService.error(err.error.message);
           } else {
             this.toastService.error(this.t('profile.deleteFailed') || 'Failed to delete account.');
@@ -240,5 +260,41 @@ export class SettingsPage implements OnInit {
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  toggleNavPref(id: string, event: any) {
+    const isChecked = event.target.checked;
+    if (isChecked) {
+      if (!this.selectedNavPrefs.includes(id)) {
+        this.selectedNavPrefs.push(id);
+      }
+    } else {
+      this.selectedNavPrefs = this.selectedNavPrefs.filter(p => p !== id);
+    }
+    this.hasNavChanges = true;
+  }
+
+  saveNavPrefs() {
+    if (!this.isOnline()) return;
+    this.isSaving = true;
+    
+    // We update via updateProfile
+    const profileData = {
+      nav_preferences: this.selectedNavPrefs
+    };
+    
+    this.userRepo.updateProfile(profileData).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.hasNavChanges = false;
+        this.toastService.success(this.t('profile.successUpdate') || 'Navigation preferences updated.');
+        localStorage.setItem('nav_preferences', JSON.stringify(this.selectedNavPrefs));
+        window.dispatchEvent(new Event('nav-prefs-updated'));
+      },
+      error: () => {
+        this.isSaving = false;
+        this.toastService.error(this.t('profile.updateFailed') || 'Failed to update preferences.');
+      }
+    });
   }
 }

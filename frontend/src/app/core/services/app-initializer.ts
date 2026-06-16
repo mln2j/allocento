@@ -22,7 +22,7 @@ export class AppInitializerService {
   /**
    * Glavna metoda koja pokreće sve provjere dok je korisnik na Splash Screenu.
    */
-  async initializeApp(): Promise<'dashboard' | 'login' | 'error'> {
+  async initializeApp(): Promise<'dashboard' | 'login' | 'error' | 'verify-email' | 'onboarding'> {
     try {
       // 1. Inicijalizacija lokalne baze podataka
       await this.localDb.initDatabase();
@@ -47,54 +47,66 @@ export class AppInitializerService {
       }
 
       // 3. Provjera sesije i STROGA validacija tokena
-      // Prvo osnovna provjera: ako tokena uopće nema u localStorage, odmah na login
       if (!this.authService.isAuthenticated()) {
         this.logger.log('splash.session');
         return 'login';
       }
 
-      // Ako imamo token i ONLINE smo, idemo ga stvarno provjeriti na backendu
+      let userProfile: any = null;
+
       if (this.isOnlineMode) {
         try {
-          this.logger.log('splash.verifyingSession'); // Log za vizualni korak (ako ga koristiš na splashu)
-
-          // Isaljemo zahtjev na /user. Važno: tvoj HTTP Interceptor mora automatski zakačiti Bearer token ovdje!
-          const userProfile = await firstValueFrom(this.http.get<any>(this.userApiUrl));
-
-          // Ako je prošlo, server kaže da je token živ. Spremi/osvježi ga u IndexedDB cacheu
+          this.logger.log('splash.verifyingSession'); 
+          userProfile = await firstValueFrom(this.http.get<any>(this.userApiUrl));
           await this.localDb.put('user_profile', userProfile);
 
           this.logger.log('splash.syncing');
           await this.syncFreshDataFromServer();
 
         } catch (error) {
-          if (error instanceof HttpErrorResponse) {
-            // Ako backend vrati 401 (Unauthorized) ili 403 (Forbidden), token je nevažeći
-            if (error.status === 401 || error.status === 403) {
-              this.logger.warn('Token je nevažeći ili je istekao. Čišćenje sesije...');
-
-              this.authService.clearToken(); // Brišemo nevažeći token iz localStorage
-              await this.localDb.clearStore('user_profile'); // Čistimo i potencijalno nevažeći lokalni cache profile
-
-              return 'login';
-            }
+          if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+            this.logger.warn('Token je nevažeći ili je istekao. Čišćenje sesije...');
+            this.authService.clearToken();
+            await this.localDb.clearStore('user_profile');
+            return 'login';
           }
-
-          // Ako je puklo zbog nečeg drugog (npr. mrežni glitch u milisekundi provjere),
-          // a imamo cache od ranije, ponašaj se kao da smo offline i pusti na dashboard
+          
           const cachedUsers = await this.localDb.getAll('user_profile');
           if (!cachedUsers || cachedUsers.length === 0) {
             this.authService.clearToken();
             return 'login';
           }
+          userProfile = cachedUsers[0];
         }
       } else {
-        // Ako smo OFFLINE, a token postoji u localStorage, provjeravamo imamo li keširan profil u IndexedDB
         const cachedUsers = await this.localDb.getAll('user_profile');
         if (!cachedUsers || cachedUsers.length === 0) {
-          // Imamo token u browseru, ali baza je prazna -> ne možemo podići aplikaciju offline
           this.authService.clearToken();
           return 'login';
+        }
+        userProfile = cachedUsers[0];
+      }
+
+      // 4. Sigurnosne provjere (Samo ako smo uspjeli dobiti userProfile)
+      if (userProfile) {
+        if (!userProfile.email_verified_at) {
+          return 'verify-email';
+        }
+
+        if (!userProfile.workspaces || userProfile.workspaces.length === 0) {
+          return 'onboarding';
+        }
+
+        // We can't inject async like that. Let's just set localStorage directly here if empty.
+        if (typeof localStorage !== 'undefined' && !localStorage.getItem('active_workspace_full')) {
+            const favWsId = userProfile.favorite_workspace_id;
+            let targetWs = userProfile.workspaces.find((w: any) => w.id === favWsId) || userProfile.workspaces[0];
+            if (targetWs) {
+              // Note: the user workspace pivot has workspace_id as id sometimes. Let's normalize.
+              targetWs.workspace_id = targetWs.id;
+              localStorage.setItem('active_workspace_full', JSON.stringify(targetWs));
+              localStorage.setItem('active_workspace_id', String(targetWs.id));
+            }
         }
       }
 

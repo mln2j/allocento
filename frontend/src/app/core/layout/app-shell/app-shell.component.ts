@@ -14,9 +14,11 @@ import { LoadingComponent } from '../../services/loading/loading.component';
 import { TranslationService } from '../../services/translation.service';
 import { LoggerService } from '../../services/logger.service';
 import { ToastService } from '../../services/toast.service';
+import { WorkspaceService } from '../../services/workspace.service';
 
 import { HeaderComponent } from '../header/header.component';
 import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
+import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-app-shell',
@@ -26,7 +28,8 @@ import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
     RouterOutlet,
     HeaderComponent,
     BottomNavComponent,
-    LoadingComponent
+    LoadingComponent,
+    ModalComponent
   ],
   templateUrl: './app-shell.component.html',
 })
@@ -41,6 +44,7 @@ export class AppShellComponent implements OnInit {
   private authService = inject(AuthService);
   private inviteRepo = inject(InvitationRepository);
   private logger = inject(LoggerService);
+  public workspaceService = inject(WorkspaceService);
 
   public loadingService = inject(LoadingService);
   public appInitializer = inject(AppInitializerService);

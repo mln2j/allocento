@@ -11,7 +11,20 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "cancel": "Cancel",
-    "delete": "Delete"
+    "delete": "Delete",
+    "active": "Active",
+    "viewAll": "View All",
+    "localUser": "Local user",
+    "days": {
+      "Mon": "Mon",
+      "Tue": "Tue",
+      "Wed": "Wed",
+      "Thu": "Thu",
+      "Fri": "Fri",
+      "Sat": "Sat",
+      "Sun": "Sun"
+    },
+    "continue": "Continue"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -67,7 +80,35 @@
     "confirm_password_placeholder": "Confirm password",
     "passwords_mismatch": "Passwords do not match.",
     "creating_account": "Creating account...",
-    "registrationFailed": "Registration failed. Please check your data."
+    "registrationFailed": "Registration failed. Please check your data.",
+    "forgot_password": "Forgot password?",
+    "sendCode": "Send code",
+    "enterCode": "Enter 6-digit code",
+    "newPassword": "New password",
+    "resetPasswordBtn": "Change password",
+    "codeSent": "Code successfully sent to your email.",
+    "resetSuccess": "Password changed successfully. You can now sign in.",
+    "invalidCode": "Invalid or expired code.",
+    "forgot_password_title": "Forgot Password",
+    "confirmPassword": "Confirm new password",
+    "forgot_password_desc": "Enter your email and we will send you a reset code.",
+    "check_email_title": "Check Email",
+    "check_email_desc": "We sent a 6-digit code to",
+    "new_password_title": "New Password",
+    "new_password_desc": "Enter a new password for account:",
+    "back_to_login": "Back to Login",
+    "back": "Back",
+    "verify_email_title": "Verify Email",
+    "verifying": "Verifying...",
+    "verify_success_title": "Success!",
+    "verify_error_title": "Error",
+    "verify_desc": "We sent a 6-digit confirmation code to your email.<br><br>Enter it below to continue.",
+    "verify_btn": "Verify Code",
+    "checking": "Checking...",
+    "did_not_receive": "Didn't receive the code? Resend",
+    "verify_success_desc": "Your email has been successfully verified! 🎉",
+    "continue_to_app": "Continue to App",
+    "resend_link": "Send new code"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -76,7 +117,20 @@
     "projects": "Projects",
     "workspace": "Space",
     "workspaces": "Spaces",
-    "settings": "Settings"
+    "settings": "Settings",
+    "categories": "Categories",
+    "menu": "Menu"
+  },
+  "dashboard": {
+    "spendingAnalysis": "Spending Analysis",
+    "categories": "Categories",
+    "byDays": "By Days",
+    "totalSpent": "Total Spent",
+    "noSpendingStats": "No spending stats by category.",
+    "noSpendingRecords": "No spending records in the last 7 days.",
+    "createPrimaryAccount": "Create or set an account as primary to display here.",
+    "noTransactions": "No transactions recorded yet in this space.",
+    "title": "Dashboard"
   },
   "notifications": {
     "title": "Invitations",
@@ -113,6 +167,9 @@
     "profileEditTitle": "Profile Edit",
     "profileEditSubtitle": "Update your personal details and credentials.",
     "appSettingsTitle": "Application Settings",
+    "appModules": "Application Modules",
+    "navPrefsLabel": "Mobile Navigation",
+    "navPrefsDesc": "Select the items you want to see in the bottom navigation bar (Max 4).",
     "langLabel": "Language",
     "langDesc": "Current application language context"
   },
@@ -131,7 +188,13 @@
     "changePasswordToggle": "WANT TO CHANGE PASSWORD?"
   },
   "workspaces": {
-    "roles": { "member": "Member", "owner": "Owner" },
+    "roles": {
+      "member": "Member",
+      "owner": "Owner"
+    },
+    "setActive": "Set Active",
+    "setActiveSuccess": "Workspace set as active successfully.",
+    "active": "Active",
     "currencyLabel": "Currency",
     "types": {
       "personal": "Personal",
@@ -140,13 +203,14 @@
     },
     "member": "member",
     "members": "members",
+    "namePlaceholder": "e.g. Household budget",
+    "addBtn": "Add Space",
     "viewDetails": "View details",
     "membersManagement": "Members Management",
     "linkedAccounts": "Linked Accounts",
     "noAccounts": "No accounts linked to this space yet.",
     "confirmRemoveMember": "Are you sure you want to remove this member?",
     "subtitle": "Manage your budgets, teams and shared financial fields.",
-    "addBtn": "New Space",
     "loadFailed": "Failed to load spaces.",
     "loadDetailsFailed": "Failed to load space details.",
     "createFailed": "Failed to create space.",
@@ -166,7 +230,8 @@
     "inviteSuccess": "Invitation sent successfully!",
     "inviteFailed": "Failed to send invitation.",
     "removeMemberSuccess": "Member removed successfully!",
-    "removeMemberFailed": "Failed to remove member."
+    "removeMemberFailed": "Failed to remove member.",
+    "empty": "No workspaces available."
   },
   "accounts": {
     "title": "Accounts",
@@ -177,7 +242,17 @@
     "openNew": "Open New Account",
     "nameLabel": "Account Name",
     "typeLabel": "Account Type",
+    "types": {
+      "checking": "Checking",
+      "savings": "Savings",
+      "cash": "Cash",
+      "credit": "Credit",
+      "investment": "Investment",
+      "other": "Other"
+    },
     "currencyLabel": "Currency",
+    "namePlaceholder": "e.g. Daily checking",
+    "currencyPlaceholder": "e.g. EUR",
     "balanceLabel": "Opening Balance",
     "saveBtn": "Save Account",
     "offlineNotice": "Offline: Add/Edit disabled",
@@ -198,7 +273,11 @@
     "projectBudget": "Project Budget",
     "spent": "Spent",
     "remaining": "Remaining",
-    "shareWithSpaces": "Share with spaces"
+    "shareWithSpaces": "Share with spaces",
+    "noPrimaryAccount": "No primary account",
+    "primary": "Primary",
+    "localWallet": "Local wallet",
+    "balancePlaceholder": "e.g. 5000.00"
   },
   "transactions": {
     "title": "Transactions",
@@ -233,6 +312,52 @@
     "selectCategory": "Select Category",
     "statusSettled": "Settled",
     "statusFuture": "Future",
-    "statusQueued": "Queued Offline"
+    "statusQueued": "Queued Offline",
+    "noDescription": "No description",
+    "noDetails": "No details provided.",
+    "descPlaceholder": "e.g. Coffee shop",
+    "amountPlaceholder": "e.g. 15.00"
+  },
+  "onboarding": {
+    "step1Title": "Welcome to Allocento",
+    "step1Subtitle": "How do you plan to use the application?",
+    "personal": "Personal Finances",
+    "personalDesc": "Track personal expenses and income",
+    "household": "Household",
+    "householdDesc": "Shared budget and household expenses",
+    "company": "Business",
+    "companyDesc": "Track business finances and projects",
+    "step2Title": "Initial Accounts",
+    "step2Subtitle": "Select which accounts you want to create automatically.",
+    "wallet": "Wallet",
+    "walletDesc": "Cash you have on hand",
+    "checking": "Checking Account",
+    "checkingDesc": "Main bank account",
+    "savings": "Savings",
+    "savingsDesc": "Savings account",
+    "businessAccount": "Business Account",
+    "businessAccountDesc": "Main company bank account",
+    "pettyCash": "Petty Cash",
+    "pettyCashDesc": "Cash on hand in the company",
+    "finish": "Finish",
+    "creating": "Creating..."
+  },
+  "projects": {
+    "emptyTitle": "No projects",
+    "emptyDesc": "Create your first project to manage tasks and expenses.",
+    "createFirst": "Create project",
+    "editTitle": "Edit project",
+    "createTitle": "New project"
+  },
+  "status": {
+    "active": "Active",
+    "completed": "Completed"
+  },
+  "categories": {
+    "emptyTitle": "No categories",
+    "emptyDesc": "Create the first category to track expenses.",
+    "createFirst": "Create category",
+    "editTitle": "Edit category",
+    "createTitle": "New category"
   }
 }

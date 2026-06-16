@@ -41,6 +41,42 @@ export class AuthService {
     );
   }
 
+  verifyEmailCode(email: string, code: string): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/email/verify-code`, { email, code }, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    });
+  }
+
+  resendVerificationEmail(): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/email/resend`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.getToken()}`
+      }
+    });
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/forgot-password`, { email }, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    });
+  }
+
+  resetPassword(data: any): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/reset-password`, data, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    });
+  }
+
   setToken(token: string) {
     localStorage.setItem(this.TOKEN_KEY, token);
   }

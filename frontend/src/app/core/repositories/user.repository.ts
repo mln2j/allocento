@@ -15,7 +15,7 @@ export class UserRepository {
   }
   // ----------------------
 
-  updateProfile(data: { name: string; email: string }): Observable<{ message: string; user: User }> {
+  updateProfile(data: Partial<User>): Observable<{ message: string; user: User }> {
     return this.http.put<{ message: string; user: User }>(this.baseUrl, data);
   }
 

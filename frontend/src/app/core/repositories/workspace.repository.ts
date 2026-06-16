@@ -14,6 +14,7 @@ export interface Workspace {
   pivot?: { role: string };
   users?: any[];
   accounts?: any[];
+  enabled_features?: string[];
 }
 
 @Injectable({

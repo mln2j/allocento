@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { AccountRepository } from '../../core/repositories/account.repository';
+import { ProjectRepository, Project } from '../../core/repositories/project.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { LoadingService } from '../../core/services/loading/loading.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { WorkspaceService } from '../../core/services/workspace.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { Account } from '../../core/models/account.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -21,16 +23,19 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 export class TransactionsPage implements OnInit {
   private transactionRepo = inject(TransactionRepository);
   private accountRepo = inject(AccountRepository);
+  private projectRepo = inject(ProjectRepository);
   private translationService = inject(TranslationService);
   private appInitializer = inject(AppInitializerService);
   private loadingService = inject(LoadingService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
+  private workspaceService = inject(WorkspaceService);
 
   transactions = signal<Transaction[]>([]);
   accounts = signal<Account[]>([]);
   categories = signal<any[]>([]);
+  projects = signal<Project[]>([]);
   isOnline = signal<boolean>(true);
   isLoading = signal<boolean>(false);
 
@@ -48,6 +53,7 @@ export class TransactionsPage implements OnInit {
   editingTxId: number | null = null;
   isAccountDropdownOpen = false;
   isCategoryDropdownOpen = false;
+  isProjectDropdownOpen = false;
 
   // Filtered transactions computed signal
   filteredTransactions = computed(() => {
@@ -82,6 +88,10 @@ export class TransactionsPage implements OnInit {
     return this.translationService.translate(key);
   }
 
+  activeWorkspace() {
+    return this.workspaceService.activeWorkspace();
+  }
+
   initForm() {
     this.transactionForm = this.fb.group({
       accountId: ['', [Validators.required]],
@@ -89,7 +99,8 @@ export class TransactionsPage implements OnInit {
       amount: [0, [Validators.required, Validators.min(0.01)]],
       date: [new Date().toISOString().substring(0, 16), [Validators.required]],
       description: ['', [Validators.maxLength(255)]],
-      categoryId: ['']
+      categoryId: [''],
+      projectId: ['']
     });
   }
 
@@ -112,6 +123,13 @@ export class TransactionsPage implements OnInit {
     this.transactionRepo.getCategories().subscribe({
       next: (cats) => {
         this.categories.set(cats);
+      }
+    });
+
+    // Load projects list
+    this.projectRepo.getAll().subscribe({
+      next: (projs) => {
+        this.projects.set(projs);
       }
     });
 
@@ -150,7 +168,8 @@ export class TransactionsPage implements OnInit {
       amount: 0,
       date: new Date().toISOString().substring(0, 16),
       description: '',
-      categoryId: ''
+      categoryId: '',
+      projectId: ''
     });
     this.isModalOpen = true;
   }
@@ -171,7 +190,8 @@ export class TransactionsPage implements OnInit {
       amount: tx.amount,
       date: dateStr,
       description: tx.description,
-      categoryId: tx.categoryId || ''
+      categoryId: tx.categoryId || '',
+      projectId: (tx as any).project_id || ''
     });
     this.isModalOpen = true;
   }
@@ -204,6 +224,7 @@ export class TransactionsPage implements OnInit {
     this.isModalOpen = false;
     this.isAccountDropdownOpen = false;
     this.isCategoryDropdownOpen = false;
+    this.isProjectDropdownOpen = false;
   }
 
   toggleAccountDropdown() {
@@ -237,6 +258,22 @@ export class TransactionsPage implements OnInit {
     return cat ? cat.name : (this.t('transactions.uncategorized') || 'Uncategorized');
   }
 
+  toggleProjectDropdown() {
+    this.isProjectDropdownOpen = !this.isProjectDropdownOpen;
+  }
+
+  selectProject(projId: number | string | null) {
+    this.transactionForm.get('projectId')?.setValue(projId || '');
+    this.isProjectDropdownOpen = false;
+  }
+
+  getSelectedProjectName(): string {
+    const id = this.transactionForm.get('projectId')?.value;
+    if (!id) return this.t('transactions.unprojected') || 'None';
+    const proj = this.projects().find(p => p.id === Number(id));
+    return proj ? proj.name : (this.t('transactions.unprojected') || 'None');
+  }
+
   setTxType(type: 'income' | 'expense') {
     this.transactionForm.get('type')?.setValue(type);
   }
@@ -251,6 +288,14 @@ export class TransactionsPage implements OnInit {
     } else {
       payload.categoryId = Number(payload.categoryId);
     }
+
+    if (payload.projectId === '') {
+      payload.project_id = null;
+    } else {
+      payload.project_id = Number(payload.projectId);
+    }
+    delete payload.projectId;
+
     const accId = payload.accountId;
 
     if (this.editingTxId) {

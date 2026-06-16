@@ -42,6 +42,12 @@
         {{ errorMessage }}
       </div>
 
+      <div class="flex justify-end">
+        <a routerLink="/auth/forgot-password" class="text-brand-purple/80 hover:text-brand-purple text-xs font-bold underline transition-colors" style="font-family: 'Space Mono', monospace;">
+          {{ t('auth.forgot_password') }}
+        </a>
+      </div>
+
       <button
         [disabled]="form.invalid || loading"
         class="w-full py-4 bg-brand-purple hover:bg-[#4a1772] text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-purple/20 transition-all duration-200 disabled:opacity-50"

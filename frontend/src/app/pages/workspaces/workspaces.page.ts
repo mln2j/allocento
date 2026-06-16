@@ -7,6 +7,7 @@ import { LoadingService } from '../../core/services/loading/loading.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { WorkspaceService } from '../../core/services/workspace.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
@@ -23,6 +24,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   private appInitializer = inject(AppInitializerService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
+  private workspaceService = inject(WorkspaceService);
 
   workspaces = signal<Workspace[]>([]);
   workspaceForm!: FormGroup;
@@ -36,7 +38,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   selectedWorkspace = signal<Workspace | null>(null);
   isLoadingDetails = false;
 
-  availableIcons = ['💼', '🏠', '🚀', '🍕', '📈', '🛒', '🚗', '🛠️'];
   inviteEmail = '';
 
   ngOnInit() {
@@ -54,6 +55,18 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.loadWorkspaces();
   };
 
+  activeWorkspaceId() {
+    return this.workspaceService.activeWorkspace()?.id;
+  }
+
+  setActive() {
+    const ws = this.selectedWorkspace();
+    if (ws) {
+      this.workspaceService.setActiveWorkspace(ws);
+      this.toastService.success(this.t('workspaces.setActiveSuccess') || 'Workspace set as active.');
+    }
+  }
+
   ngOnDestroy() {
     window.removeEventListener(
       'workspace-updated',
@@ -69,7 +82,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.workspaceForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
       type: ['household', [Validators.required]],
-      icon: ['🏠'],
       currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]]
     });
   }
@@ -129,7 +141,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.dialogService.confirm(
       this.t('workspaces.membersManagement') || 'Members Management',
       this.t('workspaces.confirmRemoveMember') || 'Are you sure you want to remove this member?',
-      this.t('common.reject') || 'Remove',
+      this.t('common.accept') || 'Remove',
       this.t('common.cancel') || 'Cancel'
     ).subscribe(confirmed => {
       if (!confirmed) return;
@@ -167,7 +179,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     }
     this.workspaceForm.reset({
       type: 'household',
-      icon: '🏠',
       currency: 'EUR'
     });
     this.isModalOpen = true;
@@ -175,10 +186,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   closeModal() {
     this.isModalOpen = false;
-  }
-
-  selectIcon(icon: string) {
-    this.workspaceForm.get('icon')?.setValue(icon);
   }
 
   deleteWorkspace() {
@@ -193,7 +200,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.dialogService.confirm(
       this.t('workspaces.deleteWorkspace') || 'Delete Workspace',
       this.t('workspaces.deleteConfirm') || 'Are you sure you want to delete this workspace?',
-      this.t('common.reject') || 'Delete',
+      this.t('common.accept') || 'Delete',
       this.t('common.cancel') || 'Cancel'
     ).subscribe(confirmed => {
       if (!confirmed) return;

@@ -7,22 +7,36 @@ import { Workspace, WorkspaceRepository } from '../repositories/workspace.reposi
 export class WorkspaceService {
   private workspaceRepo = inject(WorkspaceRepository);
 
-  // Signal koji drži trenutno aktivni workspace u memoriji aplikacije
-  private _activeWorkspace = signal<Workspace | null>(null);
+  private _activeWorkspace = signal<Workspace | null>(this.loadFromStorage());
 
-  // Javni read-only signal koji komponente mogu slušati
   activeWorkspace = computed(() => this._activeWorkspace());
 
-  // Postavi aktivni prostor ručno
-  setActiveWorkspace(workspace: Workspace) {
-    this._activeWorkspace.set(workspace);
-    // Po želji možeš spremiti ID u localStorage kao fallback pri refreshu
-    localStorage.setItem('active_workspace_id', workspace.workspace_id || String(workspace.id));
+  private loadFromStorage(): Workspace | null {
+    if (typeof localStorage === 'undefined') return null;
+    const stored = localStorage.getItem('active_workspace_full');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 
-  // Očisti aktivni prostor (npr. kod logouta)
+  setActiveWorkspace(workspace: Workspace) {
+    this._activeWorkspace.set(workspace);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('active_workspace_full', JSON.stringify(workspace));
+      localStorage.setItem('active_workspace_id', workspace.workspace_id || String(workspace.id));
+    }
+  }
+
   clearActiveWorkspace() {
     this._activeWorkspace.set(null);
-    localStorage.removeItem('active_workspace_id');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('active_workspace_id');
+      localStorage.removeItem('active_workspace_full');
+    }
   }
 }

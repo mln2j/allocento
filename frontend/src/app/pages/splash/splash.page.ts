@@ -59,6 +59,10 @@ export class SplashPage implements OnInit {
 
       if (targetRoute === 'login') {
         this.router.navigate(['/auth/login']);
+      } else if (targetRoute === 'verify-email') {
+        this.router.navigate(['/auth/verify-email']);
+      } else if (targetRoute === 'onboarding') {
+        this.router.navigate(['/auth/onboarding']);
       } else {
         this.router.navigate(['/dashboard']);
       }
