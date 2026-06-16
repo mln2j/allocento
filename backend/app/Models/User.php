@@ -102,6 +102,14 @@ class User extends Authenticatable implements MustVerifyEmail
             ]
         );
 
-        $this->notify(new \App\Notifications\VerifyEmailCode($code));
+        $locale = request()->header('Accept-Language', 'en');
+        $locale = substr($locale, 0, 2);
+        if (!in_array($locale, ['en', 'hr'])) {
+            $locale = 'en';
+        }
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(
+            new \App\Mail\VerifyEmailCodeMail($code, $this->name, $locale)
+        );
     }
 }

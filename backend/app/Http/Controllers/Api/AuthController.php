@@ -109,10 +109,16 @@ class AuthController extends Controller
             ]
         );
 
-        \Illuminate\Support\Facades\Mail::raw("Your password reset code is: {$code}", function ($message) use ($request) {
-            $message->to($request->email)
-                    ->subject('Password Reset Code');
-        });
+        $locale = $request->header('Accept-Language', 'en');
+        // Extract basic locale (e.g., 'hr-HR' -> 'hr')
+        $locale = substr($locale, 0, 2);
+        if (!in_array($locale, ['en', 'hr'])) {
+            $locale = 'en';
+        }
+
+        \Illuminate\Support\Facades\Mail::to($request->email)->send(
+            new \App\Mail\ResetPasswordMail($code, $user->name, $locale)
+        );
 
         return response()->json(['message' => 'passwords.sent']);
     }
