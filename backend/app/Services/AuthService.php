@@ -37,8 +37,11 @@ class AuthService
     {
         $user = $this->userRepository->create($data);
 
-        // Okinemo Laravelov ugrađeni event koji šalje email za verifikaciju
+        // Okinemo Laravelov ugrađeni event
         event(new Registered($user));
+
+        // Eksplicitno šaljemo email (naš custom) da se ne oslanjamo na automatski listener koji možda nije aktivan
+        $user->sendEmailVerificationNotification();
 
         $token = $user->createToken('allocento')->plainTextToken;
 
