@@ -61,9 +61,9 @@ export class VerifyEmail implements OnInit {
         this.toast.success(this.t('auth.verify_success_desc') || 'Tvoj email je uspješno verificiran!');
         this.router.navigate(['/splash']);
       },
-      error: (err) => {
+      error: () => {
         this.loading.set(false);
-        this.toast.error(err.error?.message || this.t('auth.invalidCode') || 'Invalid verification code.');
+        this.toast.error(this.t('auth.invalidCode') || 'Invalid verification code.');
         this.codeForm.get('code')?.setValue('');
       }
     });

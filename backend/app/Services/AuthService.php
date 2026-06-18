@@ -27,6 +27,18 @@ class AuthService
 
         $token = $user->createToken('allocento')->plainTextToken;
 
+        // Auto-send verification email if user is not verified and doesn't have an active code
+        if (!$user->hasVerifiedEmail()) {
+            $activeCode = DB::table('email_verification_codes')
+                ->where('email', $user->email)
+                ->where('expires_at', '>', now())
+                ->first();
+
+            if (!$activeCode) {
+                $user->sendEmailVerificationNotification();
+            }
+        }
+
         return [
             'token' => $token,
             'user' => $user->load(['favoriteWorkspace', 'workspaces']),
@@ -37,11 +49,8 @@ class AuthService
     {
         $user = $this->userRepository->create($data);
 
-        // Okinemo Laravelov ugrađeni event
+        // Okinemo Laravelov ugrađeni event (koji će automatski okrznuti naš custom email jer implementiramo MustVerifyEmail i prepisujemo metodu)
         event(new Registered($user));
-
-        // Eksplicitno šaljemo email (naš custom) da se ne oslanjamo na automatski listener koji možda nije aktivan
-        $user->sendEmailVerificationNotification();
 
         $token = $user->createToken('allocento')->plainTextToken;
 
