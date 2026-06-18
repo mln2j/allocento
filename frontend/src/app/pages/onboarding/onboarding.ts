@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -44,6 +44,12 @@ export class Onboarding {
   accountOptions = signal<AccountOption[]>([]);
 
   customAccounts = signal<CustomAccount[]>([{ id: Date.now(), name: '', type: 'checking' }]);
+  openDropdownIndex = signal<number | null>(null);
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.openDropdownIndex.set(null);
+  }
 
   t(key: string): string {
     return this.translationService.translate(key);
@@ -130,6 +136,21 @@ export class Onboarding {
     const current = [...this.customAccounts()];
     current[index].type = value;
     this.customAccounts.set(current);
+  }
+
+  toggleDropdown(index: number, event: Event) {
+    event.stopPropagation();
+    if (this.openDropdownIndex() === index) {
+      this.openDropdownIndex.set(null);
+    } else {
+      this.openDropdownIndex.set(index);
+    }
+  }
+
+  selectCustomAccountType(index: number, type: 'checking' | 'cash', event: Event) {
+    event.stopPropagation();
+    this.onCustomAccountTypeChange(index, type);
+    this.openDropdownIndex.set(null);
   }
 
   finish() {

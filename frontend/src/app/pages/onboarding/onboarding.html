@@ -117,11 +117,45 @@
             <div class="h-10 w-px bg-gray-100 hidden md:block" *ngIf="ca.name.trim() !== ''"></div>
             <div class="w-full h-px bg-gray-100 block md:hidden my-2" *ngIf="ca.name.trim() !== ''"></div>
 
-            <!-- Select area -->
-            <select *ngIf="ca.name.trim() !== ''" [ngModel]="ca.type" (ngModelChange)="onCustomAccountTypeChange(i, $event)" class="bg-gray-50 border border-gray-100 hover:border-gray-200 rounded-xl px-4 py-3 md:py-2 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-brand-purple font-medium w-full md:w-auto cursor-pointer transition-colors">
-              <option value="checking">{{ t('onboarding.typeBankAccount') }}</option>
-              <option value="cash">{{ t('onboarding.typeCash') }}</option>
-            </select>
+            <!-- Custom Dropdown -->
+            <div class="relative w-full md:w-auto" *ngIf="ca.name.trim() !== ''">
+              <button 
+                type="button"
+                (click)="toggleDropdown(i, $event)"
+                class="w-full flex items-center justify-between px-4 py-3 md:py-2 bg-gray-50 border border-gray-100 hover:border-brand-purple/40 rounded-xl text-brand-purple font-medium transition-all cursor-pointer outline-none min-w-[140px]"
+              >
+                <span>{{ ca.type === 'checking' ? t('onboarding.typeBankAccount') : t('onboarding.typeCash') }}</span>
+                <svg 
+                  class="w-4 h-4 text-brand-purple/50 transition-transform duration-200 ml-2"
+                  [class.rotate-180]="openDropdownIndex() === i"
+                  fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+              <div 
+                *ngIf="openDropdownIndex() === i"
+                class="absolute right-0 z-50 w-full md:w-48 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100"
+              >
+                <button 
+                  type="button" 
+                  (click)="selectCustomAccountType(i, 'checking', $event)" 
+                  class="w-full text-left px-3 py-2.5 font-medium text-brand-purple hover:bg-brand-purple/5 rounded-lg transition-colors cursor-pointer flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                  {{ t('onboarding.typeBankAccount') }}
+                </button>
+                <button 
+                  type="button" 
+                  (click)="selectCustomAccountType(i, 'cash', $event)" 
+                  class="w-full text-left px-3 py-2.5 font-medium text-brand-purple hover:bg-brand-purple/5 rounded-lg transition-colors cursor-pointer flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  {{ t('onboarding.typeCash') }}
+                </button>
+              </div>
+            </div>
             
           </div>
         </div>
