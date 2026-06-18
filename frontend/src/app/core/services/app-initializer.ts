@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { API_BASE_URL } from '../api.config';
 import { firstValueFrom } from 'rxjs';
 import { LoggerService } from './logger.service';
+import { WorkspaceService } from './workspace.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class AppInitializerService {
   private authService = inject(AuthService);
   private http = inject(HttpClient);
   private logger = inject(LoggerService);
+  private workspaceService = inject(WorkspaceService);
 
   private apiPingUrl = `${API_BASE_URL}/health`;
   private userApiUrl = `${API_BASE_URL}/user`; // <-- Endpoint za provjeru tokena
@@ -98,14 +100,21 @@ export class AppInitializerService {
         }
 
         // We can't inject async like that. Let's just set localStorage directly here if empty.
-        if (typeof localStorage !== 'undefined' && !localStorage.getItem('active_workspace_full')) {
+        if (typeof localStorage !== 'undefined') {
+            const currentWsId = localStorage.getItem('active_workspace_id');
             const favWsId = userProfile.favorite_workspace_id;
-            let targetWs = userProfile.workspaces.find((w: any) => w.id === favWsId) || userProfile.workspaces[0];
+            
+            let targetWs = null;
+            if (currentWsId) {
+                targetWs = userProfile.workspaces.find((w: any) => String(w.id) === currentWsId || String(w.workspace_id) === currentWsId);
+            }
+            if (!targetWs) {
+                targetWs = userProfile.workspaces.find((w: any) => w.id === favWsId) || userProfile.workspaces[0];
+            }
+
             if (targetWs) {
-              // Note: the user workspace pivot has workspace_id as id sometimes. Let's normalize.
-              targetWs.workspace_id = targetWs.id;
-              localStorage.setItem('active_workspace_full', JSON.stringify(targetWs));
-              localStorage.setItem('active_workspace_id', String(targetWs.id));
+              targetWs.workspace_id = targetWs.id; // Normalize
+              this.workspaceService.setActiveWorkspace(targetWs);
             }
         }
       }
