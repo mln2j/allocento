@@ -45,7 +45,7 @@ class WorkspaceController extends Controller
 
     public function show(Request $request, $id): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->with(['users', 'accounts'])->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->with(['users', 'accounts'])->first();
 
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
@@ -56,7 +56,7 @@ class WorkspaceController extends Controller
 
     public function update(Request $request, $id): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
 
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
@@ -75,7 +75,7 @@ class WorkspaceController extends Controller
 
     public function destroy(Request $request, $id): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
 
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
@@ -97,7 +97,7 @@ class WorkspaceController extends Controller
     public function setFavorite(Request $request, $id): JsonResponse
     {
         $user = $request->user();
-        $workspace = $user->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $id)->first();
 
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
@@ -110,7 +110,7 @@ class WorkspaceController extends Controller
 
     public function shareAccount(Request $request, $id, $accountId): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
         }
@@ -128,7 +128,7 @@ class WorkspaceController extends Controller
 
     public function unshareAccount(Request $request, $id, $accountId): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
         }
@@ -145,7 +145,7 @@ class WorkspaceController extends Controller
 
     public function removeMember(Request $request, $id, $userId): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspace_id', $id)->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
         }

@@ -19,27 +19,26 @@ class ResolveWorkspace
         }
 
         $workspaceId = $request->header('X-Workspace-ID');
+        $workspace = null;
 
-        if (!$workspaceId) {
-            $workspaceId = $user->favorite_workspace_id;
+        if ($workspaceId) {
+            $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         }
 
-        if (!$workspaceId) {
-            // If the user has no favorite workspace but has workspaces, set the first one as favorite
-            $firstWorkspace = $user->workspaces()->first();
-            if ($firstWorkspace) {
-                $user->update(['favorite_workspace_id' => $firstWorkspace->id]);
-                $workspaceId = $firstWorkspace->id;
-            } else {
-                return response()->json(['error' => 'No workspace context available.'], 400);
+        if (!$workspace) {
+            $workspaceId = $user->favorite_workspace_id;
+            if ($workspaceId) {
+                $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
             }
         }
 
-        // Verify the user actually has access to this workspace
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
-
         if (!$workspace) {
-            return response()->json(['error' => 'Access denied to this workspace or workspace does not exist.'], 403);
+            $workspace = $user->workspaces()->first();
+            if ($workspace) {
+                $user->update(['favorite_workspace_id' => $workspace->id]);
+            } else {
+                return response()->json(['error' => 'No workspace context available.'], 400);
+            }
         }
 
         // Merge workspace into the request attributes so controllers can read it easily
