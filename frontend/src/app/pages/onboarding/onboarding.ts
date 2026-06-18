@@ -35,8 +35,10 @@ export class Onboarding {
   step = signal<number>(1);
   loading = signal(false);
   selectedWorkspaceType: string = '';
-  
   accountOptions = signal<AccountOption[]>([]);
+
+  customAccountName = signal('');
+  customAccountType = signal<'checking' | 'savings' | 'cash' | 'credit' | 'investment' | 'other'>('checking');
 
   t(key: string): string {
     return this.translationService.translate(key);
@@ -119,6 +121,25 @@ export class Onboarding {
         catchError(err => of(null)) // ignore individual errors so forkJoin completes
       );
     });
+
+    if (this.customAccountName().trim() !== '') {
+      const payload = {
+        name: this.customAccountName().trim(),
+        type: this.customAccountType(),
+        currency: 'EUR',
+        balance: 0,
+        is_primary: this.customAccountType() === 'checking'
+      };
+      createObservables.push(this.accountRepo.create(payload).pipe(
+        catchError(err => of(null))
+      ));
+    }
+
+    if (createObservables.length === 0) {
+       this.loading.set(false);
+       window.location.href = '/splash';
+       return;
+    }
 
     forkJoin(createObservables).subscribe({
       next: () => {

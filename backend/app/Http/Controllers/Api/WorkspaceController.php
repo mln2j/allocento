@@ -22,7 +22,7 @@ class WorkspaceController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:household,company'],
+            'type' => ['required', 'in:personal,household,company'],
             'icon' => ['nullable', 'string', 'max:50'],
             'currency' => ['nullable', 'string', 'size:3'],
         ]);

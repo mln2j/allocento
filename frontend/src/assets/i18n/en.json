@@ -1,5 +1,6 @@
 {
   "common": {
+    "error": "Error!",
     "retryButton": "Try again",
     "calculated": "Calculated & Successful",
     "accept": "Accept",
@@ -343,7 +344,14 @@
     "pettyCash": "Petty Cash",
     "pettyCashDesc": "Cash on hand in the company",
     "finish": "Finish",
-    "creating": "Creating..."
+    "saveAccounts": "Save accounts",
+    "creating": "Creating...",
+    "customAccountTitle": "Or add a custom account:",
+    "customAccountPlaceholder": "Account name...",
+    "typeChecking": "Checking",
+    "typeSavings": "Savings",
+    "typeCash": "Cash",
+    "typeCredit": "Credit"
   },
   "projects": {
     "emptyTitle": "No projects",

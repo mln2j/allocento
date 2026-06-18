@@ -1,5 +1,6 @@
 {
   "common": {
+    "error": "Greška!",
     "retryButton": "Pokušaj ponovno",
     "calculated": "Proračunato & Uspješno",
     "accept": "Prihvati",
@@ -343,7 +344,14 @@
     "pettyCash": "Blagajna",
     "pettyCashDesc": "Gotovina u tvrtki",
     "finish": "Završi",
-    "creating": "Kreiranje..."
+    "saveAccounts": "Spremi račune",
+    "creating": "Kreiranje...",
+    "customAccountTitle": "Ili dodaj vlastiti račun:",
+    "customAccountPlaceholder": "Naziv računa...",
+    "typeChecking": "Tekući",
+    "typeSavings": "Štednja",
+    "typeCash": "Gotovina",
+    "typeCredit": "Kreditna"
   },
   "projects": {
     "emptyTitle": "Nema projekata",
