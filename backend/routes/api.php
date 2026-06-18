@@ -183,8 +183,9 @@ Route::middleware('auth:sanctum')->group(function () {
         */
 
         Route::post('workspaces/{workspace}/invitations', [InvitationController::class, 'invite']);
-        Route::get('invitations/pending', [InvitationController::class, 'pending']);
-        Route::post('invitations/{token}/accept', [InvitationController::class, 'accept']);
-        Route::delete('invitations/{token}/reject', [InvitationController::class, 'reject']);
     });
+
+    Route::get('invitations/pending', [InvitationController::class, 'pending']);
+    Route::post('invitations/{token}/accept', [InvitationController::class, 'accept']);
+    Route::delete('invitations/{token}/reject', [InvitationController::class, 'reject']);
 });
