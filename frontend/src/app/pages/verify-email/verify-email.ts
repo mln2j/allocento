@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { UserRepository } from '../../core/repositories/user.repository';
+import { ToastService } from '../../core/services/toast.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
@@ -18,11 +19,11 @@ export class VerifyEmail implements OnInit {
   private authService = inject(AuthService);
   private tService = inject(TranslationService);
   private userRepo = inject(UserRepository);
+  private toast = inject(ToastService);
   private fb = inject(FormBuilder);
 
-  mode = signal<'waiting' | 'success' | 'error'>('waiting');
+  mode = signal<'waiting'>('waiting');
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
   resendCooldown = signal<number>(0);
   private intervalId: any;
 
@@ -38,8 +39,7 @@ export class VerifyEmail implements OnInit {
         this.email.set(user.email);
       },
       error: () => {
-        this.mode.set('error');
-        this.errorMessage.set(this.t('auth.loadUserFailed') || 'Failed to load user info. Please log in again.');
+        this.toast.error(this.t('auth.loadUserFailed') || 'Failed to load user info. Please log in again.');
       }
     });
   }
@@ -58,12 +58,13 @@ export class VerifyEmail implements OnInit {
     this.authService.verifyEmailCode(emailVal, codeVal).subscribe({
       next: () => {
         this.loading.set(false);
-        this.mode.set('success');
+        this.toast.success(this.t('auth.verify_success_desc') || 'Tvoj email je uspješno verificiran!');
+        this.router.navigate(['/splash']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.mode.set('error');
-        this.errorMessage.set(err.error?.message || this.t('auth.invalidCode') || 'Invalid verification code.');
+        this.toast.error(err.error?.message || this.t('auth.invalidCode') || 'Invalid verification code.');
+        this.codeForm.get('code')?.setValue('');
       }
     });
   }
@@ -74,14 +75,16 @@ export class VerifyEmail implements OnInit {
     this.authService.resendVerificationEmail().subscribe({
       next: () => {
         this.loading.set(false);
+        this.toast.success(this.t('auth.codeResent') || 'New code sent to your email!');
         this.startCooldown(60);
       },
       error: (err) => {
         this.loading.set(false);
         if (err.status === 429) {
+          this.toast.warning(this.t('auth.tooManyRequests') || 'Please wait a minute before requesting a new code.');
           this.startCooldown(60);
         } else {
-          alert(this.t('auth.resendFailed') || 'Failed to resend code.');
+          this.toast.error(this.t('auth.resendFailed') || 'Failed to resend code.');
         }
       }
     });

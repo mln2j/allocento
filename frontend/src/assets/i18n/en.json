@@ -108,7 +108,8 @@
     "did_not_receive": "Didn't receive the code? Resend",
     "verify_success_desc": "Your email has been successfully verified! 🎉",
     "continue_to_app": "Continue to App",
-    "resend_link": "Send new code"
+    "resend_link": "Send new code",
+    "resend_wait": "Wait"
   },
   "nav": {
     "dashboard": "Dashboard",

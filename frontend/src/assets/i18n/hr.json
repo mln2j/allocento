@@ -119,7 +119,8 @@
     "did_not_receive": "Nisi primio kod? Pošalji ponovo",
     "verify_success_desc": "Tvoj email je uspješno verificiran! 🎉",
     "continue_to_app": "Nastavi u Aplikaciju",
-    "resend_link": "Pošalji novi kod"
+    "resend_link": "Pošalji novi kod",
+    "resend_wait": "Pričekaj"
   },
   "nav": {
     "dashboard": "Nadzorna Ploča",
