@@ -299,7 +299,7 @@
               <div class="font-bold text-sm text-slate-800 truncate leading-tight">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</div>
               <div class="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider truncate">
                 {{ tx.date | date:'dd.MM.yyyy, HH:mm' }} |
-                <span class="font-sans font-medium text-slate-500">{{ ((tx.createdBy?.id === currentUserId) || (tx.user?.id === currentUserId) || (!tx.createdBy && !tx.user)) ? (t('common.me') || 'Ja') : (tx.createdBy?.name || tx.user?.name) }}</span>
+                <span class="font-sans font-medium text-slate-500">{{ ((tx.createdBy?.id === currentUserId) || (tx.user?.id === currentUserId) || (!tx.createdBy && !tx.user)) ? (t('common.me') || 'Ja') : (tx.createdBy?.name || tx.user.name) }}</span>
               </div>
             </div>
           </div>
