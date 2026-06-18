@@ -348,10 +348,8 @@
     "creating": "Kreiranje...",
     "customAccountTitle": "Ili dodaj vlastiti račun:",
     "customAccountPlaceholder": "Naziv računa...",
-    "typeChecking": "Tekući",
-    "typeSavings": "Štednja",
-    "typeCash": "Gotovina",
-    "typeCredit": "Kreditna"
+    "typeBankAccount": "Račun u banci",
+    "typeCash": "Gotovina"
   },
   "projects": {
     "emptyTitle": "Nema projekata",

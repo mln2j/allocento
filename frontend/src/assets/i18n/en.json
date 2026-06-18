@@ -348,10 +348,8 @@
     "creating": "Creating...",
     "customAccountTitle": "Or add a custom account:",
     "customAccountPlaceholder": "Account name...",
-    "typeChecking": "Checking",
-    "typeSavings": "Savings",
-    "typeCash": "Cash",
-    "typeCredit": "Credit"
+    "typeBankAccount": "Bank Account",
+    "typeCash": "Cash"
   },
   "projects": {
     "emptyTitle": "No projects",

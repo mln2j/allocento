@@ -102,12 +102,10 @@
         <div class="mt-6 pt-6 border-t border-gray-100">
           <h4 class="text-brand-purple font-bold mb-3" style="font-family: 'Space Mono', monospace;">{{ t('onboarding.customAccountTitle') }}</h4>
           <div class="flex flex-col md:flex-row gap-3">
-            <input type="text" [ngModel]="customAccountName()" (ngModelChange)="customAccountName.set($event)" [placeholder]="t('onboarding.customAccountPlaceholder')" class="flex-1 bg-white border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-mint focus:ring-1 focus:ring-brand-mint text-brand-purple">
-            <select [ngModel]="customAccountType()" (ngModelChange)="customAccountType.set($event)" class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-mint text-brand-purple font-medium w-full md:w-auto">
-              <option value="checking">{{ t('onboarding.typeChecking') }}</option>
-              <option value="savings">{{ t('onboarding.typeSavings') }}</option>
+            <input type="text" [ngModel]="customAccountName()" (ngModelChange)="customAccountName.set($event)" [placeholder]="t('onboarding.customAccountPlaceholder')" class="flex-1 bg-white border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple text-brand-purple">
+            <select [ngModel]="customAccountType()" (ngModelChange)="customAccountType.set($event)" class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-purple text-brand-purple font-medium w-full md:w-auto">
+              <option value="checking">{{ t('onboarding.typeBankAccount') }}</option>
               <option value="cash">{{ t('onboarding.typeCash') }}</option>
-              <option value="credit">{{ t('onboarding.typeCredit') }}</option>
             </select>
           </div>
         </div>
@@ -117,7 +115,7 @@
       <button
         (click)="finish()"
         [disabled]="loading()"
-        class="bg-brand-mint text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all duration-300 shadow-lg shadow-brand-mint/30 disabled:opacity-50 disabled:cursor-not-allowed">
+        class="bg-brand-purple text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-[#4a1772] transition-all duration-300 shadow-xl shadow-brand-purple/20 disabled:opacity-50 disabled:cursor-not-allowed">
         <span *ngIf="!loading()">{{ t('onboarding.saveAccounts') }}</span>
         <span *ngIf="loading()">{{ t('onboarding.creating') }}</span>
       </button>
