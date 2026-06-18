@@ -88,6 +88,27 @@ class AuthController extends Controller
         return response()->json(['message' => 'Verification link sent.']);
     }
 
+    public function checkAndSendVerificationEmail(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Already verified']);
+        }
+
+        $activeCode = \Illuminate\Support\Facades\DB::table('email_verification_codes')
+            ->where('email', $user->email)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$activeCode) {
+            $user->sendEmailVerificationNotification();
+            return response()->json(['message' => 'Email sent']);
+        }
+
+        return response()->json(['message' => 'Active code exists']);
+    }
+
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);

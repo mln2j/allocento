@@ -37,6 +37,16 @@ export class VerifyEmail implements OnInit {
     this.userRepo.getCurrentUser(Date.now()).subscribe({
       next: (user) => {
         this.email.set(user.email);
+        
+        // Automatski pošalji email ako ne postoji aktivni kod (bez rate limit problema)
+        this.authService.checkAndSendVerificationEmail().subscribe({
+          next: (res) => {
+             if (res.message === 'Email sent') {
+               // Možemo prikazati toast ili samo tiho pustiti
+               this.startCooldown(60);
+             }
+          }
+        });
       },
       error: () => {
         this.toast.error(this.t('auth.loadUserFailed') || 'Failed to load user info. Please log in again.');

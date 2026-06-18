@@ -29,6 +29,7 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/email/verify-code', [AuthController::class, 'verifyEmailCode']);
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:1,1']);
+Route::post('/email/check-and-send', [AuthController::class, 'checkAndSendVerificationEmail'])->middleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------

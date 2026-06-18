@@ -59,6 +59,15 @@ export class AuthService {
     });
   }
 
+  checkAndSendVerificationEmail(): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/email/check-and-send`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.getToken()}`
+      }
+    });
+  }
+
   forgotPassword(email: string): Observable<any> {
     return this.http.post(`${API_BASE_URL}/forgot-password`, { email }, {
       headers: {
