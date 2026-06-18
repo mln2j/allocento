@@ -18,6 +18,12 @@ interface AccountOption {
   selected: boolean;
 }
 
+interface CustomAccount {
+  id: number;
+  name: string;
+  type: 'checking' | 'cash';
+}
+
 @Component({
   selector: 'app-onboarding',
   standalone: true,
@@ -37,8 +43,7 @@ export class Onboarding {
   selectedWorkspaceType: string = '';
   accountOptions = signal<AccountOption[]>([]);
 
-  customAccountName = signal('');
-  customAccountType = signal<'checking' | 'savings' | 'cash' | 'credit' | 'investment' | 'other'>('checking');
+  customAccounts = signal<CustomAccount[]>([{ id: Date.now(), name: '', type: 'checking' }]);
 
   t(key: string): string {
     return this.translationService.translate(key);
@@ -81,11 +86,17 @@ export class Onboarding {
 
   private prepareStep2(type: string) {
     let options: AccountOption[] = [];
-    if (type === 'personal' || type === 'household') {
+    if (type === 'personal') {
       options = [
         { id: 'wallet', nameKey: 'onboarding.wallet', descKey: 'onboarding.walletDesc', type: 'cash', selected: true },
         { id: 'checking', nameKey: 'onboarding.checking', descKey: 'onboarding.checkingDesc', type: 'checking', selected: true },
         { id: 'savings', nameKey: 'onboarding.savings', descKey: 'onboarding.savingsDesc', type: 'savings', selected: false }
+      ];
+    } else if (type === 'household') {
+      options = [
+        { id: 'jointChecking', nameKey: 'onboarding.jointChecking', descKey: 'onboarding.jointCheckingDesc', type: 'checking', selected: true },
+        { id: 'householdCash', nameKey: 'onboarding.householdCash', descKey: 'onboarding.householdCashDesc', type: 'cash', selected: true },
+        { id: 'jointSavings', nameKey: 'onboarding.jointSavings', descKey: 'onboarding.jointSavingsDesc', type: 'savings', selected: false }
       ];
     } else if (type === 'company') {
       options = [
@@ -96,6 +107,29 @@ export class Onboarding {
     this.accountOptions.set(options);
     this.loading.set(false);
     this.step.set(2);
+  }
+
+  onCustomAccountInput(index: number, value: string) {
+    const current = [...this.customAccounts()];
+    current[index].name = value;
+
+    // Ako je upisan tekst i to je zadnji element, dodaj novi prazan ispod
+    if (value.trim() !== '' && index === current.length - 1) {
+      current.push({ id: Date.now(), name: '', type: 'checking' });
+    }
+
+    // Ako je input obrisan (prazan), a nije jedini/zadnji, ukloni ga
+    if (value.trim() === '' && index < current.length - 1) {
+      current.splice(index, 1);
+    }
+
+    this.customAccounts.set(current);
+  }
+
+  onCustomAccountTypeChange(index: number, value: 'checking' | 'cash') {
+    const current = [...this.customAccounts()];
+    current[index].type = value;
+    this.customAccounts.set(current);
   }
 
   finish() {
@@ -122,18 +156,20 @@ export class Onboarding {
       );
     });
 
-    if (this.customAccountName().trim() !== '') {
-      const payload = {
-        name: this.customAccountName().trim(),
-        type: this.customAccountType(),
-        currency: 'EUR',
-        balance: 0,
-        is_primary: this.customAccountType() === 'checking'
-      };
-      createObservables.push(this.accountRepo.create(payload).pipe(
-        catchError(err => of(null))
-      ));
-    }
+    this.customAccounts().forEach(acc => {
+      if (acc.name.trim() !== '') {
+        const payload = {
+          name: acc.name.trim(),
+          type: acc.type,
+          currency: 'EUR',
+          balance: 0,
+          is_primary: acc.type === 'checking'
+        };
+        createObservables.push(this.accountRepo.create(payload).pipe(
+          catchError(err => of(null))
+        ));
+      }
+    });
 
     if (createObservables.length === 0) {
        this.loading.set(false);
