@@ -215,15 +215,16 @@ export class TransactionRepository {
       description: api.description,
       categoryId: api.category_id ?? null,
       projectId: api.project_id ?? null,
-      user: api.user
+      user: (api.user || api.created_by)
         ? {
-          id: api.user.id,
-          name: api.user.name,
-          email: api.user.email,
+          id: (api.user || api.created_by).id,
+          name: (api.user || api.created_by).name,
+          email: (api.user || api.created_by).email,
         }
         : null,
       account: api.account ? { id: api.account.id, name: api.account.name } : undefined,
       category: api.category ? { id: api.category.id, name: api.category.name } : undefined,
+      project: api.project ? { id: api.project.id, name: api.project.name } : undefined,
     };
   }
 
@@ -239,7 +240,8 @@ export class TransactionRepository {
       projectId: local.projectId,
       user: local.user,
       account: local.account,
-      category: local.category
+      category: local.category,
+      project: local.project
     };
   }
 
@@ -255,7 +257,8 @@ export class TransactionRepository {
       projectId: tx.projectId,
       user: tx.user,
       account: tx.account,
-      category: tx.category
+      category: tx.category,
+      project: tx.project
     };
   }
 

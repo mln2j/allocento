@@ -32,7 +32,7 @@ class DashboardController extends Controller
         $recentTransactions = Transaction::whereIn('account_id', $accountIds)
             ->with(['account', 'category', 'createdBy'])
             ->orderBy('date', 'desc')
-            ->limit(10)
+            ->limit(5)
             ->get();
 
         // 5. Spending by Category (Last 30 days)

@@ -49,6 +49,16 @@ class AuthService
     {
         $user = $this->userRepository->create($data);
 
+        // Auto-create personal workspace
+        $personalWorkspace = Workspace::create([
+            'name' => 'Personal',
+            'type' => 'personal',
+            'icon' => '👤',
+            'currency' => 'EUR',
+            'enabled_features' => ['categories', 'projects'],
+        ]);
+        $personalWorkspace->users()->attach($user->id, ['role' => 'owner']);
+
         // Okinemo Laravelov ugrađeni event (koji će automatski okrznuti naš custom email jer implementiramo MustVerifyEmail i prepisujemo metodu)
         event(new Registered($user));
 

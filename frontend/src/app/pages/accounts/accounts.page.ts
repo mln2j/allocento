@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AccountRepository } from '../../core/repositories/account.repository';
 import { TranslationService } from '../../core/services/translation.service';
@@ -16,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule],
   templateUrl: './accounts.page.html',
 })
 export class AccountsPage implements OnInit {
@@ -29,6 +30,7 @@ export class AccountsPage implements OnInit {
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
   private workspaceService = inject(WorkspaceService);
+  private location = inject(Location);
 
   accounts = signal<Account[]>([]);
   isOnline = signal<boolean>(true);
@@ -43,9 +45,20 @@ export class AccountsPage implements OnInit {
 
   // Modal State
   isModalOpen = false;
+  isTypeDropdownOpen = false;
   isSaving = false;
   accountForm!: FormGroup;
   editingAccountId: number | null = null;
+  canManageAccount = true;
+
+  get isMainNav(): boolean {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      return prefs.includes('accounts');
+    } catch {
+      return false;
+    }
+  }
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
@@ -58,10 +71,14 @@ export class AccountsPage implements OnInit {
     return this.translationService.translate(key);
   }
 
+  goBack() {
+    this.location.back();
+  }
+
   initForm() {
     this.accountForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
-      type: ['checking', [Validators.required]],
+      type: ['bank', [Validators.required]],
       currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
       balance: [0, [Validators.required, Validators.min(0)]]
     });
@@ -108,7 +125,7 @@ export class AccountsPage implements OnInit {
     this.initialWorkspacesMap = {};
     this.accountForm.reset({
       name: '',
-      type: 'checking',
+      type: 'bank',
       currency: 'EUR',
       balance: 0
     });
@@ -138,6 +155,15 @@ export class AccountsPage implements OnInit {
       currency: acc.currency,
       balance: acc.balance
     });
+    
+    // Check ownership permissions from backend
+    this.canManageAccount = acc.can_manage ?? true;
+    if (!this.canManageAccount) {
+      this.accountForm.disable(); // Read-only mode
+    } else {
+      this.accountForm.enable();
+    }
+
     this.isModalOpen = true;
   }
 
@@ -177,14 +203,17 @@ export class AccountsPage implements OnInit {
           } catch (err) {
             console.error('Failed to sync account sharing:', err);
             this.isSaving = false;
-            this.toastService.error('Account saved but failed to update workspace sharing options.');
+            this.toastService.error(this.t('accounts.shareUpdateFailed') || 'Account saved but failed to update workspace sharing options.');
             this.closeModal();
             this.loadAccounts();
           }
         },
         error: (err) => {
           this.isSaving = false;
-          this.toastService.error(err.error?.message || this.t('accounts.updateFailed') || 'Failed to update account.');
+          this.loadingService.hide();
+          const apiMsg = err.error?.message;
+          const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
+          this.toastService.error(translatedApiMsg || this.t('accounts.updateFailed') || 'Failed to save account.');
         }
       });
     } else {
@@ -197,7 +226,9 @@ export class AccountsPage implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          this.toastService.error(err.error?.message || this.t('accounts.createFailed') || 'Failed to create account.');
+          const apiMsg = err.error?.message;
+          const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
+          this.toastService.error(translatedApiMsg || this.t('accounts.createFailed') || 'Failed to create account.');
         }
       });
     }
@@ -247,7 +278,9 @@ export class AccountsPage implements OnInit {
         },
         error: (err) => {
           this.loadingService.hide();
-          this.toastService.error(err.error?.message || this.t('accounts.deleteFailed') || 'Failed to delete account.');
+          const apiMsg = err.error?.message;
+          const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
+          this.toastService.error(translatedApiMsg || this.t('accounts.deleteFailed') || 'Failed to delete account.');
         }
       });
     });

@@ -1,15 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Category, CategoryRepository } from '../../core/repositories/category.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { WorkspaceService } from '../../core/services/workspace.service';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './categories.page.html'
 })
 export class CategoriesPage implements OnInit {
@@ -18,6 +20,17 @@ export class CategoriesPage implements OnInit {
   private translationService = inject(TranslationService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
+  private location = inject(Location);
+  public workspaceService = inject(WorkspaceService);
+
+  get isMainNav(): boolean {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      return prefs.includes('categories');
+    } catch {
+      return false;
+    }
+  }
 
   categories = signal<Category[]>([]);
   isLoading = signal<boolean>(true);
@@ -131,5 +144,9 @@ export class CategoriesPage implements OnInit {
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

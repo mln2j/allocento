@@ -67,6 +67,7 @@ class InvitationController extends Controller
             'workspace_id' => $workspace->id,
             'email' => $validated['email'],
             'role' => $role,
+            'invited_by' => $user->id,
             'token' => Str::random(40),
             'expires_at' => now()->addDays(7),
         ]);
@@ -82,7 +83,7 @@ class InvitationController extends Controller
      */
     public function pending(Request $request): JsonResponse
     {
-        $invitations = Invitation::with('workspace')
+        $invitations = Invitation::with(['workspace', 'inviter'])
             ->where('email', $request->user()->email)
             ->whereNull('accepted_at')
             ->where(function ($q) {

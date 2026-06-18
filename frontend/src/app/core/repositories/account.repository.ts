@@ -210,7 +210,7 @@ export class AccountRepository {
     return this.api.delete(`/workspaces/${workspaceUuid}/accounts/${accountId}/share`);
   }
 
-  private mapApiToAccount(apiData: any): Account {
+    private mapApiToAccount(apiData: any): Account {
     const mapped: Account = {
       id: apiData.id,
       name: apiData.name,
@@ -219,6 +219,9 @@ export class AccountRepository {
       balance: Number(apiData.balance ?? 0),
       opening_balance: Number(apiData.opening_balance ?? apiData.balance ?? 0),
       is_primary: !!apiData.is_primary,
+      workspace_id: apiData.workspace_id,
+      owning_workspace: apiData.owning_workspace,
+      can_manage: apiData.can_manage,
     };
     if (apiData.workspaces !== undefined) {
       mapped.workspaces = apiData.workspaces ? apiData.workspaces.map((ws: any) => ws.id || ws) : [];
@@ -235,6 +238,9 @@ export class AccountRepository {
       balance: Number(local.balance ?? 0),
       opening_balance: Number(local.opening_balance ?? local.balance ?? 0),
       is_primary: !!local.is_primary,
+      workspace_id: local.workspace_id,
+      owning_workspace: local.owning_workspace,
+      can_manage: local.can_manage,
     };
     if (local.workspaces !== undefined) {
       mapped.workspaces = local.workspaces;
@@ -251,6 +257,9 @@ export class AccountRepository {
       balance: acc.balance,
       opening_balance: acc.opening_balance,
       is_primary: acc.is_primary,
+      workspace_id: acc.workspace_id,
+      owning_workspace: acc.owning_workspace,
+      can_manage: acc.can_manage,
     };
     if (acc.workspaces !== undefined) {
       local.workspaces = acc.workspaces;

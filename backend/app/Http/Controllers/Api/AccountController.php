@@ -14,7 +14,41 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $workspace = $request->get('_workspace');
-        $accounts = $workspace->accounts()->with('workspaces')->orderBy('name')->get();
+        // Include owningWorkspace and its users to determine management permissions easily
+        $accounts = $workspace->accounts()->with(['workspaces', 'owningWorkspace.users'])->get();
+        
+        $accounts = $accounts->sortBy([
+            function ($account) {
+                return $account->owningWorkspace?->type === 'personal' ? 0 : 1;
+            },
+            ['name', 'asc']
+        ])->values();
+
+        $accounts = $accounts->map(function ($account) use ($request) {
+            $owningWorkspace = $account->owningWorkspace;
+            $canManage = true;
+
+            if ($owningWorkspace) {
+                $user = $owningWorkspace->users->where('id', $request->user()->id)->first();
+                $userRole = $user ? $user->pivot->role : null;
+                
+                if ($owningWorkspace->type === 'personal') {
+                    $canManage = ($userRole === 'owner');
+                } else {
+                    $canManage = in_array($userRole, ['owner', 'manager']);
+                }
+            }
+            
+            $arr = $account->toArray();
+            $arr['can_manage'] = $canManage;
+            
+            if (isset($arr['owning_workspace'])) {
+                unset($arr['owning_workspace']['users']);
+            }
+            
+            return $arr;
+        });
+
         return response()->json($accounts);
     }
 
@@ -24,7 +58,7 @@ class AccountController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:checking,savings,cash,credit,investment,other'],
+            'type' => ['required', 'in:checking,savings,cash,credit,investment,other,bank'],
             'currency' => ['required', 'string', 'size:3'],
             'balance' => ['required', 'numeric'],
             'opening_balance' => ['nullable', 'numeric'],
@@ -39,6 +73,7 @@ class AccountController extends Controller
                 'name' => $validated['name'],
                 'type' => $validated['type'],
                 'created_by_user_id' => $request->user()->id,
+                'workspace_id' => $workspace->id,
                 'currency' => $validated['currency'],
                 'balance' => $balance,
                 'opening_balance' => $openingBalance,
@@ -68,7 +103,7 @@ class AccountController extends Controller
 
         if (!$account) {
             return response()->json([
-                'message' => 'Forbidden',
+                'message' => 'error.forbiddenAccess',
                 'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }
@@ -83,22 +118,61 @@ class AccountController extends Controller
 
         if (!$account) {
             return response()->json([
-                'message' => 'Forbidden',
+                'message' => 'error.forbiddenAccess',
                 'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }
 
+        // Check ownership/permissions
+        $owningWorkspace = $account->owningWorkspace;
+        if ($owningWorkspace) {
+            $userRole = $owningWorkspace->users()->where('users.id', $request->user()->id)->first()?->pivot->role;
+            if ($owningWorkspace->type === 'personal') {
+                if ($userRole !== 'owner') {
+                    return response()->json([
+                        'message' => 'error.forbiddenPersonal',
+                        'error' => 'Only the owner of the personal workspace can edit this account.',
+                    ], 403);
+                }
+            } else {
+                if ($userRole !== 'owner' && $userRole !== 'manager') {
+                    return response()->json([
+                        'message' => 'error.forbiddenWorkspace',
+                        'error' => 'Only the owner or manager of the workspace can edit this account.',
+                    ], 403);
+                }
+            }
+        }
+
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'type' => ['sometimes', 'required', 'in:checking,savings,cash,credit,investment,other'],
+            'type' => ['sometimes', 'required', 'in:checking,savings,cash,credit,investment,other,bank'],
             'currency' => ['sometimes', 'required', 'string', 'size:3'],
             'balance' => ['sometimes', 'required', 'numeric'],
             'is_primary' => ['sometimes', 'required', 'boolean'],
             'is_archived' => ['sometimes', 'required', 'boolean'],
         ]);
 
-        DB::transaction(function () use ($account, $validated, $workspace) {
+        DB::transaction(function () use ($account, $validated, $workspace, $request) {
+            $newBalance = $validated['balance'] ?? $account->balance;
+            unset($validated['balance']);
+            
             $account->update($validated);
+
+            if (round($newBalance, 2) != round($account->balance, 2)) {
+                $diff = $newBalance - $account->balance;
+                
+                app(\App\Services\TransactionService::class)->createForAccount(
+                    $request->user(),
+                    $account->id,
+                    [
+                        'type' => $diff > 0 ? 'income' : 'expense',
+                        'amount' => abs($diff),
+                        'date' => now()->toDateTimeString(),
+                        'description' => 'balance_correction',
+                    ]
+                );
+            }
 
             if (isset($validated['is_primary']) && $validated['is_primary']) {
                 $workspace->accounts()
@@ -117,9 +191,30 @@ class AccountController extends Controller
 
         if (!$account) {
             return response()->json([
-                'message' => 'Forbidden',
+                'message' => 'error.forbiddenAccess',
                 'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
+        }
+
+        // Check ownership/permissions
+        $owningWorkspace = $account->owningWorkspace;
+        if ($owningWorkspace) {
+            $userRole = $owningWorkspace->users()->where('users.id', $request->user()->id)->first()?->pivot->role;
+            if ($owningWorkspace->type === 'personal') {
+                if ($userRole !== 'owner') {
+                    return response()->json([
+                        'message' => 'error.forbiddenPersonal',
+                        'error' => 'Only the owner of the personal workspace can delete this account.',
+                    ], 403);
+                }
+            } else {
+                if ($userRole !== 'owner' && $userRole !== 'manager') {
+                    return response()->json([
+                        'message' => 'error.forbiddenWorkspace',
+                        'error' => 'Only the owner or manager of the workspace can delete this account.',
+                    ], 403);
+                }
+            }
         }
 
         $account->delete();
@@ -134,7 +229,7 @@ class AccountController extends Controller
 
         if (!$account) {
             return response()->json([
-                'message' => 'Forbidden',
+                'message' => 'error.forbiddenAccess',
                 'error' => 'You do not have access to this account within the active workspace.',
             ], 403);
         }

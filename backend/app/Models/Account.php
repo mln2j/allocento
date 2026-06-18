@@ -17,7 +17,13 @@ class Account extends Model
         'opening_balance',
         'is_primary',
         'is_archived',
+        'workspace_id'
     ];
+
+    public function owningWorkspace()
+    {
+        return $this->belongsTo(Workspace::class, 'workspace_id');
+    }
 
     protected $casts = [
         'is_primary' => 'boolean',

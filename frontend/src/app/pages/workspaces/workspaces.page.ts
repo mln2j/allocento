@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
 import { TranslationService } from '../../core/services/translation.service';
@@ -13,7 +14,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 @Component({
   selector: 'app-workspaces',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule],
   templateUrl: './workspaces.page.html',
 })
 export class WorkspacesPage implements OnInit, OnDestroy {
@@ -25,6 +26,16 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
   private workspaceService = inject(WorkspaceService);
+  private location = inject(Location);
+
+  get isMainNav(): boolean {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      return prefs.includes('workspaces');
+    } catch {
+      return false;
+    }
+  }
 
   workspaces = signal<Workspace[]>([]);
   workspaceForm!: FormGroup;
@@ -47,6 +58,10 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
     window.addEventListener(
       'workspace-updated',
+      this.handleWorkspaceRefresh
+    );
+    window.addEventListener(
+      'workspace-invitation-accepted',
       this.handleWorkspaceRefresh
     );
   }
@@ -72,10 +87,18 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       'workspace-updated',
       this.handleWorkspaceRefresh
     );
+    window.removeEventListener(
+      'workspace-invitation-accepted',
+      this.handleWorkspaceRefresh
+    );
   }
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   initForm() {
@@ -90,6 +113,11 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.workspaceRepo.getWorkspaces().subscribe({
       next: (data) => {
+        data.sort((a, b) => {
+          if (a.type === 'personal') return -1;
+          if (b.type === 'personal') return 1;
+          return 0;
+        });
         this.workspaces.set(data);
         this.isLoading.set(false);
       },
@@ -217,6 +245,40 @@ export class WorkspacesPage implements OnInit, OnDestroy {
         error: (err) => {
           this.loadingService.hide();
           this.toastService.error(err.error?.message || this.t('workspaces.deleteFailed') || 'Failed to delete workspace.');
+        }
+      });
+    });
+  }
+
+  leaveWorkspace() {
+    if (!this.isOnline()) {
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      return;
+    }
+
+    const currentWS = this.selectedWorkspace();
+    if (!currentWS) return;
+
+    this.dialogService.confirm(
+      this.t('workspaces.leaveWorkspace') || 'Leave Workspace',
+      this.t('workspaces.leaveConfirm') || 'Are you sure you want to leave this workspace?',
+      this.t('common.accept') || 'Leave',
+      this.t('common.cancel') || 'Cancel'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
+
+      const id = currentWS.workspace_id || currentWS.id;
+      this.loadingService.show();
+
+      this.workspaceRepo.leaveWorkspace(id).subscribe({
+        next: () => {
+          this.loadingService.hide();
+          this.toastService.success(this.t('workspaces.leaveSuccess') || 'Left workspace successfully!');
+          this.closeDetails();
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          this.toastService.error(err.error?.message || this.t('workspaces.leaveFailed') || 'Failed to leave workspace.');
         }
       });
     });

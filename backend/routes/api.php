@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('workspaces/{id}/accounts/{accountId}/share', [WorkspaceController::class, 'unshareAccount']);
 
         Route::delete('workspaces/{id}/members/{userId}', [WorkspaceController::class, 'removeMember']);
+        Route::post('workspaces/{id}/leave', [WorkspaceController::class, 'leave']);
 
         /*
         |-------------------------

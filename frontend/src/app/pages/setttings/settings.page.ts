@@ -46,8 +46,6 @@ export class SettingsPage implements OnInit {
   photoPreview: string | null = null;
 
   availableNavOptions = [
-    { id: 'dashboard', translationKey: 'nav.dashboard' },
-    { id: 'transactions', translationKey: 'nav.transactions' },
     { id: 'accounts', translationKey: 'nav.accounts' },
     { id: 'workspaces', translationKey: 'nav.workspace' },
     { id: 'categories', translationKey: 'nav.categories' },
@@ -72,7 +70,7 @@ export class SettingsPage implements OnInit {
     this.userRepo.getCurrentUser(timestamp).subscribe({
       next: (u) => {
         this.user.set(u);
-        this.selectedNavPrefs = u.nav_preferences || ['dashboard', 'transactions', 'accounts'];
+        this.selectedNavPrefs = (u.nav_preferences || []).filter(p => p !== 'dashboard' && p !== 'menu' && p !== 'settings' && p !== 'transactions');
       },
       error: () => {
         this.toastService.error(this.t('profile.loadFailed') || 'Failed to load user settings.');
@@ -279,8 +277,10 @@ export class SettingsPage implements OnInit {
     this.isSaving = true;
     
     // We update via updateProfile
+    const finalPrefs = ['dashboard', ...this.selectedNavPrefs, 'settings'];
+
     const profileData = {
-      nav_preferences: this.selectedNavPrefs
+      nav_preferences: finalPrefs
     };
     
     this.userRepo.updateProfile(profileData).subscribe({
@@ -288,7 +288,7 @@ export class SettingsPage implements OnInit {
         this.isSaving = false;
         this.hasNavChanges = false;
         this.toastService.success(this.t('profile.successUpdate') || 'Navigation preferences updated.');
-        localStorage.setItem('nav_preferences', JSON.stringify(this.selectedNavPrefs));
+        localStorage.setItem('nav_preferences', JSON.stringify(finalPrefs));
         window.dispatchEvent(new Event('nav-prefs-updated'));
       },
       error: () => {

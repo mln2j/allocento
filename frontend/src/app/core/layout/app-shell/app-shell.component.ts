@@ -57,6 +57,11 @@ export class AppShellComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserContext();
+
+    // Poll invitations every 30 seconds
+    setInterval(() => {
+      this.loadPendingInvitations();
+    }, 30000);
   }
 
   @HostListener('document:click', ['$event'])
@@ -83,6 +88,13 @@ export class AppShellComponent implements OnInit {
         }).subscribe({
           next: async (user) => {
             this.user = user;
+
+            // Sync nav_preferences from server to local storage
+            if (user.nav_preferences && user.nav_preferences.length > 0) {
+              localStorage.setItem('nav_preferences', JSON.stringify(user.nav_preferences));
+              window.dispatchEvent(new Event('nav-prefs-updated'));
+            }
+
             await this.localDb.put('user_profile', user);
             this.loadPendingInvitations();
           },
@@ -145,7 +157,12 @@ export class AppShellComponent implements OnInit {
 
         this.http.get<User>(`${API_BASE_URL}/user`, {
           headers: { 'X-Skip-Loader': 'true' }
-        }).subscribe(u => this.user = u);
+        }).subscribe(u => {
+          this.user = u;
+          if (accept) {
+            window.dispatchEvent(new Event('workspace-invitation-accepted'));
+          }
+        });
       },
       error: (err) =>
         this.logger.error(this.t('logs.invitationResponseFailed'), err)

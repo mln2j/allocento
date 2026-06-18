@@ -11,6 +11,7 @@ class Invitation extends Model
         'email',
         'token',
         'role',
+        'invited_by',
         'expires_at',
         'accepted_at',
     ];
@@ -23,5 +24,10 @@ class Invitation extends Model
     public function workspace()
     {
         return $this->belongsTo(Workspace::class);
+    }
+
+    public function inviter()
+    {
+        return $this->belongsTo(User::class, 'invited_by');
     }
 }

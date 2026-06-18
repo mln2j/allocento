@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Project, ProjectRepository } from '../../core/repositories/project.repository';
 import { TranslationService } from '../../core/services/translation.service';
@@ -10,7 +11,7 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './projects.page.html'
 })
 export class ProjectsPage implements OnInit {
@@ -19,7 +20,17 @@ export class ProjectsPage implements OnInit {
   private translationService = inject(TranslationService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
+  private location = inject(Location);
   public workspaceService = inject(WorkspaceService);
+
+  get isMainNav(): boolean {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      return prefs.includes('projects');
+    } catch {
+      return false;
+    }
+  }
 
   projects = signal<Project[]>([]);
   isLoading = signal<boolean>(true);
@@ -137,5 +148,9 @@ export class ProjectsPage implements OnInit {
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

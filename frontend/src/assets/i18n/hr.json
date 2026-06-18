@@ -25,7 +25,9 @@
       "Sat": "Sub",
       "Sun": "Ned"
     },
-    "continue": "Nastavi"
+    "continue": "Nastavi",
+    "add": "Dodaj",
+    "me": "Ja"
   },
   "pageTitles": {
     "dashboard": "Nadzorna ploča",
@@ -34,6 +36,12 @@
     "household": "Kućanstvo",
     "organization": "Organizacija",
     "settings": "Postavke"
+  },
+  "pageSubtitles": {
+    "accounts": "Pregled i upravljanje vašim računima",
+    "categories": "Upravljanje kategorijama troškova",
+    "projects": "Upravljanje projektima i praćenje troškova",
+    "transactions": "Pregled svih prihoda i rashoda"
   },
   "settings": {
     "subtitle": "Upravljanje profilom i postavkama.",
@@ -75,7 +83,10 @@
   "error": {
     "criticalTitle": "Sustav nije dostupan",
     "criticalMessage": "Allocento trenutno ne može pokrenuti radno okruženje jer poslužitelj nije dostupan, a lokalni podaci na ovom uređaju ne postoje.",
-    "offlineNotice": "Provjerite internetsku vezu ili status servera."
+    "offlineNotice": "Provjerite internetsku vezu ili status servera.",
+    "forbiddenPersonal": "Ne možete uređivati ili brisati ovaj račun.",
+    "forbiddenWorkspace": "Ne možete uređivati ili brisati ovaj račun.",
+    "forbiddenAccess": "Nemate pristup ovom računu unutar aktivnog prostora."
   },
   "auth": {
     "email_placeholder": "Email adresa",
@@ -227,6 +238,11 @@
     "deleteConfirm": "Jeste li sigurni da želite obrisati ovaj prostor? Svi podaci će biti arhivirani.",
     "dangerZone": "Opasna zona",
     "dangerZoneDesc": "Brisanjem ovog prostora arhivirat će se svi povezani parametri. Ova radnja je destruktivna i nepovratna.",
+    "leaveDesc": "Napuštanjem ovog prostora gubite pristup svim podacima i računima unutar njega.",
+    "leaveWorkspace": "Napusti prostor",
+    "leaveConfirm": "Jeste li sigurni da želite napustiti ovaj prostor?",
+    "leaveSuccess": "Prostor je uspješno napušten!",
+    "leaveFailed": "Napuštanje prostora nije uspjelo.",
     "offlineNotice": "Offline: Promjene prostora su onemogućene.",
     "offlineInviteNotice": "Potrebna je internetska veza za pozivanje članova.",
     "inviteNew": "Pozovi novog člana",
@@ -246,7 +262,9 @@
     "openNew": "Otvorite novi račun",
     "nameLabel": "Naziv računa",
     "typeLabel": "Vrsta računa",
+    "type": "Vrsta računa",
     "types": {
+      "bank": "Bankovni",
       "checking": "Tekući",
       "savings": "Štednja",
       "cash": "Gotovina",
@@ -257,7 +275,7 @@
     "currencyLabel": "Valuta",
     "namePlaceholder": "npr. Tekući račun",
     "currencyPlaceholder": "npr. EUR",
-    "balanceLabel": "Početno stanje",
+    "balanceLabel": "Stanje",
     "saveBtn": "Spremi račun",
     "offlineNotice": "Offline: Dodavanje/uređivanje onemogućeno",
     "loadFailed": "Učitavanje računa nije uspjelo.",
@@ -281,7 +299,9 @@
     "noPrimaryAccount": "Nema primarnog računa",
     "primary": "Primarni",
     "localWallet": "Lokalni novčanik",
-    "balancePlaceholder": "npr. 5000.00"
+    "balancePlaceholder": "npr. 5000.00",
+    "readOnlyNotice": "Ne možete uređivati ovaj račun.",
+    "shareUpdateFailed": "Ažuriranje postavki dijeljenja nije uspjelo."
   },
   "transactions": {
     "title": "Transakcije",
@@ -291,7 +311,7 @@
     "filterIncoming": "Dolazne",
     "filterOutgoing": "Odlazne",
     "empty": "Nema transakcija koje odgovaraju filtrima.",
-    "recordTitle": "Zapiši transakciju",
+    "recordTitle": "Dodaj Transakciju",
     "accountSource": "Izvor računa",
     "selectAccount": "Odaberi račun",
     "typeLabel": "Vrsta transakcije",
@@ -320,7 +340,10 @@
     "noDescription": "Nema opisa",
     "noDetails": "Nema detalja.",
     "descPlaceholder": "npr. Kava s prijateljima",
-    "amountPlaceholder": "npr. 15.00"
+    "amountPlaceholder": "npr. 15.00",
+    "statusLabel": "Status",
+    "balanceCorrection": "Korekcija stanja",
+    "userLabel": "Korisnik"
   },
   "onboarding": {
     "step1Title": "Dobrodošli u Allocento",

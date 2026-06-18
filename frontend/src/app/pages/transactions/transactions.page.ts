@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { AccountRepository } from '../../core/repositories/account.repository';
@@ -17,7 +18,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule],
   templateUrl: './transactions.page.html',
 })
 export class TransactionsPage implements OnInit {
@@ -31,6 +32,8 @@ export class TransactionsPage implements OnInit {
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
   private workspaceService = inject(WorkspaceService);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
 
   transactions = signal<Transaction[]>([]);
   accounts = signal<Account[]>([]);
@@ -82,10 +85,39 @@ export class TransactionsPage implements OnInit {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadData();
+
+    // Check query params to open modal
+    this.route.queryParams.subscribe((params: any) => {
+      if (params['action'] === 'new') {
+        setTimeout(() => this.openCreateModal(), 100);
+      }
+    });
+  }
+
+  get isMainNav(): boolean {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      return prefs.includes('transactions');
+    } catch {
+      return false;
+    }
+  }
+
+  get currentUserId(): number | null {
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      return u.id || null;
+    } catch {
+      return null;
+    }
   }
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   activeWorkspace() {
@@ -237,9 +269,12 @@ export class TransactionsPage implements OnInit {
   }
 
   getSelectedAccountName(): string {
-    const id = this.transactionForm.get('accountId')?.value;
-    const acc = this.accounts().find(a => a.id === id);
-    return acc ? acc.name : (this.t('transactions.selectAccount') || 'Select Account');
+    const accId = this.transactionForm.get('accountId')?.value;
+    if (!accId) return this.t('transactions.selectAccount') || 'Select account';
+    const acc = this.accounts().find(a => a.id === accId);
+    if (!acc) return this.t('transactions.selectAccount') || 'Select account';
+    const typeTranslated = this.t('accounts.types.' + acc.type) || acc.type;
+    return `${acc.name} - ${typeTranslated} (${acc.currency})`;
   }
 
   toggleCategoryDropdown() {

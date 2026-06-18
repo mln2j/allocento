@@ -1,4 +1,4 @@
-export type AccountType = 'checking' | 'savings' | 'cash' | 'credit' | 'investment' | 'other';
+export type AccountType = 'cash' | 'bank';
 
 export interface Account {
   id: number;
@@ -8,5 +8,9 @@ export interface Account {
   balance: number;
   opening_balance?: number;
   is_primary?: boolean;
-  workspaces?: any[];
+  is_archived?: boolean;
+  can_manage?: boolean;
+  workspaces?: number[];
+  workspace_id?: number;
+  owning_workspace?: any;
 }

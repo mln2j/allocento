@@ -57,4 +57,8 @@ export class WorkspaceRepository {
       { email }
     );
   }
+
+  leaveWorkspace(wsId: string | number): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/workspaces/${wsId}/leave`, {});
+  }
 }

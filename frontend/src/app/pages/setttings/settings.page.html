@@ -1,13 +1,17 @@
 <div class="w-full space-y-6" *ngIf="user()">
 
   <!-- Page Header -->
-  <div class="mb-6 space-y-1 pb-4 border-b border-slate-100">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
-      {{ isEditMode ? t('settings.profileEditTitle') : t('nav.settings') }}
-    </h1>
-    <p class="text-sm text-slate-500 font-sans">
-      {{ isEditMode ? t('settings.profileEditSubtitle') : t('settings.subtitle') }}
-    </p>
+  <div class="mb-6 pb-4 border-b border-slate-100">
+    <div class="flex items-center gap-3">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
+          {{ isEditMode ? t('settings.profileEditTitle') : t('nav.settings') }}
+        </h1>
+        <p class="text-slate-500 text-sm font-sans mt-1">
+          {{ isEditMode ? t('settings.profileEditSubtitle') : t('settings.subtitle') }}
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- Display Mode -->
@@ -27,8 +31,8 @@
       </div>
 
       <div class="w-full flex flex-col gap-2">
-        <button 
-          type="button" 
+        <button
+          type="button"
           [disabled]="!isOnline()"
           (click)="enableEditMode()"
           class="w-full py-2.5 px-4 bg-brand-purple/10 hover:bg-brand-purple/20 text-brand-purple font-bold rounded-xl transition-all text-xs font-mono cursor-pointer outline-none disabled:opacity-50 disabled:cursor-not-allowed"
@@ -48,7 +52,7 @@
           {{ t('settings.appSettingsTitle') }}
         </div>
 
-        <div class="flex items-center justify-between py-1 gap-1 relative">
+        <div class="flex items-center justify-between py-1 gap-3 relative">
           <div class="space-y-0.5">
             <div class="text-sm font-bold text-slate-700 font-mono">{{ t('settings.langLabel') }}</div>
             <div class="text-xs text-slate-400 font-sans">{{ t('settings.langDesc') }}</div>
@@ -82,16 +86,16 @@
         <div class="flex items-start justify-between py-1 gap-1 relative mt-2 pt-4 border-t border-slate-100 flex-col">
           <div class="space-y-0.5 mb-2">
             <div class="text-sm font-bold text-slate-700 font-mono">{{ t('settings.navPrefsLabel') || 'Mobilna Navigacija' }}</div>
-            <div class="text-xs text-slate-400 font-sans">{{ t('settings.navPrefsDesc') || 'Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 4).' }}</div>
+            <div class="text-xs text-slate-400 font-sans">{{ t('settings.navPrefsDesc') || 'Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 2). Dashboard i Meni su uvijek prikazani.' }}</div>
           </div>
           <div class="grid grid-cols-2 gap-y-3 gap-x-6 font-mono text-xs w-full mb-2">
             <label *ngFor="let option of availableNavOptions" class="flex items-center gap-2 cursor-pointer select-none">
               <input type="checkbox"
-                     [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 4"
+                     [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2"
                      [checked]="selectedNavPrefs.includes(option.id)"
                      (change)="toggleNavPref(option.id, $event)"
                      class="w-4 h-4 text-brand-purple rounded border-slate-300 focus:ring-brand-purple focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="text-slate-700 font-bold" [class.opacity-50]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 4">{{ t(option.translationKey) }}</span>
+              <span class="text-slate-700 font-bold" [class.opacity-50]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2">{{ t(option.translationKey) }}</span>
             </label>
           </div>
           <div class="w-full flex justify-end">
@@ -110,7 +114,7 @@
           {{ t('profile.logout') }}
         </button>
 
-        <button type="button" 
+        <button type="button"
                 [disabled]="!isOnline()"
                 (click)="deleteAccount()"
                 class="flex-1 py-2.5 font-bold text-red-500 bg-white border border-slate-200 hover:bg-red-50 hover:border-red-400 transition-all cursor-pointer outline-none text-center rounded-xl text-xs disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"

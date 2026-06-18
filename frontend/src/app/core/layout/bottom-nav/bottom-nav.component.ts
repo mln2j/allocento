@@ -72,25 +72,22 @@ export class BottomNavComponent {
   private authService = inject(AuthService);
 
   activeIndex = signal<number>(0);
-  navPrefs = signal<string[]>(['dashboard', 'transactions', 'accounts']);
+  navPrefs = signal<string[]>(['dashboard', 'accounts', 'settings']);
 
   navItems = computed(() => {
     const prefs = this.navPrefs();
     
-    // Uvijek ograniči na 3 ili 4 custom itema, tako da menu bude zadnji
-    const visiblePrefs = prefs.slice(0, 4); // max 4
+    // Middle items: filter out fixed and disabled items, keep up to 2
+    const middlePrefs = prefs
+      .filter(p => p !== 'dashboard' && p !== 'settings' && p !== 'menu' && p !== 'transactions')
+      .slice(0, 2);
     
-    const items: NavItem[] = visiblePrefs.map((key: string) => ({
+    const finalKeys = ['dashboard', ...middlePrefs, 'settings'];
+    
+    return finalKeys.map((key: string) => ({
       id: key,
       ...ALL_NAV_ITEMS[key]
     })).filter((i: any) => !!i.path);
-
-    // Na kraju uvijek dodaj Settings
-    items.push({
-      id: 'settings',
-      ...ALL_NAV_ITEMS['settings']
-    });
-    return items;
   });
 
   private loadPrefs() {
@@ -176,5 +173,13 @@ export class BottomNavComponent {
         }
     }
     return url.startsWith(itemPath);
+  }
+
+  isHidden(): boolean {
+    const url = this.currentUrl();
+    if (!url) return false;
+    // Hide bottom nav on sub-screens like transactions
+    if (url.startsWith('/transactions')) return true;
+    return false;
   }
 }

@@ -119,6 +119,15 @@ export class DashboardPage implements OnInit {
     return val.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  get currentUserId(): number | null {
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      return u.id || null;
+    } catch {
+      return null;
+    }
+  }
+
   getTxAmountClass(tx: any): string {
     return tx.type === 'income' ? 'text-success font-bold' : 'text-slate-900 font-medium';
   }

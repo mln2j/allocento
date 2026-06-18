@@ -25,7 +25,9 @@
       "Sat": "Sat",
       "Sun": "Sun"
     },
-    "continue": "Continue"
+    "continue": "Continue",
+    "add": "Add",
+    "me": "Me"
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -34,6 +36,12 @@
     "household": "Household",
     "organization": "Organization",
     "profile": "Profile"
+  },
+  "pageSubtitles": {
+    "accounts": "Overview and management of your accounts",
+    "categories": "Management of expense categories",
+    "projects": "Project management and expense tracking",
+    "transactions": "Overview of all incomes and expenses"
   },
   "splash": {
     "initializing": "Initializing Allocento platform...",
@@ -63,8 +71,11 @@
   },
   "error": {
     "criticalTitle": "System not available",
-    "criticalMessage": "Allocento cannot launch the workspace right now because the server is unavailable and no local data exists on this device.",
-    "offlineNotice": "Please check your internet connection or server status."
+    "criticalMessage": "Allocento cannot start the workspace because the server is unreachable and no local data is available on this device.",
+    "offlineNotice": "Check your internet connection or server status.",
+    "forbiddenPersonal": "You cannot edit or delete this account.",
+    "forbiddenWorkspace": "You cannot edit or delete this account.",
+    "forbiddenAccess": "You do not have access to this account within the active workspace."
   },
   "auth": {
     "email_placeholder": "Email address",
@@ -227,6 +238,11 @@
     "type": "Space Type",
     "dangerZone": "Danger Zone",
     "dangerZoneDesc": "Deleting this space will archive all linked parameters. This action is destructive and irreversible.",
+    "leaveDesc": "Leaving this space will remove your access to all data and accounts within it.",
+    "leaveWorkspace": "Leave Space",
+    "leaveConfirm": "Are you sure you want to leave this space?",
+    "leaveSuccess": "Successfully left the space!",
+    "leaveFailed": "Failed to leave the space.",
     "offlineNotice": "Offline: Space updates disabled.",
     "offlineInviteNotice": "Online connection required to invite members.",
     "inviteNew": "Invite New Member",
@@ -246,7 +262,9 @@
     "openNew": "Open New Account",
     "nameLabel": "Account Name",
     "typeLabel": "Account Type",
+    "type": "Account Type",
     "types": {
+      "bank": "Bank",
       "checking": "Checking",
       "savings": "Savings",
       "cash": "Cash",
@@ -281,7 +299,9 @@
     "noPrimaryAccount": "No primary account",
     "primary": "Primary",
     "localWallet": "Local wallet",
-    "balancePlaceholder": "e.g. 5000.00"
+    "balancePlaceholder": "e.g. 5000.00",
+    "readOnlyNotice": "This account is shared by another user and cannot be edited.",
+    "shareUpdateFailed": "Account saved but failed to update workspace sharing options."
   },
   "transactions": {
     "title": "Transactions",
@@ -291,7 +311,7 @@
     "filterIncoming": "Incoming",
     "filterOutgoing": "Outgoing",
     "empty": "No transactions match your search filter.",
-    "recordTitle": "Record Transaction",
+    "recordTitle": "Add Transaction",
     "accountSource": "Account Source",
     "selectAccount": "Select Account",
     "typeLabel": "Transaction Type",
@@ -318,9 +338,12 @@
     "statusFuture": "Future",
     "statusQueued": "Queued Offline",
     "noDescription": "No description",
-    "noDetails": "No details provided.",
-    "descPlaceholder": "e.g. Coffee shop",
-    "amountPlaceholder": "e.g. 15.00"
+    "noDetails": "No details.",
+    "descPlaceholder": "e.g. Coffee with friends",
+    "amountPlaceholder": "e.g. 15.00",
+    "statusLabel": "Status",
+    "balanceCorrection": "Balance correction",
+    "userLabel": "User"
   },
   "onboarding": {
     "step1Title": "Welcome to Allocento",

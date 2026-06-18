@@ -115,9 +115,18 @@ class WorkspaceController extends Controller
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
         }
 
-        $account = Account::where('id', $accountId)->where('created_by_user_id', $request->user()->id)->first();
+        $account = Account::with('owningWorkspace')->where('id', $accountId)->where('created_by_user_id', $request->user()->id)->first();
         if (!$account) {
             return response()->json(['error' => 'Account not found or you are not the owner.'], 404);
+        }
+
+        // Check ownership/permissions for sharing
+        $owningWorkspace = $account->owningWorkspace;
+        if ($owningWorkspace && $owningWorkspace->type !== 'personal') {
+            $userRole = $owningWorkspace->users()->where('users.id', $request->user()->id)->first()?->pivot->role;
+            if ($userRole !== 'owner' && $userRole !== 'manager') {
+                return response()->json(['error' => 'Only the owner or manager of the org/household can share this account.'], 403);
+            }
         }
 
         // Share the account
@@ -133,9 +142,18 @@ class WorkspaceController extends Controller
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
         }
 
-        $account = Account::where('id', $accountId)->where('created_by_user_id', $request->user()->id)->first();
+        $account = Account::with('owningWorkspace')->where('id', $accountId)->where('created_by_user_id', $request->user()->id)->first();
         if (!$account) {
             return response()->json(['error' => 'Account not found or you are not the owner.'], 404);
+        }
+
+        // Check ownership/permissions for unsharing
+        $owningWorkspace = $account->owningWorkspace;
+        if ($owningWorkspace && $owningWorkspace->type !== 'personal') {
+            $userRole = $owningWorkspace->users()->where('users.id', $request->user()->id)->first()?->pivot->role;
+            if ($userRole !== 'owner' && $userRole !== 'manager') {
+                return response()->json(['error' => 'Only the owner or manager of the org/household can unshare this account.'], 403);
+            }
         }
 
         $workspace->accounts()->detach($account->id);
@@ -166,5 +184,28 @@ class WorkspaceController extends Controller
         $workspace->users()->detach($userId);
 
         return response()->json(['message' => 'Member removed successfully.']);
+    }
+
+    public function leave(Request $request, $id): JsonResponse
+    {
+        $user = $request->user();
+        $workspace = $user->workspaces()->where('workspaces.id', $id)->first();
+
+        if (!$workspace) {
+            return response()->json(['error' => 'Workspace not found or access denied.'], 404);
+        }
+
+        if ($workspace->pivot->role === 'owner') {
+            return response()->json(['error' => 'Owner cannot leave the workspace. Delete it instead or transfer ownership.'], 400);
+        }
+
+        $workspace->users()->detach($user->id);
+
+        if ($user->favorite_workspace_id === $workspace->id) {
+            $personal = $user->workspaces()->where('type', 'personal')->first();
+            $user->update(['favorite_workspace_id' => $personal?->id]);
+        }
+
+        return response()->json(['message' => 'Left workspace successfully.']);
     }
 }

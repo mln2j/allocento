@@ -14,14 +14,14 @@ interface AccountOption {
   id: string;
   nameKey: string;
   descKey: string;
-  type: 'checking' | 'savings' | 'cash' | 'credit' | 'investment' | 'other';
+  type: 'bank' | 'cash';
   selected: boolean;
 }
 
 interface CustomAccount {
   id: number;
   name: string;
-  type: 'checking' | 'cash';
+  type: 'bank' | 'cash';
 }
 
 @Component({
@@ -43,7 +43,7 @@ export class Onboarding {
   selectedWorkspaceType: 'personal' | 'household' | 'company' | '' = '';
   accountOptions = signal<AccountOption[]>([]);
 
-  customAccounts = signal<CustomAccount[]>([{ id: Date.now(), name: '', type: 'checking' }]);
+  customAccounts = signal<CustomAccount[]>([{ id: Date.now(), name: '', type: 'bank' }]);
   openDropdownIndex = signal<number | null>(null);
 
   @HostListener('document:click')
@@ -66,18 +66,18 @@ export class Onboarding {
     if (type === 'personal') {
       options = [
         { id: 'wallet', nameKey: 'onboarding.wallet', descKey: 'onboarding.walletDesc', type: 'cash', selected: true },
-        { id: 'checking', nameKey: 'onboarding.checking', descKey: 'onboarding.checkingDesc', type: 'checking', selected: true },
-        { id: 'savings', nameKey: 'onboarding.savings', descKey: 'onboarding.savingsDesc', type: 'savings', selected: false }
+        { id: 'checking', nameKey: 'onboarding.checking', descKey: 'onboarding.checkingDesc', type: 'bank', selected: true },
+        { id: 'savings', nameKey: 'onboarding.savings', descKey: 'onboarding.savingsDesc', type: 'bank', selected: false }
       ];
     } else if (type === 'household') {
       options = [
-        { id: 'jointChecking', nameKey: 'onboarding.jointChecking', descKey: 'onboarding.jointCheckingDesc', type: 'checking', selected: true },
+        { id: 'jointChecking', nameKey: 'onboarding.jointChecking', descKey: 'onboarding.jointCheckingDesc', type: 'bank', selected: true },
         { id: 'householdCash', nameKey: 'onboarding.householdCash', descKey: 'onboarding.householdCashDesc', type: 'cash', selected: true },
-        { id: 'jointSavings', nameKey: 'onboarding.jointSavings', descKey: 'onboarding.jointSavingsDesc', type: 'savings', selected: false }
+        { id: 'jointSavings', nameKey: 'onboarding.jointSavings', descKey: 'onboarding.jointSavingsDesc', type: 'bank', selected: false }
       ];
     } else if (type === 'company') {
       options = [
-        { id: 'business', nameKey: 'onboarding.businessAccount', descKey: 'onboarding.businessAccountDesc', type: 'checking', selected: true },
+        { id: 'business', nameKey: 'onboarding.businessAccount', descKey: 'onboarding.businessAccountDesc', type: 'bank', selected: true },
         { id: 'pettyCash', nameKey: 'onboarding.pettyCash', descKey: 'onboarding.pettyCashDesc', type: 'cash', selected: true }
       ];
     }
@@ -91,7 +91,7 @@ export class Onboarding {
 
     // Ako je upisan tekst i to je zadnji element, dodaj novi prazan ispod
     if (value.trim() !== '' && index === current.length - 1) {
-      current.push({ id: Date.now(), name: '', type: 'checking' });
+      current.push({ id: Date.now(), name: '', type: 'bank' });
     }
 
     // Ako je input obrisan (prazan), a nije jedini/zadnji, ukloni ga
@@ -102,7 +102,7 @@ export class Onboarding {
     this.customAccounts.set(current);
   }
 
-  onCustomAccountTypeChange(index: number, value: 'checking' | 'cash') {
+  onCustomAccountTypeChange(index: number, value: 'bank' | 'cash') {
     const current = [...this.customAccounts()];
     current[index].type = value;
     this.customAccounts.set(current);
@@ -117,7 +117,7 @@ export class Onboarding {
     }
   }
 
-  selectCustomAccountType(index: number, type: 'checking' | 'cash', event: Event) {
+  selectCustomAccountType(index: number, type: 'bank' | 'cash', event: Event) {
     event.stopPropagation();
     this.onCustomAccountTypeChange(index, type);
     this.openDropdownIndex.set(null);
@@ -142,6 +142,32 @@ export class Onboarding {
       'company': this.t('onboarding.company')
     };
 
+    if (this.selectedWorkspaceType === 'personal') {
+      this.workspaceRepo.getWorkspaces().subscribe({
+        next: (workspaces) => {
+          const personal = workspaces.find(w => w.type === 'personal');
+          if (personal) {
+            this.workspaceService.setActiveWorkspace(personal);
+            this.workspaceRepo.setFavoriteWorkspace(personal.id).subscribe({
+              next: () => this.createAccounts(),
+              error: () => this.createAccounts()
+            });
+          } else {
+             // Fallback if not found for some reason
+             this.createNewWorkspace(nameMap);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error(this.t('common.error') || 'Došlo je do greške. Pokušajte ponovno.');
+        }
+      });
+    } else {
+      this.createNewWorkspace(nameMap);
+    }
+  }
+
+  private createNewWorkspace(nameMap: Record<string, string>) {
     this.workspaceRepo.createWorkspace({
       name: nameMap[this.selectedWorkspaceType as 'personal' | 'household' | 'company'],
       type: this.selectedWorkspaceType as 'personal' | 'household' | 'company',
@@ -169,7 +195,7 @@ export class Onboarding {
         type: acc.type,
         currency: 'EUR',
         balance: 0,
-        is_primary: acc.type === 'checking'
+        is_primary: acc.id === 'checking' || acc.id === 'jointChecking' || acc.id === 'business'
       };
       return this.accountRepo.create(payload).pipe(
         catchError(err => of(null)) // ignore individual errors so forkJoin completes
@@ -183,7 +209,7 @@ export class Onboarding {
           type: acc.type,
           currency: 'EUR',
           balance: 0,
-          is_primary: acc.type === 'checking'
+          is_primary: false
         };
         createObservables.push(this.accountRepo.create(payload).pipe(
           catchError(err => of(null))

@@ -33,7 +33,7 @@
           </div>
           <div class="truncate flex-1">
             <h4 class="text-sm font-bold text-slate-800 truncate leading-tight">{{ invite.workspace?.name || 'Workspace' }}</h4>
-            <p class="text-xs text-slate-400 truncate mt-0.5 font-mono">Šalje: <span class="text-slate-600 font-sans font-medium">{{ invite.inviter?.name }}</span></p>
+            <p class="text-xs text-slate-400 truncate mt-0.5 font-mono">{{ t('notifications.sentBy') }}: <span class="text-slate-600 font-sans font-medium">{{ invite.inviter?.name }}</span></p>
           </div>
         </div>
         <div class="flex items-center gap-2 w-full pt-1">

@@ -25,4 +25,9 @@ export interface Transaction {
     id: number;
     name: string;
   };
+
+  project?: {
+    id: number;
+    name: string;
+  };
 }
