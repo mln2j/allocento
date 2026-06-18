@@ -85,7 +85,7 @@ export class VerifyEmail implements OnInit {
     this.authService.resendVerificationEmail().subscribe({
       next: () => {
         this.loading.set(false);
-        this.toast.success(this.t('auth.codeResent') || 'New code sent to your email!');
+        this.toast.success(this.t('auth.codeSent') || 'New code sent to your email!');
         this.startCooldown(60);
       },
       error: (err) => {

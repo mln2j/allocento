@@ -105,6 +105,7 @@
     "verify_desc": "We sent a 6-digit confirmation code to your email.<br><br>Enter it below to continue.",
     "verify_btn": "Verify Code",
     "checking": "Checking...",
+    "did_not_receive": "Didn't receive the code? Resend",
     "verify_success_desc": "Your email has been successfully verified!",
     "continue_to_app": "Continue to App",
     "resend_link": "Send new code",

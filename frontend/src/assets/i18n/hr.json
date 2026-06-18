@@ -116,6 +116,7 @@
     "verify_desc": "Poslali smo ti 6-znamenkasti kod za potvrdu na tvoj e-mail.<br><br>Unesi ga ispod kako bi nastavio.",
     "verify_btn": "Potvrdi Kod",
     "checking": "Provjeravam...",
+    "did_not_receive": "Nisi primio kod? Pošalji ponovo",
     "verify_success_desc": "Tvoj email je uspjesno verificiran!",
     "continue_to_app": "Nastavi u Aplikaciju",
     "resend_link": "Posalji novi kod",
