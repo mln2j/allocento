@@ -57,37 +57,8 @@ export class Onboarding {
 
   selectType(type: 'personal' | 'household' | 'company') {
     if (this.loading()) return;
-    this.loading.set(true);
     this.selectedWorkspaceType = type;
-
-    const nameMap = {
-      'personal': this.t('onboarding.personal'),
-      'household': this.t('onboarding.household'),
-      'company': this.t('onboarding.company')
-    };
-
-    this.workspaceRepo.createWorkspace({
-      name: nameMap[type],
-      type: type,
-      currency: 'EUR'
-    }).subscribe({
-      next: (ws) => {
-        this.workspaceService.setActiveWorkspace(ws);
-        
-        this.workspaceRepo.setFavoriteWorkspace(ws.id).subscribe({
-          next: () => {
-            this.prepareStep2(type);
-          },
-          error: () => {
-            this.prepareStep2(type);
-          }
-        });
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toastService.error(this.t('common.error') || 'Došlo je do greške prilikom kreiranja prostora. Pokušajte ponovno.');
-      }
-    });
+    this.prepareStep2(type);
   }
 
   private prepareStep2(type: string) {
@@ -111,7 +82,6 @@ export class Onboarding {
       ];
     }
     this.accountOptions.set(options);
-    this.loading.set(false);
     this.step.set(2);
   }
 
@@ -155,15 +125,44 @@ export class Onboarding {
 
   finish() {
     if (this.loading()) return;
-    this.loading.set(true);
 
     const selectedAccounts = this.accountOptions().filter(opt => opt.selected);
-    
-    if (selectedAccounts.length === 0) {
+    const validCustomAccounts = this.customAccounts().filter(acc => acc.name.trim() !== '');
+
+    if (selectedAccounts.length === 0 && validCustomAccounts.length === 0) {
       window.location.href = '/splash';
       return;
     }
 
+    this.loading.set(true);
+
+    const nameMap: Record<string, string> = {
+      'personal': this.t('onboarding.personal'),
+      'household': this.t('onboarding.household'),
+      'company': this.t('onboarding.company')
+    };
+
+    this.workspaceRepo.createWorkspace({
+      name: nameMap[this.selectedWorkspaceType],
+      type: this.selectedWorkspaceType,
+      currency: 'EUR'
+    }).subscribe({
+      next: (ws) => {
+        this.workspaceService.setActiveWorkspace(ws);
+        this.workspaceRepo.setFavoriteWorkspace(ws.id).subscribe({
+          next: () => this.createAccounts(),
+          error: () => this.createAccounts()
+        });
+      },
+      error: () => {
+        this.loading.set(false);
+        this.toastService.error(this.t('common.error') || 'Došlo je do greške prilikom kreiranja prostora. Pokušajte ponovno.');
+      }
+    });
+  }
+
+  private createAccounts() {
+    const selectedAccounts = this.accountOptions().filter(opt => opt.selected);
     const createObservables = selectedAccounts.map(acc => {
       const payload = {
         name: this.t(acc.nameKey),
