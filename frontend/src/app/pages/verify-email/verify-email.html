@@ -34,8 +34,17 @@
       </form>
       
       <div class="mt-8 space-y-4 text-center">
-        <button (click)="resendEmail()" [disabled]="loading()" class="text-brand-purple/70 font-bold text-sm underline hover:text-[#4a1772] bg-transparent outline-none cursor-pointer" style="font-family: 'Space Mono', monospace;">
-          {{ t('auth.did_not_receive') }}
+        <button 
+          (click)="resendEmail()" 
+          [disabled]="loading() || resendCooldown() > 0" 
+          class="text-brand-purple/70 font-bold text-sm underline hover:text-[#4a1772] bg-transparent outline-none cursor-pointer disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed transition-all" 
+          style="font-family: 'Space Mono', monospace;">
+          <ng-container *ngIf="resendCooldown() === 0">
+            {{ t('auth.did_not_receive') }}
+          </ng-container>
+          <ng-container *ngIf="resendCooldown() > 0">
+            {{ t('auth.resend_wait') || 'Wait' }} {{ resendCooldown() }}s
+          </ng-container>
         </button>
         <br>
         <a routerLink="/auth/login" class="inline-block mt-2 text-brand-purple font-bold text-sm underline hover:text-[#4a1772]" style="font-family: 'Space Mono', monospace;">

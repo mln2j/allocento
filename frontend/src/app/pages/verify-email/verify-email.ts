@@ -23,6 +23,8 @@ export class VerifyEmail implements OnInit {
   mode = signal<'waiting' | 'success' | 'error'>('waiting');
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+  resendCooldown = signal<number>(0);
+  private intervalId: any;
 
   codeForm: FormGroup = this.fb.group({
     code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
@@ -67,18 +69,39 @@ export class VerifyEmail implements OnInit {
   }
 
   resendEmail() {
+    if (this.resendCooldown() > 0) return;
     this.loading.set(true);
     this.authService.resendVerificationEmail().subscribe({
       next: () => {
         this.loading.set(false);
-        alert(this.t('auth.codeResent') || 'New code sent to your email!');
-        this.mode.set('waiting');
+        this.startCooldown(60);
       },
-      error: () => {
+      error: (err) => {
         this.loading.set(false);
-        alert(this.t('auth.resendFailed') || 'Failed to resend code.');
+        if (err.status === 429) {
+          this.startCooldown(60);
+        } else {
+          alert(this.t('auth.resendFailed') || 'Failed to resend code.');
+        }
       }
     });
+  }
+
+  startCooldown(seconds: number) {
+    this.resendCooldown.set(seconds);
+    if (this.intervalId) clearInterval(this.intervalId);
+    this.intervalId = setInterval(() => {
+      const current = this.resendCooldown();
+      if (current > 0) {
+        this.resendCooldown.set(current - 1);
+      } else {
+        clearInterval(this.intervalId);
+      }
+    }, 1000);
+  }
+
+  ngOnDestroy() {
+    if (this.intervalId) clearInterval(this.intervalId);
   }
 
   continueToApp() {
