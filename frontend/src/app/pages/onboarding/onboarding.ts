@@ -40,7 +40,7 @@ export class Onboarding {
 
   step = signal<number>(1);
   loading = signal(false);
-  selectedWorkspaceType: string = '';
+  selectedWorkspaceType: 'personal' | 'household' | 'company' | '' = '';
   accountOptions = signal<AccountOption[]>([]);
 
   customAccounts = signal<CustomAccount[]>([{ id: Date.now(), name: '', type: 'checking' }]);
@@ -143,8 +143,8 @@ export class Onboarding {
     };
 
     this.workspaceRepo.createWorkspace({
-      name: nameMap[this.selectedWorkspaceType],
-      type: this.selectedWorkspaceType,
+      name: nameMap[this.selectedWorkspaceType as 'personal' | 'household' | 'company'],
+      type: this.selectedWorkspaceType as 'personal' | 'household' | 'company',
       currency: 'EUR'
     }).subscribe({
       next: (ws) => {
