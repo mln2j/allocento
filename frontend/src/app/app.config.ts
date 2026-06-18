@@ -16,17 +16,22 @@ export const appConfig: ApplicationConfig = {
         loadingInterceptor,
         (req, next) => {
           const auth = inject(AuthService);
+          const lang = localStorage.getItem('allocento_lang') || 'hr';
+          
           const token = auth.getToken();
-          if (!token) {
-            return next(req);
-          }
           const headers: Record<string, string> = {
-            Authorization: `Bearer ${token}`
+            'Accept-Language': lang
           };
+
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+
           const wsId = localStorage.getItem('active_workspace_id');
           if (wsId) {
             headers['X-Workspace-ID'] = wsId;
           }
+          
           const authReq = req.clone({
             setHeaders: headers,
           });
