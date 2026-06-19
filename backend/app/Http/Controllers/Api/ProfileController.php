@@ -21,6 +21,7 @@ class ProfileController extends Controller
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'nav_preferences' => ['sometimes', 'array'],
+            'preferred_language' => ['sometimes', 'string', 'in:en,hr'],
         ]);
 
         $user->update($validated);
