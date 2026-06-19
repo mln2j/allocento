@@ -201,3 +201,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('invitations/{token}/accept', [InvitationController::class, 'accept']);
     Route::delete('invitations/{token}/reject', [InvitationController::class, 'reject']);
 });
+
+// Trigger deploy
