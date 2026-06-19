@@ -186,7 +186,11 @@
     "navPrefsLabel": "Mobile Navigation",
     "navPrefsDesc": "Select the items you want to see in the bottom navigation bar (Max 4).",
     "langLabel": "Language",
-    "langDesc": "Current application language context"
+    "langDesc": "Current application language context",
+    "pushTitle": "Push Notifications",
+    "pushDesc": "Receive notifications for new incomes and recurring transactions.",
+    "pushEnabled": "Web Push notifications enabled!",
+    "pushDisabled": "Web Push notifications disabled."
   },
   "security": {
     "title": "Security",

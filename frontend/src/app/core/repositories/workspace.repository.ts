@@ -1,7 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, from, map, of, tap } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
+import { LocalDbService } from '../services/local-db';
+import { AppInitializerService } from '../services/app-initializer';
 
 export interface Workspace {
   id: number;
@@ -22,9 +24,30 @@ export interface Workspace {
 })
 export class WorkspaceRepository {
   private http = inject(HttpClient);
+  private localDb = inject(LocalDbService);
+  private injector = inject(Injector);
 
   getWorkspaces(): Observable<Workspace[]> {
-    return this.http.get<Workspace[]>(`${API_BASE_URL}/workspaces`);
+    const isOnlineMode = this.injector.get(AppInitializerService).isOnlineMode;
+    if (!isOnlineMode) {
+      return from(this.localDb.getAll('workspaces'));
+    }
+
+    return this.http.get<Workspace[]>(`${API_BASE_URL}/workspaces`).pipe(
+      tap(async (workspaces) => {
+        try {
+          await this.localDb.clearStore('workspaces');
+          for (const ws of workspaces) {
+            await this.localDb.put('workspaces', ws);
+          }
+        } catch (e) {
+          console.warn('Failed to cache workspaces', e);
+        }
+      }),
+      catchError(() => {
+        return from(this.localDb.getAll('workspaces'));
+      })
+    );
   }
 
   setFavoriteWorkspace(id: string | number): Observable<any> {

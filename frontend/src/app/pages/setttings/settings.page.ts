@@ -13,6 +13,10 @@ import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { RouterModule } from '@angular/router';
 import { WorkspaceService } from '../../core/services/workspace.service';
+import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { PushNotificationService } from '../../core/services/push-notification.service';
+import { API_BASE_URL } from '../../core/api.config';
 
 @Component({
   selector: 'app-settings',
@@ -23,6 +27,7 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 export class SettingsPage implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
   private authService = inject(AuthService);
   private userRepo = inject(UserRepository);
   private workspaceService = inject(WorkspaceService);
@@ -30,6 +35,8 @@ export class SettingsPage implements OnInit {
   private appInitializer = inject(AppInitializerService);
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
+  private location = inject(Location);
+  private pushService = inject(PushNotificationService);
 
   user = signal<User | null>(null);
   profileForm!: FormGroup;
@@ -53,16 +60,72 @@ export class SettingsPage implements OnInit {
   ];
   selectedNavPrefs: string[] = [];
   hasNavChanges = false;
+  isMainNav = false;
 
   hasFeature(feature: string): boolean {
     const ws = this.workspaceService.activeWorkspace();
     return ws?.enabled_features?.includes(feature) || false;
   }
 
+  isPushEnabled = signal<boolean>(false);
+
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.currentLang = this.translationService.currentLang() || 'en';
+    
+    // Check if settings is in the main nav
+    try {
+      const prefs = JSON.parse(localStorage.getItem('nav_preferences') || '[]');
+      this.isMainNav = prefs.includes('settings');
+    } catch {
+      this.isMainNav = false;
+    }
+
     this.loadUserData();
+    this.checkPushStatus();
+  }
+
+  checkPushStatus() {
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) {
+          reg.pushManager.getSubscription().then(sub => {
+            this.isPushEnabled.set(!!sub);
+          });
+        }
+      });
+    }
+  }
+
+  goBack() {
+    this.location.back();
+  }
+
+  async togglePush(event: any) {
+    const isChecked = event.target.checked;
+    try {
+      if (isChecked) {
+        await this.pushService.subscribeToNotifications();
+        this.isPushEnabled.set(true);
+        this.toastService.success(this.t('settings.pushEnabled') || 'Web Push obavijesti su uključene!');
+      } else {
+        await this.pushService.unsubscribe();
+        this.isPushEnabled.set(false);
+        this.toastService.success(this.t('settings.pushDisabled') || 'Web Push obavijesti su isključene.');
+      }
+    } catch (err) {
+      console.error('Push error:', err);
+      // Revert visual state if error
+      event.target.checked = !isChecked;
+      this.toastService.error('Greška pri promjeni postavki obavijesti.');
+    }
+  }
+
+  testPush() {
+    this.http.post(`${API_BASE_URL}/push/test`, {}).subscribe({
+      next: () => this.toastService.success('Testna obavijest poslana!'),
+      error: () => this.toastService.error('Greška pri slanju obavijesti.')
+    });
   }
 
   loadUserData() {

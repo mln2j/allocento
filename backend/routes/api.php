@@ -41,6 +41,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Push Notifications
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/push/public-key', [\App\Http\Controllers\Api\PushController::class, 'vapidPublicKey']);
+    Route::post('/push/subscribe', [\App\Http\Controllers\Api\PushController::class, 'subscribe']);
+    Route::post('/push/unsubscribe', [\App\Http\Controllers\Api\PushController::class, 'unsubscribe']);
+    Route::post('/push/test', [\App\Http\Controllers\Api\PushController::class, 'test']);
+
+
+    /*
+    |--------------------------------------------------------------------------
     | User bootstrap / profile
     |--------------------------------------------------------------------------
     */

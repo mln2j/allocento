@@ -10,7 +10,7 @@ export class LocalDbService {
   private translationService = inject(TranslationService); // <-- INJEKTIRAMO GA
 
   private dbName = 'AllocentoDB';
-  private dbVersion = 1;
+  private dbVersion = 2;
   private db: IDBDatabase | null = null;
 
   /**
@@ -49,6 +49,14 @@ export class LocalDbService {
         if (!db.objectStoreNames.contains('offline_queue')) {
           db.createObjectStore('offline_queue', {keyPath: 'localId', autoIncrement: true});
         }
+
+        if (!db.objectStoreNames.contains('categories')) {
+          db.createObjectStore('categories', {keyPath: 'id'});
+        }
+
+        if (!db.objectStoreNames.contains('workspaces')) {
+          db.createObjectStore('workspaces', {keyPath: 'id'});
+        }
       };
 
       request.onsuccess = (event: any) => {
@@ -68,13 +76,12 @@ export class LocalDbService {
   /**
    * Generička metoda za spremanje ili ažuriranje podataka (Upsert)
    */
-  put(storeName: string, data: any): Promise<void> {
+  async put(storeName: string, data: any): Promise<void> {
+    if (!this.db) {
+      await this.initDatabase();
+    }
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return reject(this.t('splash.dbNotInitialized'));
-      }
-
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db!.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.put(data);
 
@@ -86,13 +93,12 @@ export class LocalDbService {
   /**
    * Generička metoda za dohvaćanje svih podataka iz određene tablice
    */
-  getAll(storeName: string): Promise<any[]> {
+  async getAll(storeName: string): Promise<any[]> {
+    if (!this.db) {
+      await this.initDatabase();
+    }
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return reject(this.t('splash.dbNotInitialized'));
-      }
-
-      const transaction = this.db.transaction(storeName, 'readonly');
+      const transaction = this.db!.transaction(storeName, 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
@@ -104,13 +110,12 @@ export class LocalDbService {
   /**
    * Briše podatak iz tablice prema ID-u
    */
-  delete(storeName: string, id: any): Promise<void> {
+  async delete(storeName: string, id: any): Promise<void> {
+    if (!this.db) {
+      await this.initDatabase();
+    }
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return reject(this.t('splash.dbNotInitialized'));
-      }
-
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db!.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.delete(id);
 
@@ -122,13 +127,12 @@ export class LocalDbService {
   /**
    * Čisti cijelu tablicu (korisno kod Logout-a)
    */
-  clearStore(storeName: string): Promise<void> {
+  async clearStore(storeName: string): Promise<void> {
+    if (!this.db) {
+      await this.initDatabase();
+    }
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return reject(this.t('splash.dbNotInitialized'));
-      }
-
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db!.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.clear();
 

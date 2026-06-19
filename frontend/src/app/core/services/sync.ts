@@ -32,10 +32,9 @@ export class SyncService {
   }
 
   /**
-   * Prolazi kroz sve stavke u 'offline_queue' i šalje ih na backend jednu po jednu
+   * Prolazi kroz sve stavke u 'offline_queue' i šalje ih na backend odjednom (Bulk)
    */
   async syncOfflineQueue(): Promise<void> {
-    // Ako već sinkroniziramo, nemoj pokretati ponovno da ne dupliramo zahtjeve
     if (this.isSyncing) return;
 
     try {
@@ -47,39 +46,35 @@ export class SyncService {
       }
 
       this.isSyncing = true;
-      console.log(`🔄 Pronađeno ${queue.length} stavki za sinkronizaciju...`);
+      console.log(`🔄 Slanje ${queue.length} stavki na bulk sinkronizaciju...`);
 
-      for (const item of queue) {
-        await this.sendItemToBackend(item);
-      }
+      const payload = {
+        transactions: queue.map(item => ({
+          account_id: item.accountId, // API traži account_id sa underscore
+          type: item.type,
+          amount: item.amount,
+          date: item.date,
+          description: item.description,
+          category_id: item.category_id,
+          tags: item.tags || []
+        }))
+      };
+
+      this.http.post(`${API_BASE_URL}/transactions/bulk`, payload).subscribe({
+        next: async (response) => {
+          console.log(`✅ Bulk sinkronizacija uspješna!`);
+          // Očisti cijeli queue jer je bulk prošao
+          await this.localDb.clearStore('offline_queue');
+        },
+        error: (err) => {
+          console.error(`⚠️ Neuspjela bulk sinkronizacija. Podaci ostaju u redu čekanja.`, err);
+        }
+      });
 
     } catch (error) {
-      console.error('❌ Greška tijekom sinkronizacije reda čekanja:', error);
+      console.error('❌ Greška tijekom dohvaćanja reda čekanja:', error);
     } finally {
       this.isSyncing = false;
     }
-  }
-
-  /**
-   * Šalje pojedinačnu stavku na Laravel i briše je iz lokalnog queue-a nakon uspjeha
-   */
-  private async sendItemToBackend(item: any): Promise<void> {
-    const { localId, accountId, ...payload } = item; // Maknemo lokalni ID i accountId iz payload-a
-
-    return new Promise((resolve) => {
-      this.http.post(`${API_BASE_URL}/accounts/${accountId}/transactions`, payload).subscribe({
-        next: async (response) => {
-          console.log(`✅ Stavka unutar baze s lokalnim ID-em ${localId} je uspješno sinkronizirana.`);
-          // Brišemo iz IndexedDB reda čekanja jer je uspješno spremljeno na serveru
-          await this.localDb.delete('offline_queue', localId);
-          resolve();
-        },
-        error: (err) => {
-          console.error(`⚠️ Neuspjela sinkronizacija za lokalni ID ${localId}. Ostaje u redu čekanja.`, err);
-          // Ovdje NE radimo reject, nego dopuštamo petlji da nastavi s idućom stavkom
-          resolve();
-        }
-      });
-    });
   }
 }

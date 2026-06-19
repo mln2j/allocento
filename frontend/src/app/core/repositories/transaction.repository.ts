@@ -264,8 +264,23 @@ export class TransactionRepository {
 
   getCategories(): Observable<any[]> {
     if (!this.appInitializer.isOnlineMode) {
-      return of([]);
+      return from(this.localDb.getAll('categories'));
     }
-    return this.api.get<any[]>('/categories');
+    return this.api.get<any[]>('/categories').pipe(
+      tap(async (categories) => {
+        try {
+          // Očisti staro stanje pa ubaci novo
+          await this.localDb.clearStore('categories');
+          for (const cat of categories) {
+            await this.localDb.put('categories', cat);
+          }
+        } catch (e) {
+          console.warn('Failed to cache categories', e);
+        }
+      }),
+      catchError(() => {
+        return from(this.localDb.getAll('categories'));
+      })
+    );
   }
 }
