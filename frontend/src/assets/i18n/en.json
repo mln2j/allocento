@@ -190,7 +190,10 @@
     "pushTitle": "Push Notifications",
     "pushDesc": "Receive notifications for new incomes and recurring transactions.",
     "pushEnabled": "Web Push notifications enabled!",
-    "pushDisabled": "Web Push notifications disabled."
+    "pushDisabled": "Web Push notifications disabled.",
+    "testPush": "Test Notification",
+    "testPushSuccess": "Test notification sent successfully!",
+    "testPushError": "Error sending test notification."
   },
   "security": {
     "title": "Security",

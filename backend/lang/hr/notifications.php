@@ -1,6 +1,5 @@
 <?php
-
 return [
-    'recurring_transaction_title' => 'Nova ponavljajuća transakcija',
-    'recurring_transaction_body' => 'Uspješno je zapisana transakcija: :description u iznosu od :amount.',
+    'recurring_transaction_title' => 'Testna Obavijest',
+    'recurring_transaction_body' => 'Transakcija :description u iznosu :amount uspje�no je provedena.',
 ];

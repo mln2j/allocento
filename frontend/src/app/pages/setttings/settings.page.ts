@@ -123,8 +123,8 @@ export class SettingsPage implements OnInit {
 
   testPush() {
     this.http.post(`${API_BASE_URL}/push/test`, {}).subscribe({
-      next: () => this.toastService.success('Testna obavijest poslana!'),
-      error: () => this.toastService.error('Greška pri slanju obavijesti.')
+      next: () => this.toastService.success(this.t('settings.testPushSuccess') || 'Testna obavijest poslana!'),
+      error: () => this.toastService.error(this.t('settings.testPushError') || 'Greška pri slanju obavijesti.')
     });
   }
 
@@ -154,6 +154,18 @@ export class SettingsPage implements OnInit {
     this.closeLangDropdown();
     if (typeof this.translationService.setLanguage === 'function') {
       this.translationService.setLanguage(lang);
+    }
+    
+    // Sync language change to backend if online
+    if (this.isOnline()) {
+      this.userRepo.updateProfile({ preferred_language: lang }).subscribe({
+        next: () => {
+          this.toastService.success(this.t('settings.languageChanged') || 'Language updated successfully');
+        },
+        error: (err) => {
+          console.error('Failed to sync language', err);
+        }
+      });
     }
   }
 
