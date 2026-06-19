@@ -59,7 +59,8 @@
     "pushDisabled": "Web Push obavijesti su isključene.",
     "testPush": "Testiraj Obavijest",
     "testPushSuccess": "Testna obavijest uspješno poslana!",
-    "testPushError": "Greška pri slanju testne obavijesti."
+    "testPushError": "Greška pri slanju testne obavijesti.",
+    "languageChanged": "Jezik je uspješno promijenjen!"
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",

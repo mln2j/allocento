@@ -193,7 +193,8 @@
     "pushDisabled": "Web Push notifications disabled.",
     "testPush": "Test Notification",
     "testPushSuccess": "Test notification sent successfully!",
-    "testPushError": "Error sending test notification."
+    "testPushError": "Error sending test notification.",
+    "languageChanged": "Language updated successfully!"
   },
   "security": {
     "title": "Security",
