@@ -37,7 +37,7 @@ class RecurringTransactionProcessed extends Notification implements ShouldQueue
      */
     public function toWebPush($notifiable, $notification)
     {
-        return (new WebPushMessage)
+        return (new AngularWebPushMessage)
             ->title(__('notifications.recurring_transaction_title'))
             ->body(__('notifications.recurring_transaction_body', [
                 'description' => $this->transaction->description ?? 'N/A',
