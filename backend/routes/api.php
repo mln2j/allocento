@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('workspaces', [WorkspaceController::class, 'store']);
     Route::post('workspaces/{id}/set-favorite', [WorkspaceController::class, 'setFavorite']);
 
+    Route::get('user/accounts', [\App\Http\Controllers\Api\AccountController::class, 'allUserAccounts']);
+
     /*
     |--------------------------------------------------------------------------
     | Workspace scoped context (MUST have active workspace middleware)

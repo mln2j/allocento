@@ -13,4 +13,9 @@ export interface Account {
   workspaces?: number[];
   workspace_id?: number;
   owning_workspace?: any;
+  created_by?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }

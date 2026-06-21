@@ -45,7 +45,7 @@ class WorkspaceController extends Controller
 
     public function show(Request $request, $id): JsonResponse
     {
-        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->with(['users', 'accounts'])->first();
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->with(['users', 'accounts.owningWorkspace', 'accounts.createdBy'])->first();
 
         if (!$workspace) {
             return response()->json(['error' => 'Workspace not found or access denied.'], 404);
@@ -64,6 +64,7 @@ class WorkspaceController extends Controller
 
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'type' => ['sometimes', 'required', 'in:personal,household,company'],
             'icon' => ['nullable', 'string', 'max:50'],
             'currency' => ['sometimes', 'required', 'string', 'size:3'],
         ]);
@@ -208,8 +209,16 @@ class WorkspaceController extends Controller
         }
 
         $validated = $request->validate([
-            'role' => ['required', 'in:member,manager']
+            'role' => ['required', 'in:member,manager,owner']
         ]);
+
+        if ($validated['role'] === 'owner') {
+            \Illuminate\Support\Facades\DB::transaction(function() use ($workspace, $userId, $request) {
+                $workspace->users()->updateExistingPivot($userId, ['role' => 'owner']);
+                $workspace->users()->updateExistingPivot($request->user()->id, ['role' => 'manager']);
+            });
+            return response()->json(['message' => 'Ownership transferred successfully.']);
+        }
 
         $workspace->users()->updateExistingPivot($userId, ['role' => $validated['role']]);
 

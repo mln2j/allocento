@@ -55,6 +55,18 @@ export class AccountRepository {
     );
   }
 
+  listAllManageable(): Observable<Account[]> {
+    if (!this.appInitializer.isOnlineMode) {
+      return from(this.localDb.getAll('accounts')).pipe(
+        map(list => list.map(item => this.mapLocalToAccount(item)))
+      );
+    }
+
+    return this.api.get<any[]>('/user/accounts').pipe(
+      map(accounts => accounts.map(acc => this.mapApiToAccount(acc)))
+    );
+  }
+
   getById(id: number): Observable<Account> {
     if (!this.appInitializer.isOnlineMode) {
       return from(this.localDb.getAll('accounts')).pipe(
@@ -221,6 +233,7 @@ export class AccountRepository {
       is_primary: !!apiData.is_primary,
       workspace_id: apiData.workspace_id,
       owning_workspace: apiData.owning_workspace,
+      created_by: apiData.created_by,
       can_manage: apiData.can_manage,
     };
     if (apiData.workspaces !== undefined) {
@@ -240,6 +253,7 @@ export class AccountRepository {
       is_primary: !!local.is_primary,
       workspace_id: local.workspace_id,
       owning_workspace: local.owning_workspace,
+      created_by: local.created_by,
       can_manage: local.can_manage,
     };
     if (local.workspaces !== undefined) {

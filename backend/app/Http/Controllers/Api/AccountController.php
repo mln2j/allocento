@@ -14,8 +14,8 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $workspace = $request->get('_workspace');
-        // Include owningWorkspace and its users to determine management permissions easily
-        $accounts = $workspace->accounts()->with(['workspaces', 'owningWorkspace.users'])->get();
+        // Include owningWorkspace, its users, and createdBy to determine management permissions easily and show the owner
+        $accounts = $workspace->accounts()->with(['workspaces', 'owningWorkspace.users', 'createdBy'])->get();
         
         $accounts = $accounts->sortBy([
             function ($account) {
@@ -38,6 +38,44 @@ class AccountController extends Controller
                     $canManage = in_array($userRole, ['owner', 'manager']);
                 }
             }
+            
+            $arr = $account->toArray();
+            $arr['can_manage'] = $canManage;
+            
+            if (isset($arr['owning_workspace'])) {
+                unset($arr['owning_workspace']['users']);
+            }
+            
+            return $arr;
+        });
+
+        return response()->json($accounts);
+    }
+
+    public function allUserAccounts(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        $workspaces = $user->workspaces()->get();
+        $workspaceIds = $workspaces->filter(function ($ws) {
+            if ($ws->type === 'personal') return true;
+            $role = $ws->pivot->role;
+            return in_array($role, ['owner', 'manager']);
+        })->pluck('id');
+
+        $accounts = \App\Models\Account::with(['workspaces', 'owningWorkspace.users', 'createdBy'])
+            ->whereIn('workspace_id', $workspaceIds)
+            ->get();
+            
+        $accounts = $accounts->sortBy([
+            function ($account) {
+                return $account->owningWorkspace?->type === 'personal' ? 0 : 1;
+            },
+            ['name', 'asc']
+        ])->values();
+            
+        $accounts = $accounts->map(function ($account) {
+            $canManage = true; // They can manage because we filtered by owner/manager/personal
             
             $arr = $account->toArray();
             $arr['can_manage'] = $canManage;

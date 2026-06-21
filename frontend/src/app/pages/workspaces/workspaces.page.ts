@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
+import { AccountRepository } from '../../core/repositories/account.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { LoadingService } from '../../core/services/loading/loading.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
@@ -11,6 +12,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-workspaces',
@@ -20,6 +22,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 })
 export class WorkspacesPage implements OnInit, OnDestroy {
   private workspaceRepo = inject(WorkspaceRepository);
+  private accountRepo = inject(AccountRepository);
   private fb = inject(FormBuilder);
   private translationService = inject(TranslationService);
   private loadingService = inject(LoadingService);
@@ -39,15 +42,73 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   }
 
   workspaces = signal<Workspace[]>([]);
+  accountsList = signal<any[]>([]);
+
+  editModalAccounts = computed(() => {
+    const ws = this.selectedWorkspace();
+    const linkedAccounts = ws?.accounts || [];
+    const manageableAccounts = this.accountsList();
+
+    const allAccountsMap = new Map<number, any>();
+    
+    // Dodajemo sve račune kojima korisnik upravlja, ALI SAMO ako su osobni (personal)
+    manageableAccounts.forEach(acc => {
+      if (acc.owning_workspace?.type === 'personal') {
+        allAccountsMap.set(acc.id, acc);
+      }
+    });
+
+    // Dodajemo povezane račune (ako slučajno nisu u listi manageable, npr. tuđi)
+    linkedAccounts.forEach((acc: any) => {
+      if (!allAccountsMap.has(acc.id)) {
+         allAccountsMap.set(acc.id, acc);
+      }
+    });
+
+    return Array.from(allAccountsMap.values()).sort((a, b) => {
+       if (a.owning_workspace?.type === 'personal' && b.owning_workspace?.type !== 'personal') return -1;
+       if (a.owning_workspace?.type !== 'personal' && b.owning_workspace?.type === 'personal') return 1;
+       return a.name.localeCompare(b.name);
+    });
+  });
   workspaceForm!: FormGroup;
 
-  isModalOpen = false;
-  isSaving = false;
-  isOnline = signal<boolean>(true);
+  activeWorkspaceId = computed(() => this.workspaceService.activeWorkspace()?.workspace_id || this.workspaceService.activeWorkspace()?.id);
+
   isLoading = signal<boolean>(false);
+  isLoadingDetails = false;
+  isSaving = false;
+  
+  isModalOpen = false;
+  editingWorkspaceId: string | number | null = null;
+  selectedAccountsMap: Record<number, boolean> = {};
+  initialAccountsMap: Record<number, boolean> = {};
+
+  isOnline = signal<boolean>(true);
 
   selectedWorkspace = signal<Workspace | null>(null);
-  isLoadingDetails = false;
+
+  sortedMembers = computed(() => {
+    const ws = this.selectedWorkspace();
+    if (!ws || !ws.users) return [];
+
+    return [...ws.users].sort((a, b) => {
+      const roleOrder: Record<string, number> = {
+        'owner': 1,
+        'manager': 2,
+        'member': 3
+      };
+      
+      const roleA = a.pivot?.role || 'member';
+      const roleB = b.pivot?.role || 'member';
+      
+      if (roleOrder[roleA] !== roleOrder[roleB]) {
+        return roleOrder[roleA] - roleOrder[roleB];
+      }
+      
+      return a.name.localeCompare(b.name);
+    });
+  });
 
   inviteEmail = '';
 
@@ -60,24 +121,40 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   selectedMemberRole = 'member';
 
   get typeOptions() {
-    return [
-      { value: 'personal', label: this.t('workspaces.types.personal') || 'Personal' },
+    const options = [
       { value: 'household', label: this.t('workspaces.types.household') || 'Household' },
       { value: 'company', label: this.t('workspaces.types.company') || 'Company' }
     ];
+    if (this.editingWorkspaceId && this.workspaceForm?.get('type')?.value === 'personal') {
+      options.unshift({ value: 'personal', label: this.t('workspaces.types.personal') || 'Personal' });
+    }
+    return options;
   }
 
-  get roleOptions() {
+  get editRoleOptions() {
     return [
       { value: 'member', label: this.t('workspaces.roles.member') || 'Član' },
-      { value: 'manager', label: this.t('workspaces.roles.manager') || 'Menadžer' }
+      { value: 'manager', label: this.t('workspaces.roles.manager') || 'Menadžer' },
+      { value: 'owner', label: this.t('workspaces.roles.owner') || 'Vlasnik' }
     ];
+  }
+
+  get inviteRoleOptions() {
+    const opts = [
+      { value: 'member', label: this.t('workspaces.roles.member') || 'Član' }
+    ];
+    // Managers cannot invite other managers
+    if (this.selectedWorkspace()?.pivot?.role === 'owner') {
+      opts.push({ value: 'manager', label: this.t('workspaces.roles.manager') || 'Menadžer' });
+    }
+    return opts;
   }
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadWorkspaces();
+    this.loadAccounts();
 
     window.addEventListener(
       'workspace-updated',
@@ -92,10 +169,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   handleWorkspaceRefresh = () => {
     this.loadWorkspaces();
   };
-
-  activeWorkspaceId() {
-    return this.workspaceService.activeWorkspace()?.id;
-  }
 
   setActive() {
     const ws = this.selectedWorkspace();
@@ -151,6 +224,12 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
+  loadAccounts() {
+    this.accountRepo.listAllManageable().subscribe(accs => {
+      this.accountsList.set(accs);
+    });
+  }
+
   loadPendingInvitations(wsId: string | number) {
     if (!this.isOnline()) return;
     this.workspaceRepo.getPendingInvitations(wsId).subscribe({
@@ -165,7 +244,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   viewDetails(workspace: Workspace) {
     const id = workspace.workspace_id || workspace.id;
-    // Set shallow info immediately to transition view instantly
     this.selectedWorkspace.set(workspace);
     this.isLoadingDetails = true;
 
@@ -216,7 +294,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
         next: () => {
           this.loadingService.hide();
           this.toastService.success(this.t('workspaces.removeMemberSuccess') || 'Member removed successfully!');
-          // Update local state
           const updated = { ...currentWS };
           if (updated.users) {
             updated.users = updated.users.filter(u => u.id !== userId);
@@ -238,11 +315,83 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
       return;
     }
+    this.editingWorkspaceId = null;
+    this.selectedAccountsMap = {};
+    this.initialAccountsMap = {};
     this.workspaceForm.reset({
       type: 'household',
       currency: 'EUR'
     });
     this.isModalOpen = true;
+  }
+
+  openEditModal() {
+    if (!this.isOnline()) {
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      return;
+    }
+    const ws = this.selectedWorkspace();
+    if (!ws) return;
+
+    this.editingWorkspaceId = ws.workspace_id || ws.id;
+    this.workspaceForm.patchValue({
+      name: ws.name,
+      type: ws.type,
+      currency: ws.currency || 'EUR'
+    });
+
+    if (ws.type === 'personal') {
+      this.workspaceForm.get('type')?.disable();
+    } else {
+      this.workspaceForm.get('type')?.enable();
+    }
+
+    this.selectedAccountsMap = {};
+    this.initialAccountsMap = {};
+    if (ws.accounts) {
+      ws.accounts.forEach((a: any) => {
+        this.selectedAccountsMap[a.id] = true;
+        this.initialAccountsMap[a.id] = true;
+      });
+    }
+
+    this.isModalOpen = true;
+  }
+
+  toggleAccountSelection(id: number) {
+    const acc = this.accountsList().find(a => a.id === id);
+    if (!acc) return;
+
+    // Check if the user is trying to unselect an account that belongs to this workspace
+    if (this.selectedAccountsMap[id] && (String(acc.owning_workspace) === String(this.editingWorkspaceId) || String(acc.workspace_id) === String(this.editingWorkspaceId))) {
+      this.dialogService.confirm(
+        this.t('common.delete') || 'Obriši',
+        this.t('workspaces.deleteOwnedAccountConfirm') || 'Ovaj račun je kreiran unutar ovog prostora. Njegovim uklanjanjem će se račun trajno izbrisati. Želite li nastaviti?',
+        this.t('common.delete') || 'Obriši',
+        this.t('common.cancel') || 'Odustani'
+      ).subscribe(confirmed => {
+        if (confirmed) {
+          this.loadingService.show();
+          this.accountRepo.delete(acc.id).subscribe({
+            next: () => {
+              this.loadingService.hide();
+              this.toastService.success(this.t('workspaces.deleteOwnedAccountSuccess') || 'Račun je uspješno obrisan.');
+              this.selectedAccountsMap[id] = false;
+              delete this.initialAccountsMap[id];
+              this.accountsList.update(list => list.filter(a => a.id !== id));
+            },
+            error: (err) => {
+              this.loadingService.hide();
+              this.toastService.error(this.t('workspaces.deleteOwnedAccountFailed') || 'Greška pri brisanju računa.');
+              console.error(err);
+            }
+          });
+        }
+      });
+      return;
+    }
+
+    this.selectedAccountsMap[id] = !this.selectedAccountsMap[id];
   }
 
   closeModal() {
@@ -292,19 +441,36 @@ export class WorkspacesPage implements OnInit, OnDestroy {
        return;
     }
 
-    this.loadingService.show();
-    this.workspaceRepo.updateMemberRole(wsId, userId, this.selectedMemberRole).subscribe({
-      next: () => {
-         this.loadingService.hide();
-         this.toastService.success(this.t('workspaces.roleUpdateSuccess') || 'Role updated successfully!');
-         this.closeMemberModal();
-         this.viewDetails(currentWS);
-      },
-      error: (err) => {
-         this.loadingService.hide();
-         this.toastService.error(err.error?.message || 'Failed to update role.');
-      }
-    });
+    const performUpdate = () => {
+      this.loadingService.show();
+      this.workspaceRepo.updateMemberRole(wsId, userId, this.selectedMemberRole).subscribe({
+        next: () => {
+           this.loadingService.hide();
+           this.toastService.success(this.t('workspaces.roleUpdateSuccess') || 'Role updated successfully!');
+           this.closeMemberModal();
+           this.viewDetails(currentWS);
+        },
+        error: (err) => {
+           this.loadingService.hide();
+           this.toastService.error(err.error?.message || 'Failed to update role.');
+        }
+      });
+    };
+
+    if (this.selectedMemberRole === 'owner') {
+      this.dialogService.confirm(
+        this.t('workspaces.transferOwnership') || 'Prijenos vlasništva',
+        this.t('workspaces.transferOwnershipConfirm') || 'Jeste li sigurni da želite predati vlasništvo ovom korisniku? Vi ćete postati menadžer.',
+        this.t('common.accept') || 'Da',
+        this.t('common.cancel') || 'Odustani'
+      ).subscribe(confirmed => {
+        if (confirmed) {
+          performUpdate();
+        }
+      });
+    } else {
+      performUpdate();
+    }
   }
 
   deleteWorkspace() {
@@ -435,29 +601,82 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
-  createWorkspace() {
-    if (this.workspaceForm.invalid || this.isSaving) return;
-    this.isSaving = true;
-    this.loadingService.show();
+  saveWorkspace() {
+    if (this.workspaceForm.invalid) return;
 
-    this.workspaceRepo.createWorkspace(this.workspaceForm.value).subscribe({
-      next: (newWorkspace) => {
-        newWorkspace.users_count = 1;
-        const currentList = this.workspaces();
-        currentList.push(newWorkspace);
-        this.workspaces.set([...currentList]);
-        
-        this.isSaving = false;
-        this.loadingService.hide();
-        this.closeModal();
-        this.toastService.success(this.t('workspaces.createSuccess') || 'Workspace created successfully!');
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this.loadingService.hide();
-        this.toastService.error(err.error?.message || this.t('workspaces.createFailed') || 'Failed to create workspace.');
+    const payload = this.workspaceForm.getRawValue(); // use getRawValue to get disabled 'type' field
+    this.isSaving = true;
+
+    if (this.editingWorkspaceId) {
+      this.workspaceRepo.updateWorkspace(this.editingWorkspaceId, payload).subscribe({
+        next: (ws) => {
+          this.handleAccountLinks(ws);
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastService.error(err.error?.message || this.t('workspaces.createFailed') || 'Operation failed.');
+          this.isSaving = false;
+        }
+      });
+    } else {
+      this.workspaceRepo.createWorkspace(payload).subscribe({
+        next: (ws) => {
+          this.toastService.success(this.t('workspaces.createSuccess') || 'Workspace created successfully!');
+          this.isSaving = false;
+          this.closeModal();
+          this.loadWorkspaces();
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastService.error(err.error?.message || this.t('workspaces.createFailed') || 'Failed to create workspace.');
+          this.isSaving = false;
+        }
+      });
+    }
+  }
+
+  private handleAccountLinks(ws: Workspace) {
+    const wsId = String(ws.workspace_id || ws.id);
+    const calls: any[] = [];
+
+    this.editModalAccounts().forEach(acc => {
+      const wasSelected = !!this.initialAccountsMap[acc.id];
+      const isSelected = !!this.selectedAccountsMap[acc.id];
+
+      if (isSelected && !wasSelected) {
+        calls.push(this.accountRepo.shareWithWorkspace(wsId, acc.id));
+      } else if (!isSelected && wasSelected) {
+        // Owned accounts are already deleted immediately in toggleAccountSelection, so we only handle unshare here
+        calls.push(this.accountRepo.unshareFromWorkspace(wsId, acc.id));
       }
     });
+
+    if (calls.length > 0) {
+      forkJoin(calls).subscribe({
+        next: () => {
+          this.finishWorkspaceEdit(true);
+        },
+        error: () => {
+          this.toastService.warning(this.t('workspaces.updateLinksFailed') || 'Workspace updated, but some account links failed to save.');
+          this.finishWorkspaceEdit(false);
+        }
+      });
+    } else {
+      this.finishWorkspaceEdit(true);
+    }
+  }
+
+  private finishWorkspaceEdit(success: boolean) {
+    if (success) {
+      this.toastService.success(this.t('workspaces.updateSuccess') || 'Workspace updated successfully!');
+    }
+    this.isSaving = false;
+    this.closeModal();
+    const ws = this.selectedWorkspace();
+    if (ws) {
+      this.viewDetails(ws);
+    }
+    this.loadWorkspaces();
   }
 
   formatAmount(amount: number | string | undefined): string {

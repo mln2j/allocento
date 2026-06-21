@@ -95,7 +95,13 @@
                 <path d="M11.48 3.499c.174-.297.643-.297.817 0l3.042 5.176 5.829.414c.338.024.474.437.214.656l-4.331 3.636 1.341 5.679c.078.33-.275.586-.566.402l-5.029-3.182-5.029 3.182c-.291.184-.644-.072-.566-.402l1.341-5.679-4.33-3.636c-.26-.219-.124-.632.214-.656l5.829-.414 3.042-5.176z"/>
               </svg>
             </h2>
-            <div *ngIf="activeWorkspace()?.type !== 'company'" class="font-mono text-[10px] text-slate-400 tracking-wider mt-1">•••• {{ acc.id + 1000 }}</div>
+            <div *ngIf="activeWorkspace()?.type !== 'company'" class="font-mono text-[10px] text-slate-400 tracking-wider mt-1 flex items-center">
+              •••• {{ acc.id + 1000 }}
+              <span class="inline-flex items-center mx-2">•</span>
+              <span class="text-brand-purple uppercase font-medium" [title]="acc.owning_workspace?.type === 'personal' ? 'Korisnik' : 'Prostor'">
+                {{ acc.owning_workspace?.type === 'personal' ? (acc.created_by?.name || t('accounts.user') || 'Korisnik') : acc.owning_workspace?.name }}
+              </span>
+            </div>
           </div>
         </div>
         
@@ -222,18 +228,23 @@
         />
       </div>
 
-      <!-- Sharing Checklist (Available only in Edit mode and when shared spaces exist) -->
-      <div class="space-y-2 pt-2 border-t border-slate-100" *ngIf="canManageAccount && editingAccountId && workspacesList().length > 0">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">
+      <!-- Sharing Checklist (Available only in Edit mode, for personal accounts, and when shared spaces exist) -->
+      <div class="space-y-2 pt-2 border-t border-slate-100" *ngIf="canManageAccount && editingAccountId && editingAccount?.owning_workspace?.type === 'personal' && workspacesList().length > 0">
+        <label class="flex items-center gap-2 text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
           {{ t('accounts.shareWithSpaces') }}
         </label>
         <div class="grid grid-cols-1 gap-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100 max-h-48 overflow-y-auto">
           <button 
             *ngFor="let ws of workspacesList()" 
             type="button"
-            (click)="selectedWorkspacesMap[ws.id] = !selectedWorkspacesMap[ws.id]"
-            [ngClass]="selectedWorkspacesMap[ws.id] ? 'border-brand-mint bg-brand-mint/10' : 'border-slate-200 bg-white hover:border-slate-300'"
-            class="flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer outline-none text-left w-full group"
+            (click)="ws.type === 'personal' ? null : selectedWorkspacesMap[ws.id] = !selectedWorkspacesMap[ws.id]"
+            [ngClass]="[
+              selectedWorkspacesMap[ws.id] ? 'border-brand-mint bg-brand-mint/10' : 'border-slate-200 bg-white hover:border-slate-300',
+              ws.type === 'personal' ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer group'
+            ]"
+            class="flex items-center gap-3 p-3 rounded-xl border transition-all outline-none text-left w-full"
+            [disabled]="ws.type === 'personal'"
           >
             <!-- SVG Icon based on workspace type -->
             <div 

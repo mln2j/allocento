@@ -50,6 +50,7 @@ export class AccountsPage implements OnInit {
   isSaving = false;
   accountForm!: FormGroup;
   editingAccountId: number | null = null;
+  editingAccount: any = null;
   canManageAccount = true;
 
   get typeOptions() {
@@ -129,6 +130,7 @@ export class AccountsPage implements OnInit {
       return;
     }
     this.editingAccountId = null;
+    this.editingAccount = null;
     this.selectedWorkspacesMap = {};
     this.initialWorkspacesMap = {};
     this.accountForm.reset({
@@ -146,6 +148,7 @@ export class AccountsPage implements OnInit {
       return;
     }
     this.editingAccountId = acc.id;
+    this.editingAccount = acc;
     
     // Map existing shared workspaces
     const linkedIds = acc.workspaces || [];

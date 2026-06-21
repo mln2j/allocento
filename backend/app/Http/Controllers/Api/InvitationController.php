@@ -38,6 +38,12 @@ class InvitationController extends Controller
 
         $role = $validated['role'] ?? 'member';
 
+        if ($memberRole === 'manager' && $role === 'manager') {
+            return response()->json([
+                'message' => 'Managers cannot invite other managers.'
+            ], 403);
+        }
+
         $alreadyMember = $workspace->users()
             ->where('email', $validated['email'])
             ->exists();
