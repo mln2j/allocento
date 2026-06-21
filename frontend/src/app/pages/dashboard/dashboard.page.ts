@@ -8,6 +8,7 @@ import { AppInitializerService } from '../../core/services/app-initializer';
 import { API_BASE_URL } from '../../core/api.config';
 import { firstValueFrom } from 'rxjs';
 import { WorkspaceService } from '../../core/services/workspace.service';
+import { TransactionModalService } from '../../services/transaction-modal.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,7 @@ export class DashboardPage implements OnInit {
   private appInitializer = inject(AppInitializerService);
   private router = inject(Router);
   private workspaceService = inject(WorkspaceService);
+  public transactionModalService = inject(TransactionModalService);
 
   // Reaktivna stanja
   totalBalance = signal<number>(0);
@@ -35,15 +37,49 @@ export class DashboardPage implements OnInit {
   activeWorkspace = this.workspaceService.activeWorkspace;
 
   // Tab switcher state
-  activeTab = signal<'categories' | 'days'>('categories');
+  spendingByProject = signal<any[]>([]);
+
+  // Tab switcher state
+  activeTab = signal<'categories' | 'projects' | 'days'>('days');
+
+  get hasCategories(): boolean {
+    const stats = this.spendingStats();
+    if (!stats || stats.length === 0) return false;
+    return !(stats.length === 1 && stats[0].id === null);
+  }
+
+  get hasProjects(): boolean {
+    const stats = this.spendingByProject();
+    if (!stats || stats.length === 0) return false;
+    return !(stats.length === 1 && stats[0].id === null);
+  }
+
+  setDefaultTab() {
+    if (this.hasCategories) {
+      this.activeTab.set('categories');
+    } else if (this.hasProjects) {
+      this.activeTab.set('projects');
+    } else {
+      this.activeTab.set('days');
+    }
+  }
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
     this.loadDashboardData();
+
+    // Refresh dashboard on modal save
+    this.transactionModalService.saved$.subscribe(() => {
+      this.loadDashboardData();
+    });
   }
 
   t(key: string): string {
     return this.translationService.translate(key);
+  }
+
+  openTxModal(tx: any) {
+    this.transactionModalService.openModal(tx);
   }
 
   async loadDashboardData() {
@@ -66,7 +102,9 @@ export class DashboardPage implements OnInit {
       this.primaryAccount.set(data.summary?.primary_account ?? null);
       this.recentTransactions.set(data.recent_transactions ?? []);
       this.spendingStats.set(data.spending_stats ?? []);
+      this.spendingByProject.set(data.spending_by_project ?? []);
       this.dailySpending.set(data.daily_spending ?? []);
+      this.setDefaultTab();
       this.activeWorkspaceName.set(data.workspace?.name ?? '');
 
       // Spremi u IndexedDB cache za offline pristup
@@ -87,6 +125,7 @@ export class DashboardPage implements OnInit {
         primary_account: data.summary?.primary_account,
         recent_transactions: data.recent_transactions,
         spending_stats: data.spending_stats,
+        spending_by_project: data.spending_by_project,
         daily_spending: data.daily_spending,
         workspace_name: data.workspace?.name
       });
@@ -104,7 +143,9 @@ export class DashboardPage implements OnInit {
         this.primaryAccount.set(dashboardCache.primary_account ?? null);
         this.recentTransactions.set(dashboardCache.recent_transactions ?? []);
         this.spendingStats.set(dashboardCache.spending_stats ?? []);
-        this.dailySpending.set(dashboardCache.daily_spending ?? []);
+          this.spendingByProject.set(dashboardCache.spending_by_project ?? []);
+          this.dailySpending.set(dashboardCache.daily_spending ?? []);
+          this.setDefaultTab();
         this.activeWorkspaceName.set(dashboardCache.workspace_name ?? '');
         this.isLoading.set(false); // Podaci odmah dostupni
       }
@@ -142,8 +183,8 @@ export class DashboardPage implements OnInit {
   }
 
   // Categories Donut Chart Gradient generator
-  getDonutGradientStyle(): string {
-    const stats = this.spendingStats();
+  getDonutGradientStyle(type: 'categories' | 'projects' = 'categories'): string {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
     if (!stats || stats.length === 0) {
       return 'conic-gradient(#f1f5f9 0% 100%)';
     }
@@ -161,8 +202,8 @@ export class DashboardPage implements OnInit {
     return `conic-gradient(${slices.join(', ')})`;
   }
 
-  getCategoryPercentage(amount: number): number {
-    const stats = this.spendingStats();
+  getCategoryPercentage(amount: number, type: 'categories' | 'projects' = 'categories'): number {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
     const total = stats.reduce((sum, item) => sum + item.amount, 0);
     if (total === 0) return 0;
     return Math.round((amount / total) * 100);
@@ -223,7 +264,9 @@ export class DashboardPage implements OnInit {
     return `${linePath} L ${lastPt.x.toFixed(1)} ${yBaseline} L ${firstPt.x.toFixed(1)} ${yBaseline} Z`;
   }
 
-  getTotalSpending(): number {
-    return this.spendingStats().reduce((sum, item) => sum + (item.amount || 0), 0);
+  getTotalSpending(type: 'categories' | 'projects' = 'categories'): number {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+    return stats.reduce((sum, item) => sum + (item.amount || 0), 0);
   }
 }
+

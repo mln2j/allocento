@@ -1,11 +1,11 @@
 <div class="w-full space-y-6 pb-24">
 
   <!-- Page Header -->
-  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3">
-      <button 
+      <button
         *ngIf="!isMainNav"
-        type="button" 
+        type="button"
         (click)="goBack()"
         class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none flex-shrink-0"
         [title]="t('common.back') || 'Back'"
@@ -19,11 +19,11 @@
           {{ t('nav.projects') || 'Projekti' }}
         </h1>
         <p class="text-slate-500 text-sm font-sans mt-1">
-          {{ t('pageSubtitles.projects') || 'Upravljanje projektima i praćenje troškova' }}
+          {{ t('pageSubtitles.projects') || 'Upravljanje projektima i praÄ‡enje troÅ¡kova' }}
         </p>
       </div>
     </div>
-    <button 
+    <button
       (click)="openCreateModal()"
       class="bg-brand-purple hover:bg-[#4a1772] text-white px-4 py-2 rounded-xl text-sm font-bold font-mono shadow-sm transition-colors cursor-pointer border-none outline-none flex items-center gap-2"
     >
@@ -38,7 +38,7 @@
         <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <h3 class="text-sm font-bold text-slate-800 font-mono mb-1">{{ t('projects.emptyTitle') || 'Nema projekata' }}</h3>
-      <p class="text-xs text-slate-500 font-sans mb-6">{{ t('projects.emptyDesc') || 'Kreirajte svoj prvi projekt za praćenje troškova' }}</p>
+      <p class="text-xs text-slate-500 font-sans mb-6">{{ t('projects.emptyDesc') || 'Kreirajte svoj prvi projekt za praÄ‡enje troÅ¡kova' }}</p>
       <button (click)="openCreateModal()" class="text-brand-purple font-bold text-xs font-mono hover:underline outline-none">
         {{ t('projects.createFirst') || 'Kreiraj projekt' }}
       </button>
@@ -90,49 +90,40 @@
 </div>
 
 <!-- Modal for Create/Edit -->
-<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>
-  <div class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
-    <h2 class="text-xl font-bold font-mono text-slate-900 mb-6">
-      {{ editingProject ? (t('projects.editTitle') || 'Uredi projekt') : (t('projects.createTitle') || 'Novi projekt') }}
-    </h2>
-    <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="space-y-4">
-      
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.name') || 'Naziv' }}</label>
-        <input type="text" formControlName="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-mono text-sm transition-all text-slate-800 placeholder:text-slate-400">
-      </div>
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="editingProject ? (t('projects.editTitle') || 'Uredi projekt') : (t('projects.createTitle') || 'Novi projekt')"
+  (close)="closeModal()"
+>
+  <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="space-y-6">
 
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.color') || 'Boja' }}</label>
-        <div class="flex items-center gap-3">
-          <input type="color" formControlName="color" class="w-12 h-12 p-1 bg-white border border-slate-200 rounded-xl cursor-pointer">
-          <input type="text" [value]="projectForm.get('color')?.value" disabled class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm text-slate-500">
-        </div>
-      </div>
+    <div class="space-y-1.5">
+      <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.name') || 'Naziv' }}</label>
+      <input type="text" formControlName="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-mono text-sm transition-all text-slate-800 placeholder:text-slate-400">
+    </div>
 
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.description') || 'Opis' }}</label>
-        <textarea formControlName="description" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-sans text-sm transition-all text-slate-800 placeholder:text-slate-400 resize-none"></textarea>
-      </div>
+    <div class="space-y-1.5">
+      <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.description') || 'Opis' }}</label>
+      <textarea formControlName="description" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-sans text-sm transition-all text-slate-800 placeholder:text-slate-400 resize-none"></textarea>
+    </div>
 
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.status') || 'Status' }}</label>
-        <app-select
-          [options]="statusOptions"
-          formControlName="status"
-          buttonClass="h-11 w-full px-4 text-sm font-normal"
-        ></app-select>
-      </div>
+    <div class="space-y-1.5">
+      <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.status') || 'Status' }}</label>
+      <app-select
+        [options]="statusOptions"
+        formControlName="status"
+        buttonClass="h-11 w-full px-4 text-sm font-normal"
+      ></app-select>
+    </div>
 
-      <div class="pt-4 flex gap-3">
-        <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
-          {{ t('common.cancel') || 'Odustani' }}
-        </button>
-        <button type="submit" [disabled]="projectForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+    <div class="pt-4 flex gap-3">
+      <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
+        {{ t('common.cancel') || 'Odustani' }}
+      </button>
+      <button type="submit" [disabled]="projectForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+

@@ -14,6 +14,9 @@
     "cancel": "Odustani",
     "delete": "Obriši",
     "active": "Aktivno",
+    "name": "Naziv",
+    "description": "Opis",
+    "status": "Status",
     "viewAll": "Prikaži sve",
     "localUser": "Lokalni korisnik",
     "days": {
@@ -335,6 +338,8 @@
     "shareUpdateFailed": "Ažuriranje postavki dijeljenja nije uspjelo."
   },
   "transactions": {
+    "accountLabel": "Racun",
+    "descriptionPlaceholder": "Npr. Kava, Racun za struju...",
     "title": "Transakcije",
     "searchPlaceholder": "Pretraži opise, oznake, iznose...",
     "newBtn": "Nova",
@@ -355,6 +360,8 @@
     "loadFailed": "Učitavanje transakcija nije uspjelo.",
     "createSuccess": "Transakcija je uspješno zapisana!",
     "createFailed": "Zapisivanje transakcije nije uspjelo.",
+    "createTitle": "Nova transakcija",
+    "subtitle": "Pregledajte i upravljajte svojim transakcijama",
     "editTitle": "Uredi transakciju",
     "updateSuccess": "Transakcija je uspješno ažurirana!",
     "updateFailed": "Ažuriranje transakcije nije uspjelo.",
@@ -416,7 +423,12 @@
     "emptyDesc": "Kreirajte svoj prvi projekt za upravljanje zadacima i troškovima.",
     "createFirst": "Kreiraj projekt",
     "editTitle": "Uredi projekt",
-    "createTitle": "Novi projekt"
+    "createTitle": "Novi projekt",
+    "statuses": {
+      "active": "Aktivno",
+      "completed": "Završeno",
+      "on_hold": "Na čekanju"
+    }
   },
   "status": {
     "active": "Aktivno",
@@ -430,3 +442,7 @@
     "createTitle": "Nova kategorija"
   }
 }
+
+
+
+

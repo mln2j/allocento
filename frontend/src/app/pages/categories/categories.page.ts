@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Category, CategoryRepository } from '../../core/repositories/category.repository';
 import { TranslationService } from '../../core/services/translation.service';
+import { ModalComponent } from '../../shared/modal/modal.component';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
@@ -11,7 +12,7 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent],
   templateUrl: './categories.page.html'
 })
 export class CategoriesPage implements OnInit {
@@ -150,3 +151,4 @@ export class CategoriesPage implements OnInit {
     this.location.back();
   }
 }
+

@@ -30,7 +30,7 @@ class DashboardController extends Controller
         // 4. Recent Transactions (Limit 10)
         $accountIds = $accounts->pluck('id');
         $recentTransactions = Transaction::whereIn('account_id', $accountIds)
-            ->with(['account', 'category', 'createdBy'])
+            ->with(['account', 'category', 'project', 'createdBy'])
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
@@ -45,9 +45,27 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($item) {
                 return [
+                    'id' => $item->category_id,
                     'name' => $item->category?->name ?? 'Uncategorized',
                     'amount' => (float)$item->total,
                     'color' => $item->category?->color ?? ('#' . substr(md5($item->category?->name ?? 'default'), 0, 6)),
+                ];
+            });
+
+        // 5.5 Spending by Project (Last 30 days)
+        $spendingByProject = Transaction::whereIn('account_id', $accountIds)
+            ->where('type', 'expense')
+            ->where('date', '>=', now()->subDays(30))
+            ->selectRaw('project_id, sum(amount) as total')
+            ->groupBy('project_id')
+            ->with('project')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->project_id,
+                    'name' => $item->project?->name ?? 'Unprojected',
+                    'amount' => (float)$item->total,
+                    'color' => $item->project?->color ?? ('#' . substr(md5($item->project?->name ?? 'default'), 0, 6)),
                 ];
             });
 
@@ -76,6 +94,7 @@ class DashboardController extends Controller
             'accounts' => $accounts,
             'recent_transactions' => $recentTransactions,
             'spending_stats' => $spendingByCategory,
+            'spending_by_project' => $spendingByProject,
             'daily_spending' => $dailySpending,
         ]);
     }

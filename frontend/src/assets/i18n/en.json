@@ -14,6 +14,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "active": "Active",
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
     "viewAll": "View All",
     "localUser": "Local user",
     "days": {
@@ -335,6 +338,8 @@
     "shareUpdateFailed": "Account saved but failed to update workspace sharing options."
   },
   "transactions": {
+    "accountLabel": "Account",
+    "descriptionPlaceholder": "e.g. Coffee, Electricity bill...",
     "title": "Transactions",
     "searchPlaceholder": "Search descriptions, tags, amounts...",
     "newBtn": "New",
@@ -355,6 +360,8 @@
     "loadFailed": "Failed to load transactions.",
     "createSuccess": "Transaction recorded successfully!",
     "createFailed": "Failed to record transaction.",
+    "createTitle": "Add Transaction",
+    "subtitle": "Overview and management of your transactions",
     "editTitle": "Edit Transaction",
     "updateSuccess": "Transaction updated successfully!",
     "updateFailed": "Failed to update transaction.",
@@ -416,7 +423,12 @@
     "emptyDesc": "Create your first project to manage tasks and expenses.",
     "createFirst": "Create project",
     "editTitle": "Edit project",
-    "createTitle": "New project"
+    "createTitle": "New project",
+    "statuses": {
+      "active": "Active",
+      "completed": "Completed",
+      "on_hold": "On Hold"
+    }
   },
   "status": {
     "active": "Active",
@@ -430,3 +442,6 @@
     "createTitle": "New category"
   }
 }
+
+
+

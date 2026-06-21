@@ -9,11 +9,12 @@ import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 
 import { SelectComponent } from '../../shared/select/select.component';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, SelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, SelectComponent, ModalComponent],
   templateUrl: './projects.page.html'
 })
 export class ProjectsPage implements OnInit {
@@ -58,7 +59,6 @@ export class ProjectsPage implements OnInit {
   initForm() {
     this.projectForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
-      color: ['#4f46e5', [Validators.required]],
       description: [''],
       status: ['active']
     });
@@ -88,7 +88,6 @@ export class ProjectsPage implements OnInit {
     this.editingProject = project;
     this.projectForm.patchValue({
       name: project.name,
-      color: project.color,
       description: project.description,
       status: project.status
     });

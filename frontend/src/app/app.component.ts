@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './core/layout/toast/toast.component';
+import { TransactionModalComponent } from './shared/components/transaction-modal/transaction-modal.component';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 import { ToastService } from './core/services/toast.service';
@@ -9,10 +10,11 @@ import { TranslationService } from './core/services/translation.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToastComponent],
+  imports: [RouterOutlet, ToastComponent, TransactionModalComponent],
   template: `
     <router-outlet/>
     <app-toast/>
+    <app-transaction-modal/>
   `,
 })
 export class AppComponent implements OnInit {

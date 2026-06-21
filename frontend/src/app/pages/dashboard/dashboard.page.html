@@ -1,7 +1,7 @@
 <div class="w-full space-y-6">
 
   <!-- Page Header -->
-  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between gap-3">
     <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
       {{ t('nav.dashboard') }}
     </h1>
@@ -39,7 +39,7 @@
       <div class="text-3xl md:text-4xl font-bold font-mono text-brand-purple tracking-tight">
         {{ formatAmount(totalBalance()) }} <span class="text-slate-400 text-lg font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
       </div>
-      
+
       <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex gap-2">
           <span class="inline-flex items-center gap-1 text-[11px] font-bold font-mono bg-green-50 text-green-600 px-3 py-1 rounded-full">
@@ -52,9 +52,9 @@
             {{ t('splash.offlineMode') || 'Offline Mode' }}
           </span>
         </div>
-        
+
         <!-- Dodaj Transakciju Gumb -->
-        <button type="button" routerLink="/transactions" [queryParams]="{action: 'new'}" class="bg-brand-purple hover:bg-brand-purple/90 text-white font-bold text-sm font-mono tracking-wider px-6 py-2.5 rounded-xl shadow-lg shadow-brand-purple/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border-none outline-none">
+        <button type="button" (click)="openTxModal(null)" class="bg-brand-purple hover:bg-brand-purple/90 text-white font-bold text-sm font-mono tracking-wider px-6 py-2.5 rounded-xl shadow-lg shadow-brand-purple/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border-none outline-none">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -283,7 +283,7 @@
       </div>
 
       <div class="divide-y divide-slate-100">
-        <div *ngFor="let tx of recentTransactions()" class="flex items-center justify-between p-4 hover:bg-slate-50/40 transition-colors">
+        <div *ngFor="let tx of recentTransactions()" (click)="openTxModal(tx)" class="flex items-center justify-between p-4 hover:bg-slate-50/40 transition-colors cursor-pointer">
           <div class="flex items-center gap-4 min-w-0 flex-1">
             <!-- Type Icon Indicator -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -328,3 +328,4 @@
   </ng-container>
 
 </div>
+

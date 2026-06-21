@@ -1,11 +1,11 @@
-<div class="w-full space-y-6 pb-24">
+﻿<div class="w-full space-y-6 pb-24">
 
   <!-- Page Header -->
-  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+  <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3">
-      <button 
+      <button
         *ngIf="!isMainNav"
-        type="button" 
+        type="button"
         (click)="goBack()"
         class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none flex-shrink-0"
         [title]="t('common.back') || 'Back'"
@@ -19,11 +19,11 @@
           {{ t('nav.categories') || 'Kategorije' }}
         </h1>
         <p class="text-slate-500 text-sm font-sans mt-1">
-          {{ t('pageSubtitles.categories') || 'Upravljanje kategorijama troškova' }}
+          {{ t('pageSubtitles.categories') || 'Upravljanje kategorijama troÅ¡kova' }}
         </p>
       </div>
     </div>
-    <button 
+    <button
       (click)="openCreateModal()"
       class="bg-brand-purple hover:bg-[#4a1772] text-white px-4 py-2 rounded-xl text-sm font-bold font-mono shadow-sm transition-colors cursor-pointer border-none outline-none flex items-center gap-2"
     >
@@ -72,30 +72,26 @@
 </div>
 
 <!-- Modal for Create/Edit -->
-<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>
-  <div class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
-    <h2 class="text-xl font-bold font-mono text-slate-900 mb-6">
-      {{ editingCategory ? (t('categories.editTitle') || 'Uredi kategoriju') : (t('categories.createTitle') || 'Nova kategorija') }}
-    </h2>
-    <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="space-y-4">
-      
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.name') || 'Naziv' }}</label>
-        <input type="text" formControlName="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-mono text-sm transition-all text-slate-800 placeholder:text-slate-400">
-      </div>
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="editingCategory ? (t('categories.editTitle') || 'Uredi kategoriju') : (t('categories.createTitle') || 'Nova kategorija')"
+  (close)="closeModal()"
+>
+  <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="space-y-4">
 
-      <div class="space-y-1.5">
-      </div>
+    <div class="space-y-1.5">
+      <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.name') || 'Naziv' }}</label>
+      <input type="text" formControlName="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-mono text-sm transition-all text-slate-800 placeholder:text-slate-400">
+    </div>
 
-      <div class="pt-4 flex gap-3">
-        <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
-          {{ t('common.cancel') || 'Odustani' }}
-        </button>
-        <button type="submit" [disabled]="categoryForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+    <div class="pt-4 flex gap-3">
+      <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
+        {{ t('common.cancel') || 'Odustani' }}
+      </button>
+      <button type="submit" [disabled]="categoryForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+

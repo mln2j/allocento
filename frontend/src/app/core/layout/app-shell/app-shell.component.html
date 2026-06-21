@@ -48,6 +48,16 @@
     </div>
   </app-modal>
 
-
+  <!-- Global Floating Action Button (FAB) for Recording Transaction -->
+  <button 
+    *ngIf="shouldShowFab"
+    (click)="transactionModalService.openModal()"
+    class="fixed bottom-24 right-6 xl:right-[calc((100vw-80rem)/2+1.5rem)] z-40 bg-brand-purple hover:bg-[#4a1772] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(98,30,149,0.3)] hover:shadow-[0_8px_30px_rgba(98,30,149,0.5)] active:scale-95 transition-all duration-200 group cursor-pointer outline-none border-none"
+    [title]="t('transactions.recordTitle')"
+  >
+    <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+  </button>
 
 </div>

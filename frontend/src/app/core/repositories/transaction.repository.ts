@@ -127,6 +127,7 @@ export class TransactionRepository {
       date: payload.date,
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
+      project_id: payload.projectId !== undefined ? payload.projectId : undefined,
     };
 
     return this.api.post<any>(`/accounts/${accountId}/transactions`, apiPayload).pipe(
@@ -171,6 +172,7 @@ export class TransactionRepository {
       date: payload.date,
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
+      project_id: payload.projectId !== undefined ? payload.projectId : undefined,
     };
 
     return this.api.put<any>(`/accounts/${accountId}/transactions/${transactionId}`, apiPayload).pipe(
@@ -284,3 +286,4 @@ export class TransactionRepository {
     );
   }
 }
+

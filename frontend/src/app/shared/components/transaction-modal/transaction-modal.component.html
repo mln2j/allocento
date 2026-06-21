@@ -1,0 +1,196 @@
+<app-modal
+  [isOpen]="modalService.state().isOpen"
+  [title]="isEditing ? (t('transactions.editTitle') || 'Edit Transaction') : (t('transactions.createTitle') || 'Record Transaction')"
+  (close)="closeModal()"
+>
+  <div class="overflow-y-visible custom-scrollbar flex-1">
+    <div *ngIf="isReadonly" class="mb-4 inline-flex items-center text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">Read-Only</div>
+      <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="space-y-6">
+
+        <!-- Transaction Type (Income/Expense Switch) -->
+        <div class="flex p-1 bg-slate-100 rounded-2xl relative w-full overflow-hidden">
+          <div 
+            class="absolute inset-y-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+            [style.transform]="transactionForm.get('type')?.value === 'expense' ? 'translateX(0)' : 'translateX(100%)'"
+          ></div>
+          <button 
+            type="button"
+            [disabled]="isReadonly"
+            (click)="setTxType('expense')"
+            class="flex-1 flex items-center justify-center py-2.5 text-sm font-bold font-mono transition-colors relative z-10 disabled:opacity-80"
+            [ngClass]="transactionForm.get('type')?.value === 'expense' ? 'text-rose-600' : 'text-slate-500 hover:text-slate-700'"
+          >
+            {{ t('transactions.expenseBtn') || 'Expense' }}
+          </button>
+          <button 
+            type="button"
+            [disabled]="isReadonly"
+            (click)="setTxType('income')"
+            class="flex-1 flex items-center justify-center py-2.5 text-sm font-bold font-mono transition-colors relative z-10 disabled:opacity-80"
+            [ngClass]="transactionForm.get('type')?.value === 'income' ? 'text-emerald-600' : 'text-slate-500 hover:text-slate-700'"
+          >
+            {{ t('transactions.incomeBtn') || 'Income' }}
+          </button>
+        </div>
+
+        <!-- Amount Input (Prominent) -->
+        <div class="flex flex-col items-center py-2">
+          <label class="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider mb-2">{{ t('transactions.amountLabel') || 'Amount' }}</label>
+          <div class="relative w-full max-w-xs group">
+            <input 
+              type="number" 
+              formControlName="amount" 
+              [readonly]="isReadonly"
+              class="w-full bg-transparent text-center text-4xl font-black font-mono focus:outline-none placeholder-slate-200 transition-colors border-b-2 border-transparent focus:border-brand-purple/30 pb-2"
+              [ngClass]="transactionForm.get('type')?.value === 'expense' ? 'text-slate-800' : 'text-emerald-500'"
+              [placeholder]="'0.00'"
+              step="0.01"
+            />
+          </div>
+        </div>
+
+        <!-- Account Selector -->
+        <div class="space-y-1 relative">
+          <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.accountLabel') || 'Account' }}</label>
+          <button 
+            type="button"
+            [disabled]="isReadonly"
+            (click)="toggleAccountDropdown(); $event.stopPropagation()"
+            class="w-full flex items-center justify-between px-4 py-3 bg-white border border-slate-200 hover:border-brand-purple/40 rounded-xl text-left transition-all outline-none disabled:opacity-70 disabled:cursor-not-allowed group"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:scale-105 transition-transform">
+                <svg *ngIf="getSelectedAccount()?.type === 'cash'" class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <svg *ngIf="getSelectedAccount()?.type !== 'cash'" class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+              </div>
+              <div>
+                <div class="font-bold text-sm font-mono text-slate-800">{{ getSelectedAccount()?.name || (t('transactions.selectAccount') || 'Select account') }}</div>
+                <div class="text-[10px] text-slate-400 font-mono">{{ getSelectedAccount() ? (t('accounts.types.' + getSelectedAccount()!.type) || getSelectedAccount()!.type) : '' }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-bold font-mono text-slate-400">{{ getSelectedAccount()?.currency }}</span>
+              <svg *ngIf="!isReadonly" class="w-4 h-4 text-slate-400 transition-transform duration-200" [class.rotate-180]="isAccountDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </button>
+
+          <div *ngIf="isAccountDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 custom-scrollbar">
+            <button 
+              type="button" 
+              *ngFor="let acc of accounts()"
+              (click)="selectAccount(acc.id)" 
+              class="w-full flex items-center justify-between px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors text-left"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 flex-shrink-0">
+                  <svg *ngIf="acc.type === 'bank' || !acc.type" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                  </svg>
+                  <svg *ngIf="acc.type === 'cash'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div class="flex flex-col text-left">
+                  <span class="text-sm font-bold text-slate-800">{{ acc.name }}</span>
+                  <span class="text-[10px] text-slate-400 leading-none">{{ t('accounts.types.' + acc.type) || acc.type }}</span>
+                </div>
+              </div>
+              <span class="text-slate-400 text-xs">{{ acc.currency }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Date / Time -->
+        <div class="space-y-1">
+          <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.dateLabel') || 'Date & Time' }}</label>
+          <div class="relative">
+            <input 
+              type="datetime-local" 
+              formControlName="date" 
+              [readonly]="isReadonly"
+              class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-brand-purple focus:border-brand-purple block px-4 py-3 font-mono transition-colors outline-none disabled:opacity-70"
+            />
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-1">
+          <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.descLabel') || 'Description' }}</label>
+          <input 
+            type="text" 
+            formControlName="description" 
+            [readonly]="isReadonly"
+            class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-brand-purple focus:border-brand-purple block px-4 py-3 font-mono transition-colors outline-none disabled:opacity-70 placeholder-slate-400"
+            [placeholder]="t('transactions.descPlaceholder') || 'What was this for?'"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Category Selector Dropdown -->
+          <div class="relative space-y-1" *ngIf="categories().length > 0">
+            <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.categoryLabel') || 'Category' }}</label>
+            <button 
+              type="button"
+              [disabled]="isReadonly"
+              (click)="toggleCategoryDropdown(); $event.stopPropagation()"
+              class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all outline-none disabled:opacity-70 disabled:cursor-not-allowed group"
+            >
+              <span class="truncate pr-2">{{ getSelectedCategoryName() }}</span>
+              <svg *ngIf="!isReadonly" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200" [class.rotate-180]="isCategoryDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div *ngIf="isCategoryDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
+              <button type="button" (click)="selectCategory(null)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">{{ t('transactions.uncategorized') || 'Uncategorized' }}</button>
+              <button type="button" *ngFor="let cat of categories()" (click)="selectCategory(cat.id)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors">{{ cat.name }}</button>
+            </div>
+          </div>
+
+          <!-- Project Selector Dropdown -->
+          <div class="relative space-y-1" *ngIf="projects().length > 0">
+            <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.projectLabel') || 'Project' }}</label>
+            <button 
+              type="button"
+              [disabled]="isReadonly"
+              (click)="toggleProjectDropdown(); $event.stopPropagation()"
+              class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all outline-none disabled:opacity-70 disabled:cursor-not-allowed group"
+            >
+              <span class="truncate pr-2">{{ getSelectedProjectName() }}</span>
+              <svg *ngIf="!isReadonly" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200" [class.rotate-180]="isProjectDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div *ngIf="isProjectDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
+              <button type="button" (click)="selectProject(null)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">{{ t('transactions.unprojected') || 'None' }}</button>
+              <button type="button" *ngFor="let proj of projects()" (click)="selectProject(proj.id)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors">{{ proj.name }}</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mt-2" *ngIf="!isReadonly">
+          <button 
+            *ngIf="isEditing"
+            type="button"
+            (click)="deleteTransaction()"
+            [disabled]="isSaving"
+            class="flex-1 h-12 border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-500 font-bold font-mono rounded-xl transition-all cursor-pointer outline-none disabled:opacity-50"
+          >
+            {{ t('common.delete') || 'Delete' }}
+          </button>
+          <button 
+            type="submit" 
+            [disabled]="transactionForm.invalid || isSaving"
+            class="flex-1 h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold font-mono rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:shadow-none cursor-pointer outline-none flex justify-center items-center gap-2"
+          >
+            <svg *ngIf="isSaving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span>{{ isSaving ? (t('common.loading') || 'Saving...') : (isEditing ? (t('common.save') || 'Save Changes') : (t('transactions.submitBtn') || 'Add Transaction')) }}</span>
+          </button>
+        </div>
+      </form>
+  </div>
+  
+  <!-- Click outside listener layer to close dropdowns -->
+  <div 
+    *ngIf="isAccountDropdownOpen || isCategoryDropdownOpen || isProjectDropdownOpen" 
+    class="fixed inset-0 z-40"
+    (click)="closeDropdowns()"
+  ></div></app-modal>
+
+

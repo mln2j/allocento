@@ -74,6 +74,7 @@ class TransactionController extends Controller
             'date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'category_id' => ['nullable', 'exists:categories,id'],
+            'project_id' => ['nullable', 'exists:projects,id'],
             'tags' => ['nullable', 'array'],
         ]);
 
@@ -116,6 +117,7 @@ class TransactionController extends Controller
             'date' => ['sometimes', 'required', 'date'],
             'description' => ['sometimes', 'nullable', 'string'],
             'category_id' => ['sometimes', 'nullable', 'exists:categories,id'],
+            'project_id' => ['sometimes', 'nullable', 'exists:projects,id'],
             'tags' => ['sometimes', 'nullable', 'array'],
         ]);
 
@@ -156,6 +158,7 @@ class TransactionController extends Controller
             'transactions.*.date' => ['required', 'date'],
             'transactions.*.description' => ['nullable', 'string'],
             'transactions.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'transactions.*.project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'transactions.*.tags' => ['nullable', 'array'],
         ]);
 
@@ -178,6 +181,7 @@ class TransactionController extends Controller
                     'date' => $tData['date'],
                     'description' => $tData['description'] ?? null,
                     'category_id' => $tData['category_id'] ?? null,
+                    'project_id'  => $tData['project_id'] ?? null,
                     'tags' => $tData['tags'] ?? null,
                 ];
 

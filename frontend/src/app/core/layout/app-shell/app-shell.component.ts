@@ -19,6 +19,7 @@ import { WorkspaceService } from '../../services/workspace.service';
 import { HeaderComponent } from '../header/header.component';
 import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
+import { TransactionModalService } from '../../../services/transaction-modal.service';
 
 @Component({
   selector: 'app-app-shell',
@@ -45,6 +46,7 @@ export class AppShellComponent implements OnInit {
   private inviteRepo = inject(InvitationRepository);
   private logger = inject(LoggerService);
   public workspaceService = inject(WorkspaceService);
+  public transactionModalService = inject(TransactionModalService);
 
   public loadingService = inject(LoadingService);
   public appInitializer = inject(AppInitializerService);
@@ -174,5 +176,10 @@ export class AppShellComponent implements OnInit {
     this.authService.logout();
     this.localDb.clearStore('user_profile');
     this.router.navigate(['/auth/login']);
+  }
+
+  get shouldShowFab(): boolean {
+    const url = this.router.url;
+    return url.startsWith('/dashboard') || url.startsWith('/transactions');
   }
 }

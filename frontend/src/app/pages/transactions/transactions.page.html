@@ -1,60 +1,59 @@
-<div class="w-full space-y-6">
-
-  <!-- Page Header -->
-  <div class="mb-6 pb-4 border-b border-slate-100">
+<div class="max-w-4xl mx-auto pb-32">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div>
+      <div class="flex items-center gap-3 mb-2">
+        <button *ngIf="!isMainNav" (click)="goBack()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+        </button>
+        <h1 class="text-3xl font-bold font-sans tracking-tight text-slate-900">{{ t('nav.transactions') }}</h1>
+      </div>
+      <p class="text-slate-500 font-sans text-sm">{{ t('transactions.subtitle') }}</p>
+    </div>
+    
     <div class="flex items-center gap-3">
       <button 
-        *ngIf="!isMainNav"
         type="button" 
-        (click)="goBack()" 
-        class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none flex-shrink-0"
-        [title]="t('common.back') || 'Back'"
+        (click)="openTxModal(null)"
+        class="bg-brand-purple hover:bg-brand-purple/90 text-white font-bold text-sm font-mono tracking-wider px-5 py-2.5 rounded-xl shadow-lg shadow-brand-purple/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border-none outline-none"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
+        {{ t('transactions.recordTitle') || 'Nova transakcija' }}
       </button>
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
-          {{ t('nav.transactions') }}
-        </h1>
-        <p class="text-slate-500 text-sm font-sans mt-1">
-          {{ t('pageSubtitles.transactions') || 'Pregled svih prihoda i rashoda' }}
-        </p>
-      </div>
     </div>
   </div>
 
-  <!-- Interactive Header (Search, Filters, and Actions) -->
-  <div class="sticky top-16 z-30 bg-slate-50/90 backdrop-blur-md py-4 space-y-4 mb-4">
-    
-    <div class="relative group">
-      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-purple transition-colors pointer-events-none">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z"/>
-        </svg>
-      </span>
+  <!-- Filters & Search -->
+  <div class="bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.02)] rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+    <!-- Search Bar -->
+    <div class="relative w-full md:w-96 group">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-purple transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
       <input 
         type="text" 
-        [(ngModel)]="searchQuery"
-        class="w-full bg-white border border-slate-200 rounded-xl h-11 pl-11 pr-4 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple shadow-sm transition-all" 
-        [placeholder]="t('transactions.searchPlaceholder')"
-      />
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="{{ t('transactions.searchPlaceholder') }}"
+        class="w-full bg-slate-50 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm font-sans focus:ring-2 focus:ring-brand-purple/20 focus:bg-white transition-all outline-none"
+      >
     </div>
 
-    <!-- Filter Chips -->
-    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+    <!-- Filter Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto scrollbar-hide">
       <button 
         (click)="setFilter('all')"
-        [ngClass]="activeFilter() === 'all' ? 'bg-brand-purple text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'"
-        class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold font-mono text-xs shadow-sm cursor-pointer outline-none transition-all"
+        [ngClass]="activeFilter() === 'all' ? 'bg-slate-800 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'"
+        class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold font-mono text-xs cursor-pointer outline-none transition-all"
       >
         {{ t('transactions.filterAll') }}
       </button>
       <button 
         (click)="setFilter('income')"
-        [ngClass]="activeFilter() === 'income' ? 'bg-green-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'"
-        class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold font-mono text-xs shadow-sm cursor-pointer outline-none transition-all"
+        [ngClass]="activeFilter() === 'income' ? 'bg-green-500 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'"
+        class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold font-mono text-xs cursor-pointer outline-none transition-all"
       >
         {{ t('transactions.filterIncoming') }}
       </button>
@@ -90,126 +89,61 @@
     <!-- Grouped Transactions List -->
     <ng-container *ngIf="!isLoading()">
       <div *ngFor="let group of getGroupedTransactions()" class="space-y-3">
-      <!-- Date Header -->
-      <h2 class="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider pl-1">
-        {{ group.dateHeader }}
-      </h2>
+        <!-- Date Header -->
+        <h2 class="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider pl-1">
+          {{ group.dateHeader }}
+        </h2>
 
-      <!-- Items inside Group -->
-      <div class="space-y-2">
-        <div 
-          *ngFor="let tx of group.items"
-          (click)="toggleTx(tx.id)"
-          class="bg-white border border-slate-200/60 rounded-xl p-4 shadow-[0_4px_15px_rgba(15,23,42,0.01)] hover:border-slate-300 transition-all cursor-pointer group"
-        >
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-4 min-w-0 flex-1">
-              <!-- Type Icon -->
-              <div 
-                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
-                [ngClass]="tx.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-500 group-hover:bg-brand-purple/10 group-hover:text-brand-purple'"
-              >
-                <svg *ngIf="tx.type === 'income'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                </svg>
-                <svg *ngIf="tx.type !== 'income'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
-                </svg>
+        <!-- Items inside Group -->
+        <div class="space-y-2">
+          <div 
+            *ngFor="let tx of group.items"
+            (click)="openTxModal(tx)"
+            class="bg-white border border-slate-200/60 rounded-xl p-4 shadow-[0_4px_15px_rgba(15,23,42,0.01)] hover:border-slate-300 transition-all cursor-pointer group"
+          >
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-4 min-w-0 flex-1">
+                <!-- Type Icon -->
+                <div 
+                  class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                  [ngClass]="tx.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-500 group-hover:bg-brand-purple/10 group-hover:text-brand-purple'"
+                >
+                  <svg *ngIf="tx.type === 'income'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                  </svg>
+                  <svg *ngIf="tx.type !== 'income'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+                  </svg>
+                </div>
+
+                <div class="min-w-0 flex-1 truncate">
+                  <p class="font-bold text-sm text-slate-900 leading-tight truncate">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</p>
+                  <p class="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider truncate">
+                    {{ tx.date | date:'HH:mm' }}
+                  </p>
+                </div>
               </div>
 
-              <div class="min-w-0 flex-1 truncate">
-                <p class="font-bold text-sm text-slate-900 leading-tight truncate">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</p>
-                <p class="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider truncate">
-                  {{ tx.date | date:'HH:mm' }}
+              <div class="text-right flex-shrink-0 pl-2">
+                <p class="font-mono text-sm" [ngClass]="tx.type === 'income' ? 'text-green-600 font-bold' : 'text-slate-900 font-medium'">
+                  {{ tx.type === 'income' ? '+' : '-' }}{{ formatAmount(tx.amount) }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
                 </p>
-              </div>
-            </div>
-
-            <div class="text-right flex-shrink-0 pl-2">
-              <p class="font-mono text-sm" [ngClass]="tx.type === 'income' ? 'text-green-600 font-bold' : 'text-slate-900 font-medium'">
-                {{ tx.type === 'income' ? '+' : '-' }}{{ formatAmount(tx.amount) }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
-              </p>
-              <div class="flex items-center justify-end gap-1 mt-1 flex-wrap">
-                <span *ngIf="isFuture(tx)" class="px-2 py-0.5 rounded bg-blue-50 text-[9px] font-bold font-mono text-blue-600 uppercase tracking-wider">
-                  {{ t('transactions.statusFuture') }}
-                </span>
-                <span *ngIf="tx.category" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
-                  {{ tx.category.name }}
-                </span>
-                <span *ngIf="tx.project" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
-                  {{ tx.project.name }}
-                </span>
+                <div class="flex items-center justify-end gap-1 mt-1 flex-wrap">
+                  <span *ngIf="isFuture(tx)" class="px-2 py-0.5 rounded bg-blue-50 text-[9px] font-bold font-mono text-blue-600 uppercase tracking-wider">
+                    {{ t('transactions.statusFuture') }}
+                  </span>
+                  <span *ngIf="tx.category" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
+                    {{ tx.category.name }}
+                  </span>
+                  <span *ngIf="tx.project" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
+                    {{ tx.project.name }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-
-          <!-- Expandable Detail Panel -->
-          <div *ngIf="expandedTxId() === tx.id" class="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3 text-xs animate-in fade-in duration-200">
-            <p class="font-sans text-slate-600">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDetails') || 'No details provided.') }}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 rounded-2xl p-4 border border-slate-100/50">
-              
-              <!-- Source / Project -->
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-white shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center text-brand-purple/70 flex-shrink-0 border border-slate-100">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-                  </svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-0.5">{{ activeWorkspace()?.type === 'company' ? (t('transactions.projectLabel') || 'Projekt') : (t('transactions.accountSource') || 'Izvor računa') }}</p>
-                  <p class="font-sans font-medium text-slate-700 text-xs truncate">{{ tx.account?.name || t('accounts.localWallet') || 'Lokalni novčanik' }}</p>
-                </div>
-              </div>
-
-              <!-- User -->
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-white shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center text-blue-500/70 flex-shrink-0 border border-slate-100">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                  </svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-0.5">{{ t('transactions.userLabel') || 'Korisnik' }}</p>
-                  <p class="font-sans font-medium text-slate-700 text-xs truncate">{{ (tx.user?.id === currentUserId || !tx.user) ? (t('common.me') || 'Ja') : tx.user.name }}</p>
-                </div>
-              </div>
-
-              <!-- Status -->
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-white shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center text-green-500/70 flex-shrink-0 border border-slate-100">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-0.5">{{ t('transactions.statusLabel') || 'Status' }}</p>
-                  <p class="font-sans font-medium text-slate-700 text-xs truncate">{{ getTransactionStatus(tx) }}</p>
-                </div>
-              </div>
-
-            </div>
-            <!-- Actions -->
-            <div class="flex justify-end gap-2 mt-1" *ngIf="isOnline() && tx.id > 0">
-              <button 
-                type="button" 
-                (click)="openEditModal(tx, $event)"
-                class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold font-mono rounded-lg transition-colors cursor-pointer border-none outline-none"
-              >
-                {{ t('common.save') === 'Spremi' ? 'Uredi' : 'Edit' }}
-              </button>
-              <button 
-                type="button" 
-                (click)="deleteTransaction(tx, $event)"
-                class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold font-mono rounded-lg transition-colors cursor-pointer border-none outline-none"
-              >
-                {{ t('common.delete') }}
-              </button>
-            </div>
-          </div>
-
         </div>
       </div>
-    </div>
     </ng-container>
 
     <!-- Empty State -->
@@ -217,213 +151,5 @@
       <p class="text-xs font-mono text-slate-400">{{ t('transactions.empty') }}</p>
     </div>
   </div>
-
-  <!-- Add/Edit Transaction Modal (Reusable app-modal Component) -->
-  <app-modal
-    [isOpen]="isModalOpen"
-    [title]="editingTxId ? t('transactions.editTitle') : t('transactions.recordTitle')"
-    (close)="closeModal()"
-    icon="🚀"
-  >
-    <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="space-y-4">
-      
-      <!-- Account Selector Dropdown -->
-      <div class="relative space-y-1">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.accountSource') }}</label>
-        
-        <button 
-          type="button"
-          (click)="toggleAccountDropdown(); $event.stopPropagation()"
-          class="w-full flex items-center justify-between px-3 h-11 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all cursor-pointer outline-none shadow-xs"
-        >
-          <span>
-            {{ getSelectedAccountName() }}
-          </span>
-          <svg 
-            class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
-            [class.rotate-180]="isAccountDropdownOpen"
-            fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <div 
-          *ngIf="isAccountDropdownOpen"
-          class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100"
-        >
-          <button 
-            type="button" 
-            *ngFor="let acc of accounts()"
-            (click)="selectAccount(acc.id)" 
-            class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ acc.name }} - {{ t('accounts.types.' + acc.type) || acc.type }} ({{ acc.currency }})
-          </button>
-        </div>
-      </div>
-
-      <!-- Category Selector Dropdown -->
-      <div class="relative space-y-1" *ngIf="activeWorkspace()?.enabled_features?.includes('categories') && categories().length > 0">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.categoryLabel') }}</label>
-        
-        <button 
-          type="button"
-          (click)="toggleCategoryDropdown(); $event.stopPropagation()"
-          class="w-full flex items-center justify-between px-3 h-11 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all cursor-pointer outline-none shadow-xs"
-        >
-          <span>{{ getSelectedCategoryName() }}</span>
-          <svg 
-            class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
-            [class.rotate-180]="isCategoryDropdownOpen"
-            fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <div 
-          *ngIf="isCategoryDropdownOpen"
-          class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100"
-        >
-          <!-- Uncategorized Option -->
-          <button 
-            type="button" 
-            (click)="selectCategory(null)" 
-            class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ t('transactions.uncategorized') }}
-          </button>
-          
-          <button 
-            type="button" 
-            *ngFor="let cat of categories()"
-            (click)="selectCategory(cat.id)" 
-            class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Project Selector Dropdown (Conditional) -->
-      <div class="relative space-y-1" *ngIf="activeWorkspace()?.enabled_features?.includes('projects') && projects().length > 0">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.projectLabel') || 'Projekt' }}</label>
-        
-        <button 
-          type="button"
-          (click)="toggleProjectDropdown(); $event.stopPropagation()"
-          class="w-full flex items-center justify-between px-3 h-11 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all cursor-pointer outline-none shadow-xs"
-        >
-          <span>{{ getSelectedProjectName() }}</span>
-          <svg 
-            class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
-            [class.rotate-180]="isProjectDropdownOpen"
-            fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <div 
-          *ngIf="isProjectDropdownOpen"
-          class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100"
-        >
-          <button 
-            type="button" 
-            (click)="selectProject(null)" 
-            class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ t('transactions.unprojected') || 'None' }}
-          </button>
-          
-          <button 
-            type="button" 
-            *ngFor="let proj of projects()"
-            (click)="selectProject(proj.id)" 
-            class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ proj.name }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Transaction Type (Income/Expense Pills) -->
-      <div class="space-y-1">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.typeLabel') }}</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button 
-            type="button"
-            (click)="setTxType('expense')"
-            [ngClass]="transactionForm.get('type')?.value === 'expense' ? 'bg-brand-purple text-white shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'"
-            class="h-10 font-bold font-mono text-xs rounded-xl cursor-pointer transition-all outline-none"
-          >
-            {{ t('transactions.expenseBtn') }}
-          </button>
-          <button 
-            type="button"
-            (click)="setTxType('income')"
-            [ngClass]="transactionForm.get('type')?.value === 'income' ? 'bg-green-600 text-white shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'"
-            class="h-10 font-bold font-mono text-xs rounded-xl cursor-pointer transition-all outline-none"
-          >
-            {{ t('transactions.incomeBtn') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Amount -->
-      <div class="space-y-1">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.amountLabel') || 'Iznos' }}</label>
-        <input 
-          type="number" 
-          formControlName="amount" 
-          class="input-field font-mono text-sm"
-          [placeholder]="t('transactions.amountPlaceholder') || 'e.g. 15.00'"
-          step="0.01"
-        />
-      </div>
-
-      <!-- Date / Time -->
-      <div class="space-y-1">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.dateLabel') }}</label>
-        <input 
-          type="datetime-local" 
-          formControlName="date" 
-          class="input-field font-mono text-sm"
-        />
-      </div>
-
-      <!-- Description -->
-      <div class="space-y-1">
-        <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.descLabel') }}</label>
-        <input 
-          type="text" 
-          formControlName="description" 
-          class="input-field font-mono text-sm"
-          [placeholder]="t('transactions.descPlaceholder') || 'e.g. Coffee shop'"
-        />
-      </div>
-
-      <!-- Submit Button -->
-      <button 
-        type="submit" 
-        [disabled]="transactionForm.invalid || isSaving"
-        class="w-full h-11 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer outline-none mt-6"
-      >
-        {{ isSaving ? t('common.loading') : (editingTxId ? t('common.save') : t('transactions.submitBtn')) }}
-      </button>
-    </form>
-  </app-modal>
-
-  <!-- Floating Action Button (FAB) for Recording Transaction -->
-  <button 
-    (click)="openCreateModal()"
-    class="fixed bottom-6 sm:bottom-10 right-6 xl:right-[calc((100vw-80rem)/2+1.5rem)] z-40 bg-brand-purple hover:bg-[#4a1772] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(98,30,149,0.3)] hover:shadow-[0_8px_30px_rgba(98,30,149,0.5)] active:scale-95 transition-all duration-200 group cursor-pointer outline-none border-none"
-    [title]="t('transactions.recordTitle')"
-  >
-    <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-    </svg>
-  </button>
-
 </div>
+
