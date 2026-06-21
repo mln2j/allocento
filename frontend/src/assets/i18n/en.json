@@ -214,8 +214,10 @@
   "workspaces": {
     "roles": {
       "member": "Member",
+      "manager": "Manager",
       "owner": "Owner"
     },
+    "role": "Role",
     "setActive": "Set Active",
     "setActiveSuccess": "Workspace set as active successfully.",
     "active": "Active",
@@ -255,6 +257,14 @@
     "offlineNotice": "Offline: Space updates disabled.",
     "offlineInviteNotice": "Online connection required to invite members.",
     "inviteNew": "Invite New Member",
+    "inviteNewBtn": "Invite Member",
+    "activeInvitations": "Active Invitations",
+    "invitedBy": "Invited by:",
+    "revokeInvitation": "Cancel Invitation",
+    "revokeInvitationTitle": "Cancel Invitation",
+    "revokeInvitationConfirm": "Are you sure you want to cancel this invitation?",
+    "revokeSuccess": "Invitation cancelled successfully!",
+    "revokeFailed": "Failed to cancel invitation.",
     "iconLabel": "Icon",
     "inviteSuccess": "Invitation sent successfully!",
     "inviteFailed": "Failed to send invitation.",

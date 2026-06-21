@@ -99,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('workspaces/{id}/accounts/{accountId}/share', [WorkspaceController::class, 'shareAccount']);
         Route::delete('workspaces/{id}/accounts/{accountId}/share', [WorkspaceController::class, 'unshareAccount']);
 
+        Route::put('workspaces/{id}/members/{userId}', [WorkspaceController::class, 'updateMemberRole']);
         Route::delete('workspaces/{id}/members/{userId}', [WorkspaceController::class, 'removeMember']);
         Route::post('workspaces/{id}/leave', [WorkspaceController::class, 'leave']);
 
@@ -194,7 +195,9 @@ Route::middleware('auth:sanctum')->group(function () {
         |
         */
 
+        Route::get('workspaces/{workspace}/invitations', [InvitationController::class, 'index']);
         Route::post('workspaces/{workspace}/invitations', [InvitationController::class, 'invite']);
+        Route::delete('workspaces/{workspace}/invitations/{invitation}', [InvitationController::class, 'destroy']);
     });
 
     Route::get('invitations/pending', [InvitationController::class, 'pending']);

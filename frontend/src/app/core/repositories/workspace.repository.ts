@@ -58,6 +58,10 @@ export class WorkspaceRepository {
     return this.http.delete(`${API_BASE_URL}/workspaces/${wsId}/members/${userId}`);
   }
 
+  updateMemberRole(wsId: string | number, userId: number, role: string): Observable<any> {
+    return this.http.put(`${API_BASE_URL}/workspaces/${wsId}/members/${userId}`, { role });
+  }
+
   getWorkspaceDetails(id: string | number): Observable<Workspace> {
     return this.http.get<Workspace>(`${API_BASE_URL}/workspaces/${id}`);
   }
@@ -74,11 +78,19 @@ export class WorkspaceRepository {
     return this.http.delete(`${API_BASE_URL}/workspaces/${id}`);
   }
 
-  inviteMember(wsId: string | number, email: string): Observable<any> {
+  inviteMember(wsId: string | number, email: string, role: string = 'member'): Observable<any> {
     return this.http.post(
       `${API_BASE_URL}/workspaces/${wsId}/invitations`,
-      { email }
+      { email, role }
     );
+  }
+
+  getPendingInvitations(wsId: string | number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_BASE_URL}/workspaces/${wsId}/invitations`);
+  }
+
+  deleteInvitation(wsId: string | number, invitationId: number): Observable<any> {
+    return this.http.delete(`${API_BASE_URL}/workspaces/${wsId}/invitations/${invitationId}`);
   }
 
   leaveWorkspace(wsId: string | number): Observable<any> {

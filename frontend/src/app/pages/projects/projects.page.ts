@@ -8,10 +8,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 
+import { SelectComponent } from '../../shared/select/select.component';
+
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, SelectComponent],
   templateUrl: './projects.page.html'
 })
 export class ProjectsPage implements OnInit {
@@ -39,6 +41,14 @@ export class ProjectsPage implements OnInit {
   projectForm!: FormGroup;
   editingProject: Project | null = null;
   isSaving = false;
+
+  get statusOptions() {
+    return [
+      { value: 'active', label: this.t('projects.statuses.active') || 'Active' },
+      { value: 'completed', label: this.t('projects.statuses.completed') || 'Completed' },
+      { value: 'on_hold', label: this.t('projects.statuses.on_hold') || 'On Hold' }
+    ];
+  }
 
   ngOnInit() {
     this.initForm();

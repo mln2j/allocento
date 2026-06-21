@@ -10,11 +10,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-workspaces',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, SelectComponent, RouterModule],
   templateUrl: './workspaces.page.html',
 })
 export class WorkspacesPage implements OnInit, OnDestroy {
@@ -42,7 +43,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   isModalOpen = false;
   isSaving = false;
-  isTypeDropdownOpen = false;
   isOnline = signal<boolean>(true);
   isLoading = signal<boolean>(false);
 
@@ -50,6 +50,29 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   isLoadingDetails = false;
 
   inviteEmail = '';
+
+  pendingInvitations = signal<any[]>([]);
+  isInviteModalOpen = false;
+  inviteRole = 'member';
+
+  isMemberModalOpen = false;
+  selectedMember: any = null;
+  selectedMemberRole = 'member';
+
+  get typeOptions() {
+    return [
+      { value: 'personal', label: this.t('workspaces.types.personal') || 'Personal' },
+      { value: 'household', label: this.t('workspaces.types.household') || 'Household' },
+      { value: 'company', label: this.t('workspaces.types.company') || 'Company' }
+    ];
+  }
+
+  get roleOptions() {
+    return [
+      { value: 'member', label: this.t('workspaces.roles.member') || 'Član' },
+      { value: 'manager', label: this.t('workspaces.roles.manager') || 'Menadžer' }
+    ];
+  }
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
@@ -128,6 +151,18 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
+  loadPendingInvitations(wsId: string | number) {
+    if (!this.isOnline()) return;
+    this.workspaceRepo.getPendingInvitations(wsId).subscribe({
+      next: (invites) => {
+        this.pendingInvitations.set(invites);
+      },
+      error: () => {
+        this.pendingInvitations.set([]);
+      }
+    });
+  }
+
   viewDetails(workspace: Workspace) {
     const id = workspace.workspace_id || workspace.id;
     // Set shallow info immediately to transition view instantly
@@ -138,6 +173,11 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       next: (fullWorkspace) => {
         this.selectedWorkspace.set(fullWorkspace);
         this.isLoadingDetails = false;
+        if (fullWorkspace.pivot?.role === 'owner' || fullWorkspace.pivot?.role === 'manager') {
+           this.loadPendingInvitations(id);
+        } else {
+           this.pendingInvitations.set([]);
+        }
       },
       error: () => {
         this.isLoadingDetails = false;
@@ -146,19 +186,11 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
-  toggleTypeDropdown() {
-    this.isTypeDropdownOpen = !this.isTypeDropdownOpen;
-  }
-
-  selectType(type: string) {
-    this.workspaceForm.get('type')?.setValue(type);
-    this.isTypeDropdownOpen = false;
-  }
-
   closeDetails() {
     this.selectedWorkspace.set(null);
     this.loadWorkspaces();
   }
+
 
   removeMember(userId: number) {
     if (!this.isOnline()) {
@@ -190,6 +222,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
             updated.users = updated.users.filter(u => u.id !== userId);
           }
           this.selectedWorkspace.set(updated);
+          this.closeMemberModal();
         },
         error: (err) => {
           this.loadingService.hide();
@@ -214,6 +247,64 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  openInviteModal() {
+    if (!this.isOnline()) {
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      return;
+    }
+    this.inviteEmail = '';
+    this.inviteRole = 'member';
+    this.isInviteModalOpen = true;
+  }
+
+  closeInviteModal() {
+    this.isInviteModalOpen = false;
+  }
+
+  openMemberModal(member: any) {
+    if (!this.isOnline()) {
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      return;
+    }
+    this.selectedMember = member;
+    this.selectedMemberRole = member.pivot?.role || 'member';
+    this.isMemberModalOpen = true;
+  }
+
+  closeMemberModal() {
+    this.isMemberModalOpen = false;
+    this.selectedMember = null;
+  }
+
+  updateMemberRole() {
+    if (!this.isOnline() || !this.selectedMember) return;
+    
+    const currentWS = this.selectedWorkspace();
+    if (!currentWS) return;
+
+    const wsId = currentWS.workspace_id || currentWS.id;
+    const userId = this.selectedMember.id;
+    
+    if (this.selectedMember.pivot?.role === this.selectedMemberRole) {
+       this.closeMemberModal();
+       return;
+    }
+
+    this.loadingService.show();
+    this.workspaceRepo.updateMemberRole(wsId, userId, this.selectedMemberRole).subscribe({
+      next: () => {
+         this.loadingService.hide();
+         this.toastService.success(this.t('workspaces.roleUpdateSuccess') || 'Role updated successfully!');
+         this.closeMemberModal();
+         this.viewDetails(currentWS);
+      },
+      error: (err) => {
+         this.loadingService.hide();
+         this.toastService.error(err.error?.message || 'Failed to update role.');
+      }
+    });
   }
 
   deleteWorkspace() {
@@ -296,17 +387,51 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     const wsId = currentWS.workspace_id || currentWS.id;
     this.loadingService.show();
 
-    this.workspaceRepo.inviteMember(wsId, this.inviteEmail).subscribe({
+    this.workspaceRepo.inviteMember(wsId, this.inviteEmail, this.inviteRole).subscribe({
       next: () => {
         this.loadingService.hide();
         this.toastService.success(this.t('workspaces.inviteSuccess') || 'Invitation sent successfully!');
-        this.inviteEmail = '';
-        this.viewDetails(currentWS);
+        this.closeInviteModal();
+        this.loadPendingInvitations(wsId);
       },
       error: (err) => {
         this.loadingService.hide();
         this.toastService.error(err.error?.message || this.t('workspaces.inviteFailed') || 'Failed to send invitation.');
       }
+    });
+  }
+
+  revokeInvitation(invitationId: number) {
+    if (!this.isOnline()) {
+      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      return;
+    }
+
+    this.dialogService.confirm(
+      this.t('workspaces.revokeInvitationTitle') || 'Cancel Invitation',
+      this.t('workspaces.revokeInvitationConfirm') || 'Are you sure you want to cancel this invitation?',
+      this.t('common.accept') || 'Cancel',
+      this.t('common.cancel') || 'Close'
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
+
+      const currentWS = this.selectedWorkspace();
+      if (!currentWS) return;
+
+      const wsId = currentWS.workspace_id || currentWS.id;
+      this.loadingService.show();
+
+      this.workspaceRepo.deleteInvitation(wsId, invitationId).subscribe({
+        next: () => {
+          this.loadingService.hide();
+          this.toastService.success(this.t('workspaces.revokeSuccess') || 'Invitation cancelled successfully!');
+          this.loadPendingInvitations(wsId);
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          this.toastService.error(err.error?.message || this.t('workspaces.revokeFailed') || 'Failed to cancel invitation.');
+        }
+      });
     });
   }
 

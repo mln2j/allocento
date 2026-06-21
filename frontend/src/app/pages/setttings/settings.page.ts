@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, HostListener, signal } from '@angular/core';
+import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { forkJoin, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { User } from '../../core/models/user.model';
@@ -17,11 +17,12 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { API_BASE_URL } from '../../core/api.config';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, SelectComponent],
   templateUrl: './settings.page.html',
 })
 export class SettingsPage implements OnInit {
@@ -46,7 +47,10 @@ export class SettingsPage implements OnInit {
   isSaving = false;
 
   currentLang = 'en';
-  isLangDropdownOpen = false;
+  langOptions = [
+    { value: 'hr', label: 'Hrvatski' },
+    { value: 'en', label: 'English' }
+  ];
   isOnline = signal<boolean>(true);
 
   selectedFile: File | null = null;
@@ -141,17 +145,8 @@ export class SettingsPage implements OnInit {
     });
   }
 
-  toggleLangDropdown() {
-    this.isLangDropdownOpen = !this.isLangDropdownOpen;
-  }
-
-  closeLangDropdown() {
-    this.isLangDropdownOpen = false;
-  }
-
   setLang(lang: 'hr' | 'en') {
     this.currentLang = lang;
-    this.closeLangDropdown();
     if (typeof this.translationService.setLanguage === 'function') {
       this.translationService.setLanguage(lang);
     }
@@ -166,16 +161,6 @@ export class SettingsPage implements OnInit {
           console.error('Failed to sync language', err);
         }
       });
-    }
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.isLangDropdownOpen) return;
-
-    const target = event.target as HTMLElement;
-    if (target && !target.closest('.relative.font-mono.text-xs')) {
-      this.closeLangDropdown();
     }
   }
 

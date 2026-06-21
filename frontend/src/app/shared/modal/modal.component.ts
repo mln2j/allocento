@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -95,7 +95,7 @@ import { CommonModule } from '@angular/common';
     </ng-container>
   `
 })
-export class ModalComponent implements OnChanges {
+export class ModalComponent implements OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Input() title = '';
   @Input() icon = '';
@@ -113,6 +113,7 @@ export class ModalComponent implements OnChanges {
     if (!changes['isOpen']) return;
 
     if (this.isOpen) {
+      document.body.style.overflow = 'hidden';
       // Mount element first
       if (this.closeTimer) {
         clearTimeout(this.closeTimer);
@@ -126,6 +127,7 @@ export class ModalComponent implements OnChanges {
         });
       });
     } else {
+      document.body.style.overflow = '';
       // Trigger leave transition
       this.isVisible = false;
       // Unmount after animation completes
@@ -133,6 +135,15 @@ export class ModalComponent implements OnChanges {
         this.isRendered = false;
         this.closeTimer = null;
       }, 380);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.isOpen) {
+      document.body.style.overflow = '';
+    }
+    if (this.closeTimer) {
+      clearTimeout(this.closeTimer);
     }
   }
 

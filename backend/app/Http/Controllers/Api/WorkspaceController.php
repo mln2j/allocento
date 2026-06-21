@@ -186,6 +186,36 @@ class WorkspaceController extends Controller
         return response()->json(['message' => 'Member removed successfully.']);
     }
 
+    public function updateMemberRole(Request $request, $id, $userId): JsonResponse
+    {
+        $workspace = $request->user()->workspaces()->where('workspaces.id', $id)->first();
+        if (!$workspace) {
+            return response()->json(['error' => 'Workspace not found or access denied.'], 404);
+        }
+
+        // Only owner can change roles, or maybe manager can change member roles? Let's restrict to owner.
+        if ($workspace->pivot->role !== 'owner') {
+            return response()->json(['error' => 'Only the owner can change member roles.'], 403);
+        }
+
+        $targetUser = $workspace->users()->where('users.id', $userId)->first();
+        if (!$targetUser) {
+            return response()->json(['error' => 'Member not found in this workspace.'], 404);
+        }
+
+        if ($targetUser->pivot->role === 'owner') {
+            return response()->json(['error' => 'Cannot change the role of the owner.'], 400);
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'in:member,manager']
+        ]);
+
+        $workspace->users()->updateExistingPivot($userId, ['role' => $validated['role']]);
+
+        return response()->json(['message' => 'Member role updated successfully.']);
+    }
+
     public function leave(Request $request, $id): JsonResponse
     {
         $user = $request->user();

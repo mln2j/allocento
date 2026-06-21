@@ -72,6 +72,11 @@ class InvitationController extends Controller
             'expires_at' => now()->addDays(7),
         ]);
 
+        $invitedUser = \App\Models\User::where('email', $validated['email'])->first();
+        if ($invitedUser) {
+            $invitedUser->notify(new \App\Notifications\WorkspaceInvitationReceived($workspace->name));
+        }
+
         return response()->json([
             'message' => 'Invitation created successfully.',
             'invitation' => $invitation,
@@ -159,6 +164,70 @@ class InvitationController extends Controller
         return response()->json([
             'message' => "Successfully joined '{$workspace->name}'.",
             'workspace' => $workspace
+        ]);
+    }
+
+    /**
+     * Get pending invitations for a specific workspace (Owner/Manager only)
+     */
+    public function index(Request $request, Workspace $workspace): JsonResponse
+    {
+        $user = $request->user();
+
+        $memberRole = $workspace->users()
+            ->where('users.id', $user->id)
+            ->first()
+            ?->pivot
+            ->role;
+
+        if (!in_array($memberRole, ['owner', 'manager'])) {
+            return response()->json([
+                'message' => 'Unauthorized to view invitations for this workspace.'
+            ], 403);
+        }
+
+        $invitations = Invitation::with('inviter')
+            ->where('workspace_id', $workspace->id)
+            ->whereNull('accepted_at')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->latest()
+            ->get();
+
+        return response()->json($invitations);
+    }
+
+    /**
+     * Delete/Revoke an active invitation for a workspace (Owner/Manager only)
+     */
+    public function destroy(Request $request, Workspace $workspace, Invitation $invitation): JsonResponse
+    {
+        $user = $request->user();
+
+        $memberRole = $workspace->users()
+            ->where('users.id', $user->id)
+            ->first()
+            ?->pivot
+            ->role;
+
+        if (!in_array($memberRole, ['owner', 'manager'])) {
+            return response()->json([
+                'message' => 'Unauthorized to manage invitations for this workspace.'
+            ], 403);
+        }
+
+        if ($invitation->workspace_id !== $workspace->id) {
+            return response()->json([
+                'message' => 'Invitation not found in this workspace.'
+            ], 404);
+        }
+
+        $invitation->delete();
+
+        return response()->json([
+            'message' => 'Invitation revoked successfully.'
         ]);
     }
 }

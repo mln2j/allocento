@@ -69,28 +69,15 @@
             <div class="text-xs text-slate-400 font-sans">{{ t('settings.langDesc') }}</div>
           </div>
 
-          <div class="relative font-mono text-xs">
-            <button type="button" (click)="toggleLangDropdown(); $event.stopPropagation()"
-                    class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl font-bold text-slate-700 transition-all cursor-pointer outline-none select-none shadow-xs">
-              <span>{{ currentLang === 'hr' ? 'Hrvatski' : 'English' }}</span>
-              <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" [class.rotate-180]="isLangDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-
-            <div *ngIf="isLangDropdownOpen"
-                 class="absolute right-0 top-full mt-1 w-32 bg-white border border-slate-100 rounded-xl shadow-xl py-1 z-30 animate-in fade-in slide-in-from-top-1 duration-150">
-              <button type="button" (click)="setLang('hr')"
-                      class="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors font-bold text-slate-700 cursor-pointer outline-none"
-                      [class.text-brand-purple]="currentLang === 'hr'">
-                Hrvatski
-              </button>
-              <button type="button" (click)="setLang('en')"
-                      class="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors font-bold text-slate-700 cursor-pointer outline-none"
-                      [class.text-brand-purple]="currentLang === 'en'">
-                English
-              </button>
-            </div>
+          <div class="w-32">
+            <app-select
+              [options]="langOptions"
+              [ngModel]="currentLang"
+              (ngModelChange)="setLang($event)"
+              buttonClass="h-9 py-1.5 px-3 text-xs font-bold"
+              dropdownClass="w-full text-xs right-0"
+              containerClass=""
+            ></app-select>
           </div>
         </div>
         <!-- Navigation Preferences -->

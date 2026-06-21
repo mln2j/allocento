@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -13,11 +13,12 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
 import { firstValueFrom } from 'rxjs';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule, SelectComponent],
   templateUrl: './accounts.page.html',
 })
 export class AccountsPage implements OnInit {
@@ -35,7 +36,7 @@ export class AccountsPage implements OnInit {
   accounts = signal<Account[]>([]);
   isOnline = signal<boolean>(true);
   totalLiquidBalance = signal<number>(0);
-  activeWorkspace = this.workspaceService.activeWorkspace;
+  activeWorkspace = computed(() => this.workspaceService.activeWorkspace());
   isLoading = signal<boolean>(false);
 
   // Sharing workspaces checklist
@@ -50,6 +51,13 @@ export class AccountsPage implements OnInit {
   accountForm!: FormGroup;
   editingAccountId: number | null = null;
   canManageAccount = true;
+
+  get typeOptions() {
+    return [
+      { value: 'bank', label: this.t('accounts.types.bank') || 'Bank' },
+      { value: 'cash', label: this.t('accounts.types.cash') || 'Cash' }
+    ];
+  }
 
   get isMainNav(): boolean {
     try {
