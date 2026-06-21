@@ -1,4 +1,4 @@
-<div class="w-full space-y-6" *ngIf="user()">
+﻿<div class="w-full space-y-6" *ngIf="user()">
 
   <!-- Page Header -->
   <div class="mb-6 pb-4 border-b border-slate-100">
@@ -84,18 +84,30 @@
         <div class="flex items-start justify-between py-1 gap-1 relative mt-2 pt-4 border-t border-slate-100 flex-col">
           <div class="space-y-0.5 mb-2">
             <div class="text-sm font-bold text-slate-700 font-mono">{{ t('settings.navPrefsLabel') || 'Mobilna Navigacija' }}</div>
-            <div class="text-xs text-slate-400 font-sans">{{ t('settings.navPrefsDesc') || 'Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 2). Dashboard i Meni su uvijek prikazani.' }}</div>
+            <div class="text-xs text-slate-400 font-sans">{{ t('settings.navPrefsDesc') || 'Odaberite opcije koje Ã…Â¾elite vidjeti u donjoj navigaciji (Max 2). Dashboard i Meni su uvijek prikazani.' }}</div>
           </div>
-          <div class="grid grid-cols-2 gap-y-3 gap-x-6 font-mono text-xs w-full mb-2">
-            <label *ngFor="let option of availableNavOptions" class="flex items-center gap-2 cursor-pointer select-none">
-              <input type="checkbox"
-                     [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2"
-                     [checked]="selectedNavPrefs.includes(option.id)"
-                     (change)="toggleNavPref(option.id, $event)"
-                     class="w-4 h-4 text-brand-purple rounded border-slate-300 focus:ring-brand-purple focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="text-slate-700 font-bold" [class.opacity-50]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2">{{ t(option.translationKey) }}</span>
-            </label>
-          </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs w-full mb-2">
+              <button 
+                *ngFor="let option of availableNavOptions"
+                type="button"
+                [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2"
+                (click)="toggleNavPrefBtn(option.id)"
+                [ngClass]="selectedNavPrefs.includes(option.id) ? 'border-brand-purple bg-brand-purple/5' : 'border-slate-200 bg-white hover:border-slate-300'"
+                class="flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer outline-none w-full group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span class="font-bold transition-colors" [ngClass]="selectedNavPrefs.includes(option.id) ? 'text-brand-purple' : 'text-slate-700'">
+                  {{ t(option.translationKey) }}
+                </span>
+                
+                <div 
+                  class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300"
+                  [ngClass]="selectedNavPrefs.includes(option.id) ? 'bg-brand-purple text-white scale-100' : 'bg-slate-100 text-slate-300 scale-90'"
+                >
+                  <svg *ngIf="selectedNavPrefs.includes(option.id)" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <svg *ngIf="!selectedNavPrefs.includes(option.id)" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                </div>
+              </button>
+            </div>
           <div class="w-full flex justify-end">
             <button type="button" *ngIf="hasNavChanges" (click)="saveNavPrefs()" class="px-4 py-2 bg-brand-purple text-white font-bold font-mono text-[10px] rounded-xl cursor-pointer shadow-sm disabled:opacity-50">
               {{ isSaving ? t('profile.saving') : t('profile.save') }}
@@ -261,3 +273,5 @@
   </form>
 
 </div>
+
+

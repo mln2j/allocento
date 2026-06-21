@@ -19,7 +19,7 @@
           {{ t('nav.projects') || 'Projekti' }}
         </h1>
         <p class="text-slate-500 text-sm font-sans mt-1">
-          {{ t('pageSubtitles.projects') || 'Upravljanje projektima i praÄ‡enje troÅ¡kova' }}
+          {{ t('pageSubtitles.projects') || 'Upravljanje projektima i praÃ„â€¡enje troÃ…Â¡kova' }}
         </p>
       </div>
     </div>
@@ -38,38 +38,38 @@
         <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <h3 class="text-sm font-bold text-slate-800 font-mono mb-1">{{ t('projects.emptyTitle') || 'Nema projekata' }}</h3>
-      <p class="text-xs text-slate-500 font-sans mb-6">{{ t('projects.emptyDesc') || 'Kreirajte svoj prvi projekt za praÄ‡enje troÅ¡kova' }}</p>
+      <p class="text-xs text-slate-500 font-sans mb-6">{{ t('projects.emptyDesc') || 'Kreirajte svoj prvi projekt za praÃ„â€¡enje troÃ…Â¡kova' }}</p>
       <button (click)="openCreateModal()" class="text-brand-purple font-bold text-xs font-mono hover:underline outline-none">
         {{ t('projects.createFirst') || 'Kreiraj projekt' }}
       </button>
     </div>
 
     <div *ngIf="projects().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div *ngFor="let p of projects()" class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm relative group transition-all hover:border-brand-purple/30">
-        <div class="flex items-start justify-between mb-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-inner" [style.backgroundColor]="p.color + '20'">
-              <div class="w-4 h-4 rounded-full" [style.backgroundColor]="p.color"></div>
+      <div *ngFor="let p of projects()" (click)="goToProject(p)" class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm relative group transition-all hover:border-brand-purple/30 cursor-pointer">
+        <div class="flex flex-col justify-between h-full">
+          <div>
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div>
+                  <h3 class="font-bold text-slate-900 font-mono text-sm">{{ p.name }}</h3>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 class="font-bold text-slate-900 font-mono text-sm">{{ p.name }}</h3>
-              <span class="text-[10px] font-mono font-bold uppercase" [ngClass]="p.status === 'active' ? 'text-emerald-500' : 'text-slate-400'">
-                {{ p.status }}
-              </span>
-            </div>
+            <p *ngIf="p.description" class="text-xs text-slate-500 font-sans line-clamp-2 mb-4">
+              {{ p.description }}
+            </p>
           </div>
-          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button (click)="openEditModal(p)" class="p-2 text-slate-400 hover:text-brand-purple transition-colors outline-none cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.112l-2.83.942.942-2.83a4.5 4.5 0 011.112-1.89l12.696-12.696z"/></svg>
-            </button>
-            <button (click)="deleteProject(p)" class="p-2 text-slate-400 hover:text-red-500 transition-colors outline-none cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-            </button>
+          <div class="flex items-center justify-end mt-auto pt-2 border-t border-slate-100">
+            <div *ngIf="p.total !== undefined && ((p.total_income || 0) > 0 || (p.total_expense || 0) > 0)" 
+                 class="flex items-center gap-1"
+                 [ngClass]="p.total > 0 ? 'text-green-600' : (p.total < 0 ? 'text-red-500' : 'text-slate-600')">
+              <span class="text-xs font-mono font-bold">{{ p.total > 0 ? '+' : '' }}{{ p.total | number:'1.2-2' }} &euro;</span>
+            </div>
+            <div *ngIf="!p.total_income && !p.total_expense" class="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
+              {{ t('projects.noTransactions') || 'Nema prometa' }}
+            </div>
           </div>
         </div>
-        <p *ngIf="p.description" class="text-xs text-slate-500 font-sans line-clamp-2">
-          {{ p.description }}
-        </p>
       </div>
     </div>
   </ng-container>
@@ -89,10 +89,10 @@
   </ng-template>
 </div>
 
-<!-- Modal for Create/Edit -->
+<!-- Modal for Create -->
 <app-modal
   [isOpen]="isModalOpen"
-  [title]="editingProject ? (t('projects.editTitle') || 'Uredi projekt') : (t('projects.createTitle') || 'Novi projekt')"
+  [title]="t('projects.createTitle') || 'Novi projekt'"
   (close)="closeModal()"
 >
   <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="space-y-6">
@@ -107,15 +107,6 @@
       <textarea formControlName="description" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple rounded-xl outline-none font-sans text-sm transition-all text-slate-800 placeholder:text-slate-400 resize-none"></textarea>
     </div>
 
-    <div class="space-y-1.5">
-      <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('common.status') || 'Status' }}</label>
-      <app-select
-        [options]="statusOptions"
-        formControlName="status"
-        buttonClass="h-11 w-full px-4 text-sm font-normal"
-      ></app-select>
-    </div>
-
     <div class="pt-4 flex gap-3">
       <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
         {{ t('common.cancel') || 'Odustani' }}
@@ -126,4 +117,5 @@
     </div>
   </form>
 </app-modal>
+
 

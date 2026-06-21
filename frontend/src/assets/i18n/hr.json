@@ -13,6 +13,9 @@
     "yesterday": "Jučer",
     "cancel": "Odustani",
     "delete": "Obriši",
+    "edit": "Uredi",
+    "saving": "Spremanje...",
+    "success": "Uspješno!",
     "active": "Aktivno",
     "name": "Naziv",
     "description": "Opis",
@@ -162,6 +165,7 @@
   "dashboard": {
     "spendingAnalysis": "Analiza potrošnje",
     "categories": "Kategorije",
+    "projects": "Projekti",
     "byDays": "Po danima",
     "totalSpent": "Ukupno potrošeno",
     "noSpendingStats": "Nema statistike potrošnje po kategorijama.",
@@ -381,7 +385,9 @@
     "amountPlaceholder": "npr. 15.00",
     "statusLabel": "Status",
     "balanceCorrection": "Korekcija stanja",
-    "userLabel": "Korisnik"
+    "userLabel": "Korisnik",
+    "projectLabel": "Projekt",
+    "unprojected": "Nije na projektu"
   },
   "onboarding": {
     "step1Title": "Dobrodošli u Allocento",
@@ -424,6 +430,9 @@
     "createFirst": "Kreiraj projekt",
     "editTitle": "Uredi projekt",
     "createTitle": "Novi projekt",
+    "totalIncome": "Prihodi",
+    "totalExpense": "Troškovi",
+    "noTransactions": "Nema prometa",
     "statuses": {
       "active": "Aktivno",
       "completed": "Završeno",
@@ -439,10 +448,7 @@
     "emptyDesc": "Kreirajte prvu kategoriju za praćenje troškova.",
     "createFirst": "Kreiraj kategoriju",
     "editTitle": "Uredi kategoriju",
-    "createTitle": "Nova kategorija"
+    "createTitle": "Nova kategorija",
+    "globalEditWarning": "Ovo je globalna kategorija i možete uređivati samo njeno ime za svoj prostor."
   }
 }
-
-
-
-

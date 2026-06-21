@@ -1,3 +1,4 @@
+/* --- CUSTOM PREMIUM TRANSITIONS --- */
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @import "tailwindcss";
@@ -112,10 +113,10 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.28s cubic-bezier(0.32, 0.94, 0.6, 1) forwards;
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-
-.animate-zoom-in {
-  animation: zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

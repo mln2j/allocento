@@ -31,7 +31,7 @@ Ovaj dokument mapira zahtjeve iz opisa diplomskog rada na trenutno stanje projek
 - [ ] **Automatska raspodjela:** **Zadatak (NOVO):** Opis izričito traži ovu stavku. Trenutno nemamo funkcionalnost koja *automatski* raspodjeljuje sredstva. Trebamo dizajnirati funkcionalnost kojom se, recimo, određeni prihod (npr. uplata od klijenta) može automatski razdijeliti na više projekata/odjela prema unaprijed definiranom postotku ili iznosu.
 
 ### Financijski izvještaji i analiza
-- [x] **Osnovne analize:** Nadzorna ploča (Dashboard) prikazuje analizu potrošnje po kategorijama (Donut chart) i po danima u zadnjih 7 dana (Stupčasti grafikon).
+- [x] **Osnovne analize:** Nadzorna ploča (Dashboard) prikazuje analizu potrošnje po kategorijama i projektima (Kružni grafikoni) te po danima u zadnjih 7 dana (Stupčasti grafikon).
 - [ ] **Detaljni izvještaji:** **Zadatak:** Budući da opis traži "generiranje detaljnih financijskih izvještaja i analiza", trebali bismo dodati posebnu stranicu "Izvještaji" s mogućnošću filtriranja po datumima, odjelima i projektima, uz opciju izvoza (npr. PDF/CSV).
 
 ### Autentifikacija, uloge i prava pristupa

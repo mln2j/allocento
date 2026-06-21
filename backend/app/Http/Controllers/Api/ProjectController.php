@@ -21,7 +21,23 @@ class ProjectController extends Controller
              return response()->json(['error' => 'Workspace not found or access denied.'], 403);
         }
 
-        $projects = Project::where('workspace_id', $workspaceId)->get();
+        $projects = Project::where('workspace_id', $workspaceId)
+            ->withSum(['transactions as total_income' => function ($query) {
+                $query->where('type', 'income');
+            }], 'amount')
+            ->withSum(['transactions as total_expense' => function ($query) {
+                $query->where('type', 'expense');
+            }], 'amount')
+            ->get();
+            
+        // Abs the total_expense to be a positive number
+        $projects->each(function ($project) {
+            $project->total_expense = abs($project->total_expense);
+            $project->total_income = $project->total_income ?? 0;
+            $project->total_expense = $project->total_expense ?? 0;
+            $project->total = $project->total_income - $project->total_expense;
+        });
+
         return response()->json($projects);
     }
 
@@ -39,17 +55,13 @@ class ProjectController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'color' => 'nullable|string|max:20',
             'description' => 'nullable|string',
-            'status' => 'nullable|in:active,completed',
         ]);
 
         $project = Project::create([
             'workspace_id' => $workspaceId,
             'name' => $validated['name'],
-            'color' => $validated['color'] ?? '#4f46e5',
             'description' => $validated['description'] ?? null,
-            'status' => $validated['status'] ?? 'active',
         ]);
 
         return response()->json($project, 201);
@@ -63,12 +75,19 @@ class ProjectController extends Controller
              return response()->json(['error' => 'Workspace not found or access denied.'], 403);
         }
 
-        $project = Project::where('workspace_id', $workspaceId)->where('id', $id)->first();
+        $project = Project::with(['transactions.category', 'transactions.account'])->where('workspace_id', $workspaceId)->where('id', $id)->first();
         if (!$project) {
             return response()->json(['error' => 'Project not found.'], 404);
         }
 
-        return response()->json($project);
+        $totalIncome = $project->transactions->where('type', 'income')->sum('amount');
+        $totalExpense = $project->transactions->where('type', 'expense')->sum('amount');
+
+        return response()->json([
+            'project' => $project,
+            'total_income' => $totalIncome,
+            'total_expense' => abs($totalExpense),
+        ]);
     }
 
     public function update(Request $request, $id): JsonResponse
@@ -86,9 +105,7 @@ class ProjectController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'color' => 'nullable|string|max:20',
             'description' => 'nullable|string',
-            'status' => 'nullable|in:active,completed',
         ]);
 
         $project->update($validated);

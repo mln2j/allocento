@@ -8,11 +8,18 @@ export interface Project {
   id: number;
   workspace_id: number;
   name: string;
-  color: string;
   description?: string;
-  status: 'active' | 'completed';
+  total_income?: number;
+  total_expense?: number;
+  total?: number;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface ProjectDetailsResponse {
+  project: Project;
+  total_income: number;
+  total_expense: number;
 }
 
 @Injectable({
@@ -27,8 +34,8 @@ export class ProjectRepository {
     return this.http.get<Project[]>(this.apiUrl);
   }
 
-  getById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<ProjectDetailsResponse> {
+    return this.http.get<ProjectDetailsResponse>(`${this.apiUrl}/${id}`);
   }
 
   create(data: Partial<Project>): Observable<Project> {

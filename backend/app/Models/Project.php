@@ -11,9 +11,7 @@ class Project extends Model
     protected $fillable = [
         'workspace_id',
         'name',
-        'color',
         'description',
-        'status',
     ];
 
     public function workspace(): BelongsTo

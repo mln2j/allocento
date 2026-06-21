@@ -97,6 +97,7 @@ export class AuthService {
   // NOVO: Eksplicitna metoda za čišćenje tokena pri neuspjeloj provjeri
   clearToken() {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('user');
   }
 
   logout() {

@@ -45,6 +45,32 @@ class CategoryController extends Controller
         return response()->json($category, Response::HTTP_CREATED);
     }
 
+    public function show(Request $request, $id)
+    {
+        $workspaceId = $request->header('X-Workspace-Id');
+        if (!$workspaceId) {
+            return response()->json(['error' => 'Workspace ID is required.'], 400);
+        }
+
+        $category = Category::with(['transactions.project', 'transactions.account'])->where(function($q) use ($workspaceId) {
+            $q->where('workspace_id', $workspaceId)
+              ->orWhereNull('workspace_id');
+        })->where('id', $id)->first();
+
+        if (!$category) {
+            return response()->json(['error' => 'Category not found.'], 404);
+        }
+
+        $totalIncome = $category->transactions->where('type', 'income')->sum('amount');
+        $totalExpense = $category->transactions->where('type', 'expense')->sum('amount');
+
+        return response()->json([
+            'category' => $category,
+            'total_income' => $totalIncome,
+            'total_expense' => abs($totalExpense),
+        ]);
+    }
+
     public function update(Request $request, Category $category)
     {
         $data = $request->validate([

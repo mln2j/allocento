@@ -44,24 +44,18 @@ export class DashboardPage implements OnInit {
 
   get hasCategories(): boolean {
     const stats = this.spendingStats();
-    if (!stats || stats.length === 0) return false;
-    return !(stats.length === 1 && stats[0].id === null);
+    if (!stats || stats.length <= 2) return false;
+    return true;
   }
 
   get hasProjects(): boolean {
     const stats = this.spendingByProject();
-    if (!stats || stats.length === 0) return false;
-    return !(stats.length === 1 && stats[0].id === null);
+    if (!stats || stats.length <= 2) return false;
+    return true;
   }
 
   setDefaultTab() {
-    if (this.hasCategories) {
-      this.activeTab.set('categories');
-    } else if (this.hasProjects) {
-      this.activeTab.set('projects');
-    } else {
-      this.activeTab.set('days');
-    }
+    this.activeTab.set('days');
   }
 
   ngOnInit() {

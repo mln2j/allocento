@@ -1,4 +1,4 @@
-import { Component, inject, effect, signal, computed } from '@angular/core';
+﻿import { Component, inject, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
@@ -51,11 +51,6 @@ const ALL_NAV_ITEMS: Record<string, Omit<NavItem, 'id'>> = {
     translationKey: 'nav.projects',
     iconPath: 'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75'
   },
-  'menu': {
-    path: '/menu',
-    translationKey: 'nav.menu',
-    iconPath: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'
-  }
 };
 
 @Component({
@@ -79,7 +74,7 @@ export class BottomNavComponent {
     
     // Middle items: filter out fixed and disabled items, keep up to 2
     const middlePrefs = prefs
-      .filter(p => p !== 'dashboard' && p !== 'settings' && p !== 'menu' && p !== 'transactions')
+      .filter(p => p !== 'dashboard' && p !== 'settings' && p !== 'transactions')
       .slice(0, 2);
     
     const finalKeys = ['dashboard', ...middlePrefs, 'settings'];
@@ -131,7 +126,7 @@ export class BottomNavComponent {
           return url.startsWith(item.path);
         });
         
-        // Ako nije nađena ruta u bottom navu, a ruta je pod "settings", označi settings active
+        // Ako nije naÄ‘ena ruta u bottom navu, a ruta je pod "settings", oznaÄi settings active
         if (idx === -1) {
             if (['/settings', '/workspaces', '/categories', '/projects'].some(p => url.startsWith(p))) {
                 idx = items.length - 1; // Settings
@@ -183,3 +178,4 @@ export class BottomNavComponent {
     return false;
   }
 }
+

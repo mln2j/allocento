@@ -61,6 +61,7 @@ export class AppInitializerService {
           this.logger.log('splash.verifyingSession'); 
           userProfile = await firstValueFrom(this.http.get<any>(this.userApiUrl));
           await this.localDb.put('user_profile', userProfile);
+          localStorage.setItem('user', JSON.stringify(userProfile));
 
           this.logger.log('splash.syncing');
           await this.syncFreshDataFromServer();
@@ -79,6 +80,7 @@ export class AppInitializerService {
             return 'login';
           }
           userProfile = cachedUsers[0];
+          localStorage.setItem('user', JSON.stringify(userProfile));
         }
       } else {
         const cachedUsers = await this.localDb.getAll('user_profile');
@@ -87,6 +89,7 @@ export class AppInitializerService {
           return 'login';
         }
         userProfile = cachedUsers[0];
+        localStorage.setItem('user', JSON.stringify(userProfile));
       }
 
       // 4. Sigurnosne provjere (Samo ako smo uspjeli dobiti userProfile)

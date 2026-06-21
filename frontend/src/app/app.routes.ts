@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { SplashPage } from './pages/splash/splash.page';
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
 import { ErrorPage } from './pages/error/error.page';
@@ -9,7 +9,7 @@ export const routes: Routes = [
   // 1. Ako je URL potpuno prazan, baci na splash
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
 
-  // 2. Početni ekran i kritične rute (Statički importi)
+  // 2. PoÄetni ekran i kritiÄne rute (StatiÄki importi)
   { path: 'splash', component: SplashPage },
   { path: 'error', component: ErrorPage },
 
@@ -45,7 +45,7 @@ export const routes: Routes = [
     ]
   },
 
-  // 4. Zaštićene aplikacijske rute
+  // 4. ZaÅ¡tiÄ‡ene aplikacijske rute
   {
     path: '',
     component: AppShellComponent,
@@ -55,7 +55,7 @@ export const routes: Routes = [
         const router = inject(Router);
 
         if (!initializer.isOnlineMode) {
-          // Ovdje po potrebi rješavaš krizni scenarij
+          // Ovdje po potrebi rjeÅ¡avaÅ¡ krizni scenarij
         }
 
         return true;
@@ -83,21 +83,18 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () => import('./pages/setttings/settings.page').then(m => m.SettingsPage)
       },
+      
       {
-        path: 'menu',
-        loadComponent: () => import('./pages/menu/menu.page').then(m => m.MenuPage)
-      },
+        path: 'projects', loadComponent: () => import('./pages/projects/projects.page').then(m => m.ProjectsPage) },
+      { path: 'projects/:id', loadComponent: () => import('./pages/project-details/project-details.page').then(m => m.ProjectDetailsPage) },
       {
-        path: 'projects',
-        loadComponent: () => import('./pages/projects/projects.page').then(m => m.ProjectsPage)
-      },
-      {
-        path: 'categories',
-        loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage)
-      }
+        path: 'categories', loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage) },
+      { path: 'categories/:id', loadComponent: () => import('./pages/category-details/category-details.page').then(m => m.CategoryDetailsPage) }
     ]
   },
 
   // 5. "Catch-all"
   { path: '**', redirectTo: 'splash' }
 ];
+
+

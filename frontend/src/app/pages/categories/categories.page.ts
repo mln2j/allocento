@@ -1,12 +1,11 @@
-﻿import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Category, CategoryRepository } from '../../core/repositories/category.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { ToastService } from '../../core/services/toast.service';
-import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 
 @Component({
@@ -20,8 +19,8 @@ export class CategoriesPage implements OnInit {
   private fb = inject(FormBuilder);
   private translationService = inject(TranslationService);
   private toastService = inject(ToastService);
-  private dialogService = inject(DialogService);
   private location = inject(Location);
+  private router = inject(Router);
   public workspaceService = inject(WorkspaceService);
 
   get isMainNav(): boolean {
@@ -38,7 +37,6 @@ export class CategoriesPage implements OnInit {
   
   isModalOpen = false;
   categoryForm!: FormGroup;
-  editingCategory: Category | null = null;
   isSaving = false;
 
   ngOnInit() {
@@ -68,23 +66,12 @@ export class CategoriesPage implements OnInit {
   }
 
   openCreateModal() {
-    this.editingCategory = null;
     this.categoryForm.reset({ type: 'expense' });
-    this.isModalOpen = true;
-  }
-
-  openEditModal(category: Category) {
-    this.editingCategory = category;
-    this.categoryForm.patchValue({
-      name: category.name,
-      type: category.type
-    });
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
-    this.editingCategory = null;
   }
 
   saveCategory() {
@@ -93,54 +80,22 @@ export class CategoriesPage implements OnInit {
 
     const data = this.categoryForm.value;
 
-    if (this.editingCategory) {
-      this.categoryRepo.update(this.editingCategory.id, data).subscribe({
-        next: (updated) => {
-          this.categories.update(list => list.map(c => c.id === updated.id ? updated : c));
-          this.toastService.success(this.t('common.success') || 'Category updated');
-          this.closeModal();
-          this.isSaving = false;
-        },
-        error: () => {
-          this.toastService.error(this.t('common.error') || 'Update failed');
-          this.isSaving = false;
-        }
-      });
-    } else {
-      this.categoryRepo.create(data).subscribe({
-        next: (created) => {
-          this.categories.update(list => [...list, created]);
-          this.toastService.success(this.t('common.success') || 'Category created');
-          this.closeModal();
-          this.isSaving = false;
-        },
-        error: () => {
-          this.toastService.error(this.t('common.error') || 'Creation failed');
-          this.isSaving = false;
-        }
-      });
-    }
+    this.categoryRepo.create(data).subscribe({
+      next: (created) => {
+        this.categories.update(list => [...list, created]);
+        this.toastService.success(this.t('common.success') || 'Category created');
+        this.closeModal();
+        this.isSaving = false;
+      },
+      error: () => {
+        this.toastService.error(this.t('common.error') || 'Creation failed');
+        this.isSaving = false;
+      }
+    });
   }
 
-  deleteCategory(category: Category) {
-    this.dialogService.confirm(
-      this.t('categories.deleteTitle') || 'Delete Category',
-      this.t('categories.deleteConfirm') || 'Are you sure you want to delete this category?',
-      this.t('common.accept') || 'Delete',
-      this.t('common.cancel') || 'Cancel'
-    ).subscribe(confirmed => {
-      if (!confirmed) return;
-      
-      this.categoryRepo.delete(category.id).subscribe({
-        next: () => {
-          this.categories.update(list => list.filter(c => c.id !== category.id));
-          this.toastService.success(this.t('common.success') || 'Category deleted');
-        },
-        error: () => {
-          this.toastService.error(this.t('common.error') || 'Deletion failed');
-        }
-      });
-    });
+  goToCategory(category: Category) {
+    this.router.navigate(['/categories', category.id]);
   }
 
   t(key: string): string {

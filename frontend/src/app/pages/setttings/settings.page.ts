@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
+﻿import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -111,24 +111,24 @@ export class SettingsPage implements OnInit {
       if (isChecked) {
         await this.pushService.subscribeToNotifications();
         this.isPushEnabled.set(true);
-        this.toastService.success(this.t('settings.pushEnabled') || 'Web Push obavijesti su uključene!');
+        this.toastService.success(this.t('settings.pushEnabled') || 'Web Push obavijesti su ukljuÄene!');
       } else {
         await this.pushService.unsubscribe();
         this.isPushEnabled.set(false);
-        this.toastService.success(this.t('settings.pushDisabled') || 'Web Push obavijesti su isključene.');
+        this.toastService.success(this.t('settings.pushDisabled') || 'Web Push obavijesti su iskljuÄene.');
       }
     } catch (err) {
       console.error('Push error:', err);
       // Revert visual state if error
       event.target.checked = !isChecked;
-      this.toastService.error('Greška pri promjeni postavki obavijesti.');
+      this.toastService.error('GreÅ¡ka pri promjeni postavki obavijesti.');
     }
   }
 
   testPush() {
     this.http.post(`${API_BASE_URL}/push/test`, {}).subscribe({
       next: () => this.toastService.success(this.t('settings.testPushSuccess') || 'Testna obavijest poslana!'),
-      error: () => this.toastService.error(this.t('settings.testPushError') || 'Greška pri slanju obavijesti.')
+      error: () => this.toastService.error(this.t('settings.testPushError') || 'GreÅ¡ka pri slanju obavijesti.')
     });
   }
 
@@ -137,7 +137,7 @@ export class SettingsPage implements OnInit {
     this.userRepo.getCurrentUser(timestamp).subscribe({
       next: (u) => {
         this.user.set(u);
-        this.selectedNavPrefs = (u.nav_preferences || []).filter(p => p !== 'dashboard' && p !== 'menu' && p !== 'settings' && p !== 'transactions');
+        this.selectedNavPrefs = (u.nav_preferences || []).filter(p => p !== 'dashboard' && p !== 'settings' && p !== 'transactions');
       },
       error: () => {
         this.toastService.error(this.t('profile.loadFailed') || 'Failed to load user settings.');
@@ -332,6 +332,18 @@ export class SettingsPage implements OnInit {
     this.hasNavChanges = true;
   }
 
+  toggleNavPrefBtn(id: string) {
+    if (this.selectedNavPrefs.includes(id)) {
+      this.selectedNavPrefs = this.selectedNavPrefs.filter(p => p !== id);
+      this.saveNavPrefs();
+    } else {
+      if (this.selectedNavPrefs.length < 2) {
+        this.selectedNavPrefs.push(id);
+        this.saveNavPrefs();
+      }
+    }
+  }
+
   saveNavPrefs() {
     if (!this.isOnline()) return;
     this.isSaving = true;
@@ -347,7 +359,6 @@ export class SettingsPage implements OnInit {
       next: () => {
         this.isSaving = false;
         this.hasNavChanges = false;
-        this.toastService.success(this.t('profile.successUpdate') || 'Navigation preferences updated.');
         localStorage.setItem('nav_preferences', JSON.stringify(finalPrefs));
         window.dispatchEvent(new Event('nav-prefs-updated'));
       },
@@ -358,3 +369,4 @@ export class SettingsPage implements OnInit {
     });
   }
 }
+

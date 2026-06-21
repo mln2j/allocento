@@ -13,6 +13,9 @@
     "yesterday": "Yesterday",
     "cancel": "Cancel",
     "delete": "Delete",
+    "edit": "Edit",
+    "saving": "Saving...",
+    "success": "Success!",
     "active": "Active",
     "name": "Name",
     "description": "Description",
@@ -143,6 +146,7 @@
   "dashboard": {
     "spendingAnalysis": "Spending Analysis",
     "categories": "Categories",
+    "projects": "Projects",
     "byDays": "By Days",
     "totalSpent": "Total Spent",
     "noSpendingStats": "No spending stats by category.",
@@ -381,7 +385,9 @@
     "amountPlaceholder": "e.g. 15.00",
     "statusLabel": "Status",
     "balanceCorrection": "Balance correction",
-    "userLabel": "User"
+    "userLabel": "User",
+    "projectLabel": "Project",
+    "unprojected": "No project"
   },
   "onboarding": {
     "step1Title": "Welcome to Allocento",
@@ -424,10 +430,13 @@
     "createFirst": "Create project",
     "editTitle": "Edit project",
     "createTitle": "New project",
+    "totalIncome": "Income",
+    "totalExpense": "Expenses",
+    "noTransactions": "No transactions",
     "statuses": {
       "active": "Active",
       "completed": "Completed",
-      "on_hold": "On Hold"
+      "on_hold": "On hold"
     }
   },
   "status": {
@@ -439,7 +448,8 @@
     "emptyDesc": "Create the first category to track expenses.",
     "createFirst": "Create category",
     "editTitle": "Edit category",
-    "createTitle": "New category"
+    "createTitle": "New category",
+    "globalEditWarning": "This is a global category and you can only edit its name for your workspace."
   }
 }
 

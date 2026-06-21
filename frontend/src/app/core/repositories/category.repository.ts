@@ -12,6 +12,12 @@ export interface Category {
   workspace_id?: number | null;
 }
 
+export interface CategoryDetailsResponse {
+  category: Category;
+  total_income: number;
+  total_expense: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +28,10 @@ export class CategoryRepository {
 
   getAll(): Observable<Category[]> {
     return this.http.get<Category[]>(this.apiUrl);
+  }
+
+  getById(id: number): Observable<CategoryDetailsResponse> {
+    return this.http.get<CategoryDetailsResponse>(`${this.apiUrl}/${id}`);
   }
 
   create(data: Partial<Category>): Observable<Category> {

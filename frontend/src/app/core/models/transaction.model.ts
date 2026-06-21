@@ -16,6 +16,18 @@ export interface Transaction {
     email?: string;
   } | null;
 
+  createdBy?: {
+    id: number;
+    name: string;
+    email?: string;
+  } | null;
+
+  created_by?: {
+    id: number;
+    name: string;
+    email?: string;
+  } | null;
+
   account?: {
     id: number;
     name: string;
