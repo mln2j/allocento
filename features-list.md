@@ -44,5 +44,5 @@ Ovaj dokument mapira zahtjeve iz opisa diplomskog rada na trenutno stanje projek
 
 ## 3. Dodatne (naše) značajke ispod haube
 - [ ] **Offline Bulk Sync:** Offline rad s IndexedDB-om je tu, ali **Zadatak** je optimizirati sinkronizaciju da šalje podatke u bazu isključivo koristeći kreirani bulk endpoint (`POST /api/transactions/bulk`), a ne jedno po jedno.
-- [ ] **E-mail na produkciji:** **Zadatak:** Konfigurirati slanje E-mailova za pozivnice na pravom serveru koristeći neki servis ili vlastiti SMTP.
-- [ ] **Web Push Obavijesti:** **Zadatak:** Dodati mogućnost obavijesti na webu i backendu koristeći VAPID ključeve i `SwPush` (obavijesti o novim prihodima, ponavljajućim transakcijama, itd.).
+- [x] **E-mail na produkciji:** Konfigurirano je slanje E-mailova (uključujući verifikaciju) koristeći Resend servis.
+- [x] **Web Push Obavijesti:** Dodane prave push obavijesti s potpunom višejezičnom podrškom i automatskom sinkronizacijom jezika. Koristi se VAPID i `SwPush`.

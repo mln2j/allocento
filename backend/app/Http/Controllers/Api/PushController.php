@@ -44,14 +44,7 @@ class PushController extends Controller
 
     public function test(Request $request)
     {
-        // Simuliramo transakciju
-        $dummyTransaction = new \stdClass();
-        $dummyTransaction->description = 'Testna Transakcija (Netflix)';
-        $dummyTransaction->amount = 14.99;
-        $dummyTransaction->account = new \stdClass();
-        $dummyTransaction->account->currency = 'EUR';
-
-        $request->user()->notify(new \App\Notifications\RecurringTransactionProcessed($dummyTransaction));
+        $request->user()->notify(new \App\Notifications\TestPushNotification());
 
         return response()->json(['message' => 'Test notification sent!']);
     }
