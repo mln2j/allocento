@@ -74,7 +74,8 @@
     "ready": "Sustav spreman. Pokretanje...",
     "offlineMode": "Rad u lokalnom načinu...",
     "dbNotInitialized": "Database not initialized.",
-    "dbInitError": "Critical error during database initialization."
+    "dbInitError": "Critical error during database initialization.",
+    "appUpdate": "Nova verzija preuzeta, osvježavam..."
   },
   "logs": {
     "userFetchError": "Greška pri dohvaćanju korisnika, prebacujem na lokalni cache",

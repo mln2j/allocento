@@ -55,7 +55,8 @@
     "ready": "System ready. Launching...",
     "offlineMode": "Running in offline mode...",
     "dbNotInitialized": "Database not initialized.",
-    "dbInitError": "Critical error during database initialization."
+    "dbInitError": "Critical error during database initialization.",
+    "appUpdate": "New version downloaded, refreshing..."
   },
   "logs": {
     "userFetchError": "Error fetching user context, switching to local cache",

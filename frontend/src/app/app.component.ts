@@ -4,6 +4,7 @@ import { ToastComponent } from './core/layout/toast/toast.component';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 import { ToastService } from './core/services/toast.service';
+import { TranslationService } from './core/services/translation.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { ToastService } from './core/services/toast.service';
 export class AppComponent implements OnInit {
   private swUpdate = inject(SwUpdate);
   private toastService = inject(ToastService);
+  private translationService = inject(TranslationService);
 
   ngOnInit() {
     if (this.swUpdate.isEnabled) {
@@ -27,7 +29,7 @@ export class AppComponent implements OnInit {
       this.swUpdate.versionUpdates
         .pipe(filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'))
         .subscribe(() => {
-          this.toastService.success('Nova verzija preuzeta, osvježavam...');
+          this.toastService.success(this.translationService.translate('splash.appUpdate') || 'Nova verzija preuzeta, osvježavam...');
           setTimeout(() => {
             window.location.reload();
           }, 1500);
