@@ -63,7 +63,7 @@ export class CategoriesPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Failed to load categories');
+        this.toastService.error(this.t('common.error'));
         this.isLoading.set(false);
       }
     });
@@ -87,12 +87,12 @@ export class CategoriesPage implements OnInit {
     this.categoryRepo.create(data).subscribe({
       next: (created) => {
         this.categories.update(list => [...list, created]);
-        this.toastService.success(this.t('common.success') || 'Category created');
+        this.toastService.success(this.t('common.success'));
         this.closeModal();
         this.isSaving = false;
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Creation failed');
+        this.toastService.error(this.t('common.error'));
         this.isSaving = false;
       }
     });

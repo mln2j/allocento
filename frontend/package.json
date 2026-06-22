@@ -31,6 +31,7 @@
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@angular/service-worker": "^20.3.0",
+    "@fontsource/roboto": "^5.2.10",
     "@tailwindcss/postcss": "^4.3.0",
     "chart.js": "^4.5.1",
     "jspdf": "^4.2.1",

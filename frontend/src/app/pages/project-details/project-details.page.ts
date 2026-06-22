@@ -146,7 +146,7 @@ export class ProjectDetailsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Failed to load project details');
+        this.toastService.error(this.t('common.error'));
         this.isLoading.set(false);
         this.goBack();
       }
@@ -181,12 +181,12 @@ export class ProjectDetailsPage implements OnInit {
                 project: { ...currentDetails.project, ...updated }
             });
         }
-        this.toastService.success(this.t('common.success') || 'Project updated');
+        this.toastService.success(this.t('common.success'));
         this.closeModal();
         this.isSaving = false;
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Update failed');
+        this.toastService.error(this.t('common.error'));
         this.isSaving = false;
       }
     });

@@ -64,7 +64,7 @@ export class ProjectsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Failed to load projects');
+        this.toastService.error(this.t('common.error'));
         this.isLoading.set(false);
       }
     });
@@ -88,12 +88,12 @@ export class ProjectsPage implements OnInit {
     this.projectRepo.create(data).subscribe({
       next: (created) => {
         this.projects.update(list => [...list, created]);
-        this.toastService.success(this.t('common.success') || 'Project created');
+        this.toastService.success(this.t('common.success'));
         this.closeModal();
         this.isSaving = false;
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Creation failed');
+        this.toastService.error(this.t('common.error'));
         this.isSaving = false;
       }
     });

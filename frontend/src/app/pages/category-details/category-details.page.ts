@@ -146,7 +146,7 @@ export class CategoryDetailsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Failed to load category details');
+        this.toastService.error(this.t('common.error'));
         this.isLoading.set(false);
         this.goBack();
       }
@@ -181,12 +181,12 @@ export class CategoryDetailsPage implements OnInit {
                 category: { ...currentDetails.category, ...updated }
             });
         }
-        this.toastService.success(this.t('common.success') || 'Category updated');
+        this.toastService.success(this.t('common.success'));
         this.closeModal();
         this.isSaving = false;
       },
       error: () => {
-        this.toastService.error(this.t('common.error') || 'Update failed');
+        this.toastService.error(this.t('common.error'));
         this.isSaving = false;
       }
     });

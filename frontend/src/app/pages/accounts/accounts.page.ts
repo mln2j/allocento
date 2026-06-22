@@ -114,7 +114,7 @@ export class AccountsPage implements OnInit {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Failed to load accounts:', err);
-        this.toastService.error(this.t('accounts.loadFailed') || 'Failed to load accounts.');
+        this.toastService.error(this.t('accounts.loadFailed'));
       }
     });
   }
@@ -126,7 +126,7 @@ export class AccountsPage implements OnInit {
 
   openCreateModal() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('accounts.offlineNotice') || 'Offline: Add/Edit disabled');
+      this.toastService.warning(this.t('accounts.offlineNotice'));
       return;
     }
     this.editingAccountId = null;
@@ -144,7 +144,7 @@ export class AccountsPage implements OnInit {
 
   openEditModal(acc: Account) {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('accounts.offlineNotice') || 'Offline: Add/Edit disabled');
+      this.toastService.warning(this.t('accounts.offlineNotice'));
       return;
     }
     this.editingAccountId = acc.id;
@@ -209,12 +209,12 @@ export class AccountsPage implements OnInit {
             }
             this.isSaving = false;
             this.closeModal();
-            this.toastService.success(this.t('accounts.updateSuccess') || 'Account updated successfully!');
+            this.toastService.success(this.t('accounts.updateSuccess'));
             this.loadAccounts();
           } catch (err) {
             console.error('Failed to sync account sharing:', err);
             this.isSaving = false;
-            this.toastService.error(this.t('accounts.shareUpdateFailed') || 'Account saved but failed to update workspace sharing options.');
+            this.toastService.error(this.t('accounts.shareUpdateFailed'));
             this.closeModal();
             this.loadAccounts();
           }
@@ -224,7 +224,7 @@ export class AccountsPage implements OnInit {
           this.loadingService.hide();
           const apiMsg = err.error?.message;
           const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
-          this.toastService.error(translatedApiMsg || this.t('accounts.updateFailed') || 'Failed to save account.');
+          this.toastService.error(translatedApiMsg || this.t('accounts.updateFailed'));
         }
       });
     } else {
@@ -232,14 +232,14 @@ export class AccountsPage implements OnInit {
         next: () => {
           this.isSaving = false;
           this.closeModal();
-          this.toastService.success(this.t('accounts.createSuccess') || 'Account created successfully!');
+          this.toastService.success(this.t('accounts.createSuccess'));
           this.loadAccounts();
         },
         error: (err) => {
           this.isSaving = false;
           const apiMsg = err.error?.message;
           const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
-          this.toastService.error(translatedApiMsg || this.t('accounts.createFailed') || 'Failed to create account.');
+          this.toastService.error(translatedApiMsg || this.t('accounts.createFailed'));
         }
       });
     }
@@ -252,12 +252,12 @@ export class AccountsPage implements OnInit {
     this.loadingService.show();
     this.accountRepo.setPrimary(acc.id).subscribe({
       next: () => {
-        this.toastService.success(this.t('accounts.setPrimarySuccess') || 'Primary account updated successfully!');
+        this.toastService.success(this.t('accounts.setPrimarySuccess'));
         this.loadAccounts();
       },
       error: () => {
         this.loadingService.hide();
-        this.toastService.error(this.t('accounts.setPrimaryFailed') || 'Failed to set primary account.');
+        this.toastService.error(this.t('accounts.setPrimaryFailed'));
       }
     });
   }
@@ -291,7 +291,7 @@ export class AccountsPage implements OnInit {
           this.loadingService.hide();
           const apiMsg = err.error?.message;
           const translatedApiMsg = apiMsg ? this.t(apiMsg) : null;
-          this.toastService.error(translatedApiMsg || this.t('accounts.deleteFailed') || 'Failed to delete account.');
+          this.toastService.error(translatedApiMsg || this.t('accounts.deleteFailed'));
         }
       });
     });

@@ -1,5 +1,11 @@
 {
   "common": {
+    "offline": "offline",
+    "from": "Od",
+    "to": "Do",
+    "transactions": "Transakcije",
+    "trend": "Trend Prihoda i Rashoda",
+    "categoriesSplit": "Raspodjela Rashoda",
     "error": "Greška!",
     "retryButton": "Pokušaj ponovno",
     "calculated": "Proračunato & Uspješno",
@@ -66,7 +72,9 @@
     "testPush": "Testiraj Obavijest",
     "testPushSuccess": "Testna obavijest uspješno poslana!",
     "testPushError": "Greška pri slanju testne obavijesti.",
-    "languageChanged": "Jezik je uspješno promijenjen!"
+    "languageChanged": "Jezik je uspješno promijenjen!",
+    "greKaPriPromjen": "Greška pri promjeni postavki obavijesti.",
+    "doLoJeDoGreKePr": "Došlo je do greške pri obradi slike."
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",
@@ -152,15 +160,15 @@
     "tooManyRequests": "Pričekajte malo prije ponovnog slanja."
   },
   "nav": {
+    "reports": "Izvještaji",
+    "categories": "Kategorije",
+    "projects": "Projekti",
     "dashboard": "Nadzorna Ploča",
     "transactions": "Transakcije",
     "accounts": "Računi",
-    "projects": "Projekti",
     "workspace": "Prostor",
     "settings": "Postavke",
     "workspaces": "Prostori",
-    "categories": "Kategorije",
-    "reports": "Izvještaji",
     "menu": "Meni"
   },
   "dashboard": {
@@ -173,7 +181,10 @@
     "noSpendingRecords": "Nema zapisa o potrošnji u zadnjih 7 dana.",
     "createPrimaryAccount": "Kreirajte ili postavite račun kao primarni za prikaz ovdje.",
     "noTransactions": "Još nema zabilježenih transakcija u ovom prostoru.",
-    "title": "Nadzorna Ploča"
+    "title": "Nadzorna Ploča",
+    "advancedReports": "Napredni izvještaji",
+    "noProjectStats": "Nema statistike potrošnje po projektima.",
+    "spending": "Potrošnja"
   },
   "notifications": {
     "title": "Pozivnice",
@@ -203,7 +214,8 @@
     "saving": "Spremanje...",
     "changePhoto": "Promijeni sliku",
     "subtitle": "Upravljajte postavkama računa i aplikacije.",
-    "offlineNotice": "Offline: Uređivanje profila onemogućeno"
+    "offlineNotice": "Offline: Uređivanje profila onemogućeno",
+    "loadFailed": "Failed to load user settings."
   },
   "security": {
     "title": "Sigurnost",
@@ -343,6 +355,9 @@
     "shareUpdateFailed": "Ažuriranje postavki dijeljenja nije uspjelo."
   },
   "transactions": {
+    "other": "Ostalo",
+    "deleteSuccess": "Transakcija uspješno obrisana!",
+    "deleteFailed": "Greška pri brisanju transakcije.",
     "accountLabel": "Racun",
     "descriptionPlaceholder": "Npr. Kava, Racun za struju...",
     "title": "Transakcije",
@@ -372,8 +387,6 @@
     "updateFailed": "Ažuriranje transakcije nije uspjelo.",
     "deleteTitle": "Obriši transakciju",
     "deleteConfirm": "Jeste li sigurni da želite obrisati ovu transakciju?",
-    "deleteSuccess": "Transakcija je uspješno obrisana!",
-    "deleteFailed": "Brisanje transakcije nije uspjelo.",
     "uncategorized": "Nekategorizirano",
     "categoryLabel": "Kategorija",
     "selectCategory": "Odaberi kategoriju",
@@ -388,7 +401,9 @@
     "balanceCorrection": "Korekcija stanja",
     "userLabel": "Korisnik",
     "projectLabel": "Projekt",
-    "unprojected": "Nije na projektu"
+    "unprojected": "Nije na projektu",
+    "income": "Prihod",
+    "expense": "Rashod"
   },
   "onboarding": {
     "step1Title": "Dobrodošli u Allocento",
@@ -451,5 +466,21 @@
     "editTitle": "Uredi kategoriju",
     "createTitle": "Nova kategorija",
     "globalEditWarning": "Ovo je globalna kategorija i možete uređivati samo njeno ime za svoj prostor."
+  },
+  "reports": {
+    "filters": "Filteri",
+    "category": "Kategorija",
+    "all": "Sve",
+    "project": "Projekt",
+    "income": "Prihodi",
+    "expense": "Rashodi",
+    "totalBalance": "Ukupan Saldo",
+    "noTransactions": "Nema transakcija za odabrane filtere",
+    "title": "Financijski izvještaj",
+    "period": "Razdoblje",
+    "totalIncome": "Ukupni prihod",
+    "totalExpense": "Ukupni rashod",
+    "balance": "Stanje",
+    "date": "Datum"
   }
 }

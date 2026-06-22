@@ -4,18 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { TranslationService } from '../../core/services/translation.service';
-import { HeaderComponent } from '../../core/layout/header/header.component';
 import { Transaction } from '../../core/models/transaction.model';
 import { SyncService } from '../../core/services/sync';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
+// Import Space Mono font base64 if provided
+import { SPACE_MONO_FONT } from '../../core/utils/space-mono-font';
+import { TransactionModalService } from '../../core/services/transaction-modal.service';
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './reports.page.html',
   styleUrl: './reports.page.css'
 })
@@ -24,6 +25,7 @@ export class ReportsPage implements OnInit {
   private workspaceService = inject(WorkspaceService);
   private translation = inject(TranslationService);
   private syncService = inject(SyncService);
+  private transactionModalService = inject(TransactionModalService);
 
   t = this.translation.translate.bind(this.translation);
 
@@ -156,40 +158,95 @@ export class ReportsPage implements OnInit {
     }
   };
 
-  // Donut Chart for Categories
-  doughnutChartData = computed<ChartConfiguration<'doughnut'>['data']>(() => {
+  // CSS Donut Chart logic
+  spendingStats = computed(() => {
     const txs = this.filteredTransactions().filter(t => t.type === 'expense');
     const catMap = new Map<string, { amount: number, color: string }>();
 
     txs.forEach(t => {
-      if (t.category) {
-        const current = catMap.get(t.category.name) || { amount: 0, color: '#cbd5e1' };
-        current.amount += Number(t.amount);
-        catMap.set(t.category.name, current);
-      }
+      const name = t.category?.name || this.t('transactions.other') || 'Ostalo';
+      const color = t.category?.color || '#cbd5e1'; // fallback color
+      const current = catMap.get(name) || { amount: 0, color: color };
+      current.amount += Number(t.amount);
+      catMap.set(name, current);
     });
 
-    const sorted = Array.from(catMap.entries()).sort((a, b) => b[1].amount - a[1].amount);
-
-    return {
-      labels: sorted.map(i => i[0]),
-      datasets: [
-        {
-          data: sorted.map(i => i[1].amount),
-          backgroundColor: sorted.map(i => i[1].color),
-          hoverOffset: 4
-        }
-      ]
-    };
+    return Array.from(catMap.entries())
+      .map(([name, data]) => ({ name, amount: data.amount, color: data.color }))
+      .sort((a, b) => b.amount - a.amount);
   });
 
-  doughnutChartOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'right' }
+  spendingByProject = computed(() => {
+    const txs = this.filteredTransactions().filter(t => t.type === 'expense');
+    const projMap = new Map<string, { amount: number, color: string }>();
+
+    txs.forEach(t => {
+      const name = t.project?.name || this.t('transactions.other') || 'Ostalo';
+      const color = t.project?.color || '#94a3b8'; // fallback color
+      const current = projMap.get(name) || { amount: 0, color: color };
+      current.amount += Number(t.amount);
+      projMap.set(name, current);
+    });
+
+    return Array.from(projMap.entries())
+      .map(([name, data]) => ({ name, amount: data.amount, color: data.color }))
+      .sort((a, b) => b.amount - a.amount);
+  });
+
+  getTotalSpending(type: 'categories' | 'projects' = 'categories'): number {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+    return stats.reduce((sum, item) => sum + item.amount, 0);
+  }
+
+  getDonutGradientStyle(type: 'categories' | 'projects' = 'categories'): string {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+    if (!stats || stats.length === 0) {
+      return 'conic-gradient(#f1f5f9 0% 100%)';
     }
-  };
+    const total = stats.reduce((sum, item) => sum + item.amount, 0);
+    if (total === 0) {
+      return 'conic-gradient(#f1f5f9 0% 100%)';
+    }
+    let accumulatedPercent = 0;
+    const slices = stats.map(item => {
+      const percent = (item.amount / total) * 100;
+      const start = accumulatedPercent;
+      accumulatedPercent += percent;
+      return `${item.color || '#621E95'} ${start.toFixed(1)}% ${accumulatedPercent.toFixed(1)}%`;
+    });
+    return `conic-gradient(${slices.join(', ')})`;
+  }
+
+  getCategoryPercentage(amount: number, type: 'categories' | 'projects' = 'categories'): number {
+    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+    const total = stats.reduce((sum, item) => sum + item.amount, 0);
+    if (total === 0) return 0;
+    return Math.round((amount / total) * 100);
+  }
+
+  openTxModal(tx: any) {
+    this.transactionModalService.openModal(tx);
+  }
+
+  get currentUserId(): number | null {
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      return u.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  isFuture(tx: any): boolean {
+    if (!tx || !tx.date) return false;
+    return new Date(tx.date).getTime() > Date.now();
+  }
+
+  formatAmount(amount: number | string | null | undefined): string {
+    if (amount === null || amount === undefined) return '0,00';
+    const val = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return val.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 
   ngOnInit() {
     this.loadTransactions();
@@ -227,15 +284,22 @@ export class ReportsPage implements OnInit {
     if (txs.length === 0) return;
 
     // CSV Headers
-    const headers = ['Datum', 'Tip', 'Iznos', 'Kategorija', 'Projekt', 'Opis'];
+    const headers = [
+      this.t('common.date') || 'Datum', 
+      this.t('transactions.typeLabel') || 'Tip', 
+      this.t('transactions.amountLabel') || 'Iznos', 
+      this.t('transactions.categoryLabel') || 'Kategorija', 
+      this.t('transactions.projectLabel') || 'Projekt', 
+      this.t('transactions.descLabel') || 'Opis'
+    ];
     
     const rows = txs.map(t => {
-      const date = new Date(t.date).toLocaleDateString('hr-HR');
-      const type = t.type === 'income' ? 'Prihod' : 'Rashod';
+      const date = new Date(t.date).toLocaleDateString(this.translation.currentLang());
+      const type = t.type === 'income' ? (this.t('transactions.income') || 'Prihod') : (this.t('transactions.expense') || 'Rashod');
       const amount = Number(t.amount).toFixed(2);
-      const cat = t.category?.name || '';
+      const cat = t.category?.name || this.t('transactions.other') || '';
       const proj = t.project?.name || '';
-      const desc = t.description ? t.description.replace(/"/g, '""') : '';
+      const desc = t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description ? t.description.replace(/"/g, '""') : '');
       
       return `"${date}","${type}","${amount}","${cat}","${proj}","${desc}"`;
     });
@@ -257,7 +321,21 @@ export class ReportsPage implements OnInit {
     const txs = this.filteredTransactions();
     if (txs.length === 0) return;
 
+    // Create a new jsPDF document
     const doc = new jsPDF();
+
+    // Register Space Mono font if the base64 string is provided; otherwise fallback to built‑in Courier
+    if (typeof SPACE_MONO_FONT !== 'undefined' && SPACE_MONO_FONT && SPACE_MONO_FONT.length > 0) {
+      // Add the font file to the virtual file system
+      doc.addFileToVFS('SpaceMono-Regular.ttf', SPACE_MONO_FONT);
+      // Register the font with jsPDF
+      doc.addFont('SpaceMono-Regular.ttf', 'SpaceMono', 'normal');
+      doc.setFont('SpaceMono');
+    } else {
+      // Use Helvetica as fallback font
+      doc.setFont('Helvetica');
+    }
+
     const activeWorkspace = this.workspaceService.activeWorkspace();
     const currency = activeWorkspace?.currency || 'EUR';
 
@@ -266,25 +344,35 @@ export class ReportsPage implements OnInit {
     
     doc.setFontSize(11);
     doc.setTextColor(100);
-    doc.text(`Period: ${this.startDate()} do ${this.endDate()}`, 14, 32);
-    doc.text(`Ukupni prihod: ${this.totalIncome().toFixed(2)} ${currency}`, 14, 38);
-    doc.text(`Ukupni rashod: ${this.totalExpense().toFixed(2)} ${currency}`, 14, 44);
-    doc.text(`Stanje: ${this.balance().toFixed(2)} ${currency}`, 14, 50);
+    doc.text(`${this.t('reports.period') || 'Period'}: ${this.startDate()} do ${this.endDate()}`, 14, 32);
+    doc.text(`${this.t('reports.totalIncome') || 'Ukupni prihod'}: ${this.totalIncome().toFixed(2)} ${currency}`, 14, 38);
+    doc.text(`${this.t('reports.totalExpense') || 'Ukupni rashod'}: ${this.totalExpense().toFixed(2)} ${currency}`, 14, 44);
+    doc.text(`${this.t('reports.balance') || 'Stanje'}: ${this.balance().toFixed(2)} ${currency}`, 14, 50);
 
     const body = txs.map(t => [
-      new Date(t.date).toLocaleDateString('hr-HR'),
+      new Date(t.date).toLocaleDateString(this.translation.currentLang()),
       t.type === 'income' ? '+' : '-',
       `${Number(t.amount).toFixed(2)} ${currency}`,
-      t.category?.name || '-',
+      t.category?.name || this.t('transactions.other') || '-',
       t.project?.name || '-',
-      t.description || '-'
+      t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description || '-')
     ]);
 
     autoTable(doc, {
       startY: 60,
-      head: [['Datum', 'Tip', 'Iznos', 'Kategorija', 'Projekt', 'Opis']],
+      head: [[
+        this.t('common.date') || 'Datum', 
+        this.t('transactions.typeLabel') || 'Tip', 
+        this.t('transactions.amountLabel') || 'Iznos', 
+        this.t('transactions.categoryLabel') || 'Kategorija', 
+        this.t('transactions.projectLabel') || 'Projekt', 
+        this.t('transactions.descLabel') || 'Opis'
+      ]],
       body: body,
-      headStyles: { fillColor: [98, 30, 149] },
+      // Use the selected monospaced font for the table
+      // Use the selected font for the table; Helvetica if custom font not provided
+      styles: { font: (typeof SPACE_MONO_FONT !== 'undefined' && SPACE_MONO_FONT && SPACE_MONO_FONT.length > 0) ? 'SpaceMono' : 'Helvetica' },
+      headStyles: { fillColor: [98, 30, 149], font: (typeof SPACE_MONO_FONT !== 'undefined' && SPACE_MONO_FONT && SPACE_MONO_FONT.length > 0) ? 'SpaceMono' : 'Helvetica' },
       alternateRowStyles: { fillColor: [248, 250, 252] },
     });
 

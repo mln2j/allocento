@@ -174,7 +174,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     const ws = this.selectedWorkspace();
     if (ws) {
       this.workspaceService.setActiveWorkspace(ws);
-      this.toastService.success(this.t('workspaces.setActiveSuccess') || 'Workspace set as active.');
+      this.toastService.success(this.t('workspaces.setActiveSuccess'));
     }
   }
 
@@ -219,7 +219,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       },
       error: () => {
         this.isLoading.set(false);
-        this.toastService.error(this.t('workspaces.loadFailed') || 'Failed to load workspaces.');
+        this.toastService.error(this.t('workspaces.loadFailed'));
       }
     });
   }
@@ -259,7 +259,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       },
       error: () => {
         this.isLoadingDetails = false;
-        this.toastService.error(this.t('workspaces.loadDetailsFailed') || 'Failed to load workspace details.');
+        this.toastService.error(this.t('workspaces.loadDetailsFailed'));
       }
     });
   }
@@ -272,7 +272,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   removeMember(userId: number) {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
 
@@ -293,7 +293,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.workspaceRepo.removeMember(wsId, userId).subscribe({
         next: () => {
           this.loadingService.hide();
-          this.toastService.success(this.t('workspaces.removeMemberSuccess') || 'Member removed successfully!');
+          this.toastService.success(this.t('workspaces.removeMemberSuccess'));
           const updated = { ...currentWS };
           if (updated.users) {
             updated.users = updated.users.filter((u: any) => u.id !== userId);
@@ -312,7 +312,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   openCreateModal() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
     this.editingWorkspaceId = null;
@@ -327,7 +327,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   openEditModal() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
     const ws = this.selectedWorkspace();
@@ -375,14 +375,14 @@ export class WorkspacesPage implements OnInit, OnDestroy {
           this.accountRepo.delete(acc.id).subscribe({
             next: () => {
               this.loadingService.hide();
-              this.toastService.success(this.t('workspaces.deleteOwnedAccountSuccess') || 'Račun je uspješno obrisan.');
+              this.toastService.success(this.t('workspaces.deleteOwnedAccountSuccess'));
               this.selectedAccountsMap[id] = false;
               delete this.initialAccountsMap[id];
               this.accountsList.update(list => list.filter(a => a.id !== id));
             },
             error: (err) => {
               this.loadingService.hide();
-              this.toastService.error(this.t('workspaces.deleteOwnedAccountFailed') || 'Greška pri brisanju računa.');
+              this.toastService.error(this.t('workspaces.deleteOwnedAccountFailed'));
               console.error(err);
             }
           });
@@ -400,7 +400,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   openInviteModal() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
     this.inviteEmail = '';
@@ -414,7 +414,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   openMemberModal(member: any) {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
     this.selectedMember = member;
@@ -446,7 +446,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.workspaceRepo.updateMemberRole(wsId, userId, this.selectedMemberRole).subscribe({
         next: () => {
            this.loadingService.hide();
-           this.toastService.success(this.t('workspaces.roleUpdateSuccess') || 'Role updated successfully!');
+           this.toastService.success(this.t('workspaces.roleUpdateSuccess'));
            this.closeMemberModal();
            this.viewDetails(currentWS);
         },
@@ -475,7 +475,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   deleteWorkspace() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
 
@@ -496,7 +496,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.workspaceRepo.deleteWorkspace(id).subscribe({
         next: () => {
           this.loadingService.hide();
-          this.toastService.success(this.t('workspaces.deleteSuccess') || 'Workspace deleted successfully!');
+          this.toastService.success(this.t('workspaces.deleteSuccess'));
           this.closeDetails();
         },
         error: (err) => {
@@ -509,7 +509,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   leaveWorkspace() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
 
@@ -530,7 +530,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.workspaceRepo.leaveWorkspace(id).subscribe({
         next: () => {
           this.loadingService.hide();
-          this.toastService.success(this.t('workspaces.leaveSuccess') || 'Left workspace successfully!');
+          this.toastService.success(this.t('workspaces.leaveSuccess'));
           this.closeDetails();
         },
         error: (err) => {
@@ -543,7 +543,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   inviteMember() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
 
@@ -556,7 +556,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.workspaceRepo.inviteMember(wsId, this.inviteEmail, this.inviteRole).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.toastService.success(this.t('workspaces.inviteSuccess') || 'Invitation sent successfully!');
+        this.toastService.success(this.t('workspaces.inviteSuccess'));
         this.closeInviteModal();
         this.loadPendingInvitations(wsId);
       },
@@ -569,7 +569,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   revokeInvitation(invitationId: number) {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('workspaces.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('workspaces.offlineNotice'));
       return;
     }
 
@@ -590,7 +590,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       this.workspaceRepo.deleteInvitation(wsId, invitationId).subscribe({
         next: () => {
           this.loadingService.hide();
-          this.toastService.success(this.t('workspaces.revokeSuccess') || 'Invitation cancelled successfully!');
+          this.toastService.success(this.t('workspaces.revokeSuccess'));
           this.loadPendingInvitations(wsId);
         },
         error: (err) => {
@@ -621,7 +621,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     } else {
       this.workspaceRepo.createWorkspace(payload).subscribe({
         next: (ws) => {
-          this.toastService.success(this.t('workspaces.createSuccess') || 'Workspace created successfully!');
+          this.toastService.success(this.t('workspaces.createSuccess'));
           this.isSaving = false;
           this.closeModal();
           this.loadWorkspaces();
@@ -657,7 +657,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
           this.finishWorkspaceEdit(true);
         },
         error: () => {
-          this.toastService.warning(this.t('workspaces.updateLinksFailed') || 'Workspace updated, but some account links failed to save.');
+          this.toastService.warning(this.t('workspaces.updateLinksFailed'));
           this.finishWorkspaceEdit(false);
         }
       });
@@ -668,7 +668,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
 
   private finishWorkspaceEdit(success: boolean) {
     if (success) {
-      this.toastService.success(this.t('workspaces.updateSuccess') || 'Workspace updated successfully!');
+      this.toastService.success(this.t('workspaces.updateSuccess'));
     }
     this.isSaving = false;
     this.closeModal();

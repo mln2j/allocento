@@ -292,13 +292,13 @@ export class TransactionModalComponent implements OnInit {
       this.transactionRepo.delete(accId, txState.id).subscribe({
         next: () => {
           this.isSaving = false;
-          this.toastService.success(this.t('transactions.deleteSuccess') || 'Transaction deleted');
+          this.toastService.success(this.t('transactions.deleteSuccess'));
           this.modalService.notifySaved();
           this.closeModal();
         },
         error: (err) => {
           this.isSaving = false;
-          this.toastService.error(this.t('transactions.deleteFailed') || 'Failed to delete');
+          this.toastService.error(this.t('transactions.deleteFailed'));
         }
       });
     });

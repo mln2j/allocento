@@ -256,8 +256,8 @@ export class TransactionRepository {
         }
         : null,
       account: api.account ? { id: api.account.id, name: api.account.name } : undefined,
-      category: api.category ? { id: api.category.id, name: api.category.name } : undefined,
-      project: api.project ? { id: api.project.id, name: api.project.name } : undefined,
+      category: api.category ? { id: api.category.id, name: api.category.name, color: api.category.color } : undefined,
+      project: api.project ? { id: api.project.id, name: api.project.name, color: api.project.color } : undefined,
     };
   }
 

@@ -25,7 +25,7 @@ class TransactionController extends Controller
         $accountIds = $workspace->accounts()->pluck('accounts.id');
 
         $query = Transaction::whereIn('account_id', $accountIds)
-            ->with(['account', 'category', 'createdBy'])
+            ->with(['account', 'category', 'project', 'createdBy'])
             ->orderBy('date', 'desc');
 
         // Optional tag filtering

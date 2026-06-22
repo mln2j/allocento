@@ -124,7 +124,7 @@ export class TransactionsPage implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.toastService.error(this.t('transactions.loadFailed') || 'Failed to load transactions');
+        this.toastService.error(this.t('transactions.loadFailed'));
       }
     });
   }

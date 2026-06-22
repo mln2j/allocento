@@ -36,10 +36,12 @@ export interface Transaction {
   category?: {
     id: number;
     name: string;
+    color?: string;
   };
 
   project?: {
     id: number;
     name: string;
+    color?: string;
   };
 }

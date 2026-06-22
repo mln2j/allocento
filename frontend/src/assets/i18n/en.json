@@ -1,5 +1,11 @@
 {
   "common": {
+    "offline": "offline",
+    "from": "From",
+    "to": "To",
+    "transactions": "Transactions",
+    "trend": "Income and Expense Trend",
+    "categoriesSplit": "Expense Split",
     "error": "Error!",
     "retryButton": "Try again",
     "calculated": "Calculated & Successful",
@@ -133,15 +139,15 @@
     "tooManyRequests": "Please wait before sending a new code."
   },
   "nav": {
+    "reports": "Reports",
+    "categories": "Categories",
+    "projects": "Projects",
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "accounts": "Accounts",
-    "projects": "Projects",
     "workspace": "Space",
     "workspaces": "Spaces",
     "settings": "Settings",
-    "categories": "Categories",
-    "reports": "Reports",
     "menu": "Menu"
   },
   "dashboard": {
@@ -154,7 +160,10 @@
     "noSpendingRecords": "No spending records in the last 7 days.",
     "createPrimaryAccount": "Create or set an account as primary to display here.",
     "noTransactions": "No transactions recorded yet in this space.",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "advancedReports": "Advanced Reports",
+    "noProjectStats": "No spending stats by project.",
+    "spending": "Spending"
   },
   "notifications": {
     "title": "Invitations",
@@ -184,7 +193,8 @@
     "saving": "Saving...",
     "changePhoto": "Change Photo",
     "subtitle": "Manage your account and settings.",
-    "offlineNotice": "Offline: Profile updates disabled"
+    "offlineNotice": "Offline: Profile updates disabled",
+    "loadFailed": "Failed to load user settings."
   },
   "settings": {
     "subtitle": "Manage your account and application settings.",
@@ -203,7 +213,9 @@
     "testPush": "Test Notification",
     "testPushSuccess": "Test notification sent successfully!",
     "testPushError": "Error sending test notification.",
-    "languageChanged": "Language updated successfully!"
+    "languageChanged": "Language updated successfully!",
+    "greKaPriPromjen": "GreÅ¡ka pri promjeni postavki obavijesti.",
+    "doLoJeDoGreKePr": "Došlo je do greške pri obradi slike."
   },
   "security": {
     "title": "Security",
@@ -343,6 +355,9 @@
     "shareUpdateFailed": "Account saved but failed to update workspace sharing options."
   },
   "transactions": {
+    "other": "Other",
+    "deleteSuccess": "Transaction deleted successfully!",
+    "deleteFailed": "Failed to delete transaction.",
     "accountLabel": "Account",
     "descriptionPlaceholder": "e.g. Coffee, Electricity bill...",
     "title": "Transactions",
@@ -372,8 +387,6 @@
     "updateFailed": "Failed to update transaction.",
     "deleteTitle": "Delete Transaction",
     "deleteConfirm": "Are you sure you want to delete this transaction?",
-    "deleteSuccess": "Transaction deleted successfully!",
-    "deleteFailed": "Failed to delete transaction.",
     "uncategorized": "Uncategorized",
     "categoryLabel": "Category",
     "selectCategory": "Select Category",
@@ -388,7 +401,9 @@
     "balanceCorrection": "Balance correction",
     "userLabel": "User",
     "projectLabel": "Project",
-    "unprojected": "No project"
+    "unprojected": "No project",
+    "income": "Income",
+    "expense": "Expense"
   },
   "onboarding": {
     "step1Title": "Welcome to Allocento",
@@ -451,8 +466,21 @@
     "editTitle": "Edit category",
     "createTitle": "New category",
     "globalEditWarning": "This is a global category and you can only edit its name for your workspace."
+  },
+  "reports": {
+    "filters": "Filters",
+    "category": "Category",
+    "all": "All",
+    "project": "Project",
+    "income": "Income",
+    "expense": "Expense",
+    "totalBalance": "Total Balance",
+    "noTransactions": "No transactions for selected filters",
+    "title": "Financial Report",
+    "period": "Period",
+    "totalIncome": "Total Income",
+    "totalExpense": "Total Expense",
+    "balance": "Balance",
+    "date": "Date"
   }
 }
-
-
-

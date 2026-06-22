@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { API_BASE_URL } from '../../core/api.config';
 import { SelectComponent } from '../../shared/select/select.component';
+import { PwaService } from '../../core/services/pwa.service';
 
 @Component({
   selector: 'app-settings',
@@ -38,6 +39,7 @@ export class SettingsPage implements OnInit {
   private dialogService = inject(DialogService);
   private location = inject(Location);
   private pushService = inject(PushNotificationService);
+  public pwaService = inject(PwaService);
 
   user = signal<User | null>(null);
   profileForm!: FormGroup;
@@ -112,24 +114,24 @@ export class SettingsPage implements OnInit {
       if (isChecked) {
         await this.pushService.subscribeToNotifications();
         this.isPushEnabled.set(true);
-        this.toastService.success(this.t('settings.pushEnabled') || 'Web Push obavijesti su ukljuÄene!');
+        this.toastService.success(this.t('settings.pushEnabled'));
       } else {
         await this.pushService.unsubscribe();
         this.isPushEnabled.set(false);
-        this.toastService.success(this.t('settings.pushDisabled') || 'Web Push obavijesti su iskljuÄene.');
+        this.toastService.success(this.t('settings.pushDisabled'));
       }
     } catch (err) {
       console.error('Push error:', err);
       // Revert visual state if error
       event.target.checked = !isChecked;
-      this.toastService.error('GreÅ¡ka pri promjeni postavki obavijesti.');
+      this.toastService.error(this.t('settings.greKaPriPromjen'));
     }
   }
 
   testPush() {
     this.http.post(`${API_BASE_URL}/push/test`, {}).subscribe({
-      next: () => this.toastService.success(this.t('settings.testPushSuccess') || 'Testna obavijest poslana!'),
-      error: () => this.toastService.error(this.t('settings.testPushError') || 'GreÅ¡ka pri slanju obavijesti.')
+      next: () => this.toastService.success(this.t('settings.testPushSuccess')),
+      error: () => this.toastService.error(this.t('settings.testPushError'))
     });
   }
 
@@ -141,7 +143,7 @@ export class SettingsPage implements OnInit {
         this.selectedNavPrefs = (u.nav_preferences || []).filter(p => p !== 'dashboard' && p !== 'settings' && p !== 'transactions');
       },
       error: () => {
-        this.toastService.error(this.t('profile.loadFailed') || 'Failed to load user settings.');
+        this.toastService.error(this.t('profile.loadFailed'));
       }
     });
   }
@@ -156,7 +158,7 @@ export class SettingsPage implements OnInit {
     if (this.isOnline()) {
       this.userRepo.updateProfile({ preferred_language: lang }).subscribe({
         next: () => {
-          this.toastService.success(this.t('settings.languageChanged') || 'Language updated successfully');
+          this.toastService.success(this.t('settings.languageChanged'));
         },
         error: (err) => {
           console.error('Failed to sync language', err);
@@ -167,7 +169,7 @@ export class SettingsPage implements OnInit {
 
   enableEditMode() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('profile.offlineNotice'));
       return;
     }
 
@@ -209,7 +211,7 @@ export class SettingsPage implements OnInit {
           reader.readAsDataURL(compressedFile);
         } catch (error) {
           console.error('Error compressing image', error);
-          this.toastService.error('Došlo je do greške pri obradi slike.');
+          this.toastService.error(this.t('settings.doLoJeDoGreKePr'));
         }
       } else {
         this.selectedFile = file;
@@ -289,7 +291,7 @@ export class SettingsPage implements OnInit {
 
   saveProfile() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('profile.offlineNotice'));
       return;
     }
 
@@ -331,7 +333,7 @@ export class SettingsPage implements OnInit {
         this.isSaving = false;
         this.selectedFile = null;
         this.photoPreview = null;
-        this.toastService.success(this.t('profile.successUpdate') || 'Profile updated successfully!');
+        this.toastService.success(this.t('profile.successUpdate'));
 
         if (this.profileForm) {
           this.profileForm.get('current_password')?.setValue('');
@@ -346,7 +348,7 @@ export class SettingsPage implements OnInit {
         if (err.status === 422 && err.error?.message) {
           this.toastService.error(err.error.message);
         } else {
-          this.toastService.error(this.t('profile.updateFailed') || 'Profile update failed.');
+          this.toastService.error(this.t('profile.updateFailed'));
         }
       }
     });
@@ -359,7 +361,7 @@ export class SettingsPage implements OnInit {
 
   deleteAccount() {
     if (!this.isOnline()) {
-      this.toastService.warning(this.t('profile.offlineNotice') || 'Action not available offline.');
+      this.toastService.warning(this.t('profile.offlineNotice'));
       return;
     }
 
@@ -373,14 +375,14 @@ export class SettingsPage implements OnInit {
 
       this.userRepo.deleteAccount().subscribe({
         next: () => {
-          this.toastService.success(this.t('profile.deleteSuccess') || 'Account deleted successfully.');
+          this.toastService.success(this.t('profile.deleteSuccess'));
           this.logout();
         },
         error: (err) => {
           if (err.error && err.error.message) {
             this.toastService.error(err.error.message);
           } else {
-            this.toastService.error(this.t('profile.deleteFailed') || 'Failed to delete account.');
+            this.toastService.error(this.t('profile.deleteFailed'));
           }
         }
       });
@@ -435,9 +437,13 @@ export class SettingsPage implements OnInit {
       },
       error: () => {
         this.isSaving = false;
-        this.toastService.error(this.t('profile.updateFailed') || 'Failed to update preferences.');
+        this.toastService.error(this.t('profile.updateFailed'));
       }
     });
+  }
+
+  installPwa() {
+    this.pwaService.installPwa();
   }
 }
 

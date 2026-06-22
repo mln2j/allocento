@@ -159,7 +159,7 @@ export class Onboarding {
         },
         error: () => {
           this.loading.set(false);
-          this.toastService.error(this.t('common.error') || 'Došlo je do greške. Pokušajte ponovno.');
+          this.toastService.error(this.t('common.error'));
         }
       });
     } else {
@@ -182,7 +182,7 @@ export class Onboarding {
       },
       error: () => {
         this.loading.set(false);
-        this.toastService.error(this.t('common.error') || 'Došlo je do greške prilikom kreiranja prostora. Pokušajte ponovno.');
+        this.toastService.error(this.t('common.error'));
       }
     });
   }

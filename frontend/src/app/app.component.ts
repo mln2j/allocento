@@ -9,6 +9,7 @@ import { TranslationService, LangCode } from './core/services/translation.servic
 import { UserRepository } from './core/repositories/user.repository';
 import { AuthService } from './core/services/auth.service';
 import { LocalDbService } from './core/services/local-db';
+import { PwaService } from './core/services/pwa.service';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
   private userRepo = inject(UserRepository);
   private authService = inject(AuthService);
   private localDb = inject(LocalDbService);
+  private pwaService = inject(PwaService);
 
   ngOnInit() {
     if (this.swUpdate.isEnabled) {
