@@ -35,7 +35,9 @@ jobs:
             git clone https://github.com/${GITHUB_REPOSITORY}.git /home/allocento/app
           else
             cd /home/allocento/app
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
           fi
           EOF
 
