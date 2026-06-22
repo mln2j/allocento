@@ -59,18 +59,6 @@ jobs:
           fi
           EOF
 
-
-      - name: Set repository ownership
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-        run: |
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
-          set -e
-          sudo chown -R $SSH_USER:devteam /home/allocento/app
-          EOF
-
       - name: Install backend dependencies
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
