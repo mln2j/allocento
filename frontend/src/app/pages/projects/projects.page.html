@@ -24,6 +24,7 @@
       </div>
     </div>
     <button
+      *ngIf="isOnline()"
       (click)="openCreateModal()"
       class="bg-brand-purple hover:bg-[#4a1772] text-white px-4 py-2 rounded-xl text-sm font-bold font-mono shadow-sm transition-colors cursor-pointer border-none outline-none flex items-center gap-2"
     >
@@ -39,7 +40,7 @@
       </div>
       <h3 class="text-sm font-bold text-slate-800 font-mono mb-1">{{ t('projects.emptyTitle') || 'Nema projekata' }}</h3>
       <p class="text-xs text-slate-500 font-sans mb-6">{{ t('projects.emptyDesc') || 'Kreirajte svoj prvi projekt za praÃ„â€¡enje troÃ…Â¡kova' }}</p>
-      <button (click)="openCreateModal()" class="text-brand-purple font-bold text-xs font-mono hover:underline outline-none">
+      <button *ngIf="isOnline()" (click)="openCreateModal()" class="text-brand-purple font-bold text-xs font-mono hover:underline outline-none">
         {{ t('projects.createFirst') || 'Kreiraj projekt' }}
       </button>
     </div>

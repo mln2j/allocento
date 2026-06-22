@@ -14,6 +14,7 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { Account } from '../../core/models/account.model';
 import { TransactionModalService } from '../../services/transaction-modal.service';
+import { SyncService } from '../../core/services/sync';
 
 @Component({
   selector: 'app-transactions',
@@ -30,6 +31,7 @@ export class TransactionsPage implements OnInit {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private transactionModalService = inject(TransactionModalService);
+  private syncService = inject(SyncService);
 
   transactions = signal<Transaction[]>([]);
   isOnline = signal<boolean>(true);
@@ -75,6 +77,11 @@ export class TransactionsPage implements OnInit {
 
     // Refresh when modal says saved
     this.transactionModalService.saved$.subscribe(() => {
+      this.loadData();
+    });
+
+    // Refresh when offline sync finishes
+    this.syncService.syncCompleted$.subscribe(() => {
       this.loadData();
     });
   }

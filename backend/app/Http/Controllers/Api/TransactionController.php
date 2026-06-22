@@ -145,52 +145,89 @@ class TransactionController extends Controller
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function bulk(Request $request): JsonResponse
+    public function sync(Request $request): JsonResponse
     {
         $workspace = $request->get('_workspace');
         $accountIds = $workspace->accounts()->pluck('accounts.id')->toArray();
 
         $data = $request->validate([
-            'transactions' => ['required', 'array', 'max:500'],
-            'transactions.*.account_id' => ['required', 'integer'],
-            'transactions.*.type' => ['required', 'in:income,expense'],
-            'transactions.*.amount' => ['required', 'numeric'],
-            'transactions.*.date' => ['required', 'date'],
-            'transactions.*.description' => ['nullable', 'string'],
-            'transactions.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'transactions.*.project_id' => ['nullable', 'integer', 'exists:projects,id'],
-            'transactions.*.tags' => ['nullable', 'array'],
+            'operations' => ['required', 'array', 'max:500'],
+            'operations.*.action' => ['required', 'in:create,update,delete'],
+            'operations.*.transaction_id' => ['nullable', 'integer'],
+            'operations.*.payload' => ['nullable', 'array'],
         ]);
 
-        // Validate all account IDs belong to the active workspace
-        foreach ($data['transactions'] as $t) {
-            if (!in_array($t['account_id'], $accountIds)) {
-                return response()->json(['error' => 'One or more account IDs do not belong to the active workspace.'], 403);
-            }
-        }
+        $results = DB::transaction(function () use ($data, $request, $accountIds) {
+            $syncedCount = 0;
+            $errors = [];
+            $idMappings = []; // Maps local negative IDs to real database IDs
 
-        $createdCount = DB::transaction(function () use ($data, $request) {
-            $count = 0;
-            foreach ($data['transactions'] as $tData) {
-                $accountId = $tData['account_id'];
+            foreach ($data['operations'] as $index => $operation) {
+                $action = $operation['action'];
+                $payload = $operation['payload'] ?? [];
                 
-                // Construct single transaction payload
-                $payload = [
-                    'type' => $tData['type'],
-                    'amount' => $tData['amount'],
-                    'date' => $tData['date'],
-                    'description' => $tData['description'] ?? null,
-                    'category_id' => $tData['category_id'] ?? null,
-                    'project_id'  => $tData['project_id'] ?? null,
-                    'tags' => $tData['tags'] ?? null,
-                ];
+                // For updates and deletes
+                $transactionId = $operation['transaction_id'] ?? null;
+                
+                // If it's an update or delete, but the transactionId is negative (created offline),
+                // we should map it to the real ID that was generated during the 'create' operation in this sync batch.
+                if (in_array($action, ['update', 'delete']) && $transactionId < 0 && isset($idMappings[$transactionId])) {
+                    $transactionId = $idMappings[$transactionId];
+                }
 
-                $this->transactionService->createForAccount($request->user(), $accountId, $payload);
-                $count++;
+                try {
+                    if ($action === 'create') {
+                        $accountId = $payload['account_id'] ?? null;
+                        if (!$accountId || !in_array($accountId, $accountIds)) {
+                            throw new \Exception('Account not found or access denied in active workspace.');
+                        }
+
+                        $tx = $this->transactionService->createForAccount($request->user(), $accountId, $payload);
+                        
+                        // If the frontend provided a negative local ID in the payload (e.g. local_id), map it
+                        if (isset($payload['local_id']) && $payload['local_id'] < 0) {
+                            $idMappings[$payload['local_id']] = $tx->id;
+                        }
+                        $syncedCount++;
+
+                    } elseif ($action === 'update') {
+                        // First find the transaction to ensure we have access
+                        $transaction = Transaction::where('id', $transactionId)->whereIn('account_id', $accountIds)->first();
+                        if (!$transaction) {
+                            throw new \Exception('Transaction not found or access denied.');
+                        }
+
+                        // Allow moving between accounts if account_id is provided
+                        $accountId = $payload['account_id'] ?? $transaction->account_id;
+                        if (!in_array($accountId, $accountIds)) {
+                            throw new \Exception('Target account not found or access denied.');
+                        }
+
+                        $this->transactionService->updateForAccount($request->user(), $accountId, $transactionId, $payload);
+                        $syncedCount++;
+
+                    } elseif ($action === 'delete') {
+                        $transaction = Transaction::where('id', $transactionId)->whereIn('account_id', $accountIds)->first();
+                        if (!$transaction) {
+                            // If it's already deleted or not found, we can just skip or count as success
+                            continue;
+                        }
+
+                        $this->transactionService->deleteForAccount($request->user(), $transaction->account_id, $transactionId);
+                        $syncedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = [
+                        'index' => $index,
+                        'action' => $action,
+                        'transaction_id' => $transactionId ?? ($payload['local_id'] ?? null),
+                        'error' => $e->getMessage()
+                    ];
+                }
             }
-            return $count;
+            return ['synced' => $syncedCount, 'errors' => $errors, 'id_mappings' => $idMappings];
         });
 
-        return response()->json(['synced' => $createdCount], 201);
+        return response()->json($results, count($results['errors']) > 0 ? 207 : 200); // 207 Multi-Status if there are errors
     }
 }

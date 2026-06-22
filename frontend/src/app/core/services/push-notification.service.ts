@@ -13,6 +13,10 @@ export class PushNotificationService {
   private http = inject(HttpClient);
   private logger = inject(LoggerService);
 
+  public get messages$() {
+    return this.swPush.messages;
+  }
+
   async subscribeToNotifications() {
     if (!this.swPush.isEnabled) {
       this.logger.warn('Service Worker i Push Notifications nisu omogućeni u ovom pregledniku.');

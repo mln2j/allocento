@@ -15,6 +15,7 @@ import { TranslationService } from '../../services/translation.service';
 import { LoggerService } from '../../services/logger.service';
 import { ToastService } from '../../services/toast.service';
 import { WorkspaceService } from '../../services/workspace.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 
 import { HeaderComponent } from '../header/header.component';
 import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
@@ -52,6 +53,7 @@ export class AppShellComponent implements OnInit {
   public appInitializer = inject(AppInitializerService);
   private localDb = inject(LocalDbService);
   public toastService = inject(ToastService);
+  private pushService = inject(PushNotificationService);
 
   t(key: string, params?: any): string {
     return this.translationService.translate(key, params);
@@ -60,10 +62,11 @@ export class AppShellComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserContext();
 
-    // Poll invitations every 30 seconds
-    setInterval(() => {
+    // Slušaj push notifikacije i kad dođe neka (npr. invitation), osvježi listu pozivnica
+    this.pushService.messages$.subscribe((message: any) => {
+      this.logger.log('Primljena push obavijest, osvježavam pozivnice...');
       this.loadPendingInvitations();
-    }, 30000);
+    });
   }
 
   @HostListener('document:click', ['$event'])

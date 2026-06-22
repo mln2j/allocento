@@ -125,14 +125,13 @@ Route::middleware('auth:sanctum')->group(function () {
         */
 
         Route::get('transactions', [TransactionController::class, 'all']);
-        Route::post('transactions/bulk', [TransactionController::class, 'bulk']);
+        Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
+        Route::post('transactions/sync', [TransactionController::class, 'sync']);
 
         Route::get('accounts/{account}/transactions', [TransactionController::class, 'index']);
         Route::post('accounts/{account}/transactions', [TransactionController::class, 'store']);
         Route::put('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update']);
         Route::delete('accounts/{account}/transactions/{transaction}', [TransactionController::class, 'destroy']);
-
-        Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
 
         /*
         |-------------------------

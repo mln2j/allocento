@@ -6,6 +6,7 @@ import { Project, ProjectRepository } from '../../core/repositories/project.repo
 import { TranslationService } from '../../core/services/translation.service';
 import { ToastService } from '../../core/services/toast.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
+import { AppInitializerService } from '../../core/services/app-initializer';
 
 import { ModalComponent } from '../../shared/modal/modal.component';
 
@@ -23,6 +24,7 @@ export class ProjectsPage implements OnInit {
   private location = inject(Location);
   private router = inject(Router);
   public workspaceService = inject(WorkspaceService);
+  private appInitializer = inject(AppInitializerService);
 
   get isMainNav(): boolean {
     try {
@@ -35,12 +37,14 @@ export class ProjectsPage implements OnInit {
 
   projects = signal<Project[]>([]);
   isLoading = signal<boolean>(true);
+  isOnline = signal<boolean>(true);
   
   isModalOpen = false;
   projectForm!: FormGroup;
   isSaving = false;
 
   ngOnInit() {
+    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadProjects();
   }

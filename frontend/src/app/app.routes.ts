@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { SplashPage } from './pages/splash/splash.page';
 import { AppShellComponent } from './core/layout/app-shell/app-shell.component';
 import { ErrorPage } from './pages/error/error.page';
@@ -84,6 +84,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/setttings/settings.page').then(m => m.SettingsPage)
       },
       
+      {
+        path: 'reports',
+        loadComponent: () => import('./pages/reports/reports.page').then(m => m.ReportsPage)
+      },
       {
         path: 'projects', loadComponent: () => import('./pages/projects/projects.page').then(m => m.ProjectsPage) },
       { path: 'projects/:id', loadComponent: () => import('./pages/project-details/project-details.page').then(m => m.ProjectDetailsPage) },

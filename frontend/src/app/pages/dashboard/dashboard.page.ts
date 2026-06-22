@@ -9,6 +9,7 @@ import { API_BASE_URL } from '../../core/api.config';
 import { firstValueFrom } from 'rxjs';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { TransactionModalService } from '../../services/transaction-modal.service';
+import { SyncService } from '../../core/services/sync';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +25,7 @@ export class DashboardPage implements OnInit {
   private router = inject(Router);
   private workspaceService = inject(WorkspaceService);
   public transactionModalService = inject(TransactionModalService);
+  private syncService = inject(SyncService);
 
   // Reaktivna stanja
   totalBalance = signal<number>(0);
@@ -64,6 +66,11 @@ export class DashboardPage implements OnInit {
 
     // Refresh dashboard on modal save
     this.transactionModalService.saved$.subscribe(() => {
+      this.loadDashboardData();
+    });
+
+    // Refresh dashboard on offline sync completion
+    this.syncService.syncCompleted$.subscribe(() => {
       this.loadDashboardData();
     });
   }

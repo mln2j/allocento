@@ -28,7 +28,7 @@ Ovaj dokument mapira zahtjeve iz opisa diplomskog rada na trenutno stanje projek
 - [ ] **Kategorizacija troškova (Frontend):** **Zadatak:** Provjeriti i po potrebi dovršiti korisničko sučelje (UI) za dodavanje, uređivanje i brisanje kategorija, te upravljanje vlastitim kategorijama unutar Space-a.
 
 ### Automatska raspodjela sredstava po projektima
-- [ ] **Automatska raspodjela:** **Zadatak (NOVO):** Opis izričito traži ovu stavku. Trenutno nemamo funkcionalnost koja *automatski* raspodjeljuje sredstva. Trebamo dizajnirati funkcionalnost kojom se, recimo, određeni prihod (npr. uplata od klijenta) može automatski razdijeliti na više projekata/odjela prema unaprijed definiranom postotku ili iznosu.
+- [ ] **Automatska raspodjela:** **PAUZIRANO:** Prema dogovoru s mentorom provjerit će se može li se ovaj dio izostaviti. Trenutno nemamo funkcionalnost koja *automatski* raspodjeljuje sredstva na više projekata.
 
 ### Financijski izvještaji i analiza
 - [x] **Osnovne analize:** Nadzorna ploča (Dashboard) prikazuje analizu potrošnje po kategorijama i projektima (Kružni grafikoni) te po danima u zadnjih 7 dana (Stupčasti grafikon).
@@ -40,7 +40,7 @@ Ovaj dokument mapira zahtjeve iz opisa diplomskog rada na trenutno stanje projek
 
 ### Ponavljajuće financijske transakcije
 - [x] **Ponavljajuće transakcije (Backend):** Implementiran `RecurringTemplate` model, controller i pozadinski posao (`transactions:process-recurring`).
-- [ ] **Ponavljajuće transakcije (Frontend):** **Zadatak:** Izraditi sučelje za pregled i kreiranje pravila ponavljanja (dnevno, tjedno, mjesečno) unutar odjeljka za transakcije.
+- [ ] **Ponavljajuće transakcije (Frontend):** **PAUZIRANO:** Zasad se fokusiramo na offline mode i izvještaje. Ovo će biti dodano na kraju, po potrebi.
 
 ## 3. Dodatne (naše) značajke ispod haube
 - [ ] **Offline Bulk Sync:** Offline rad s IndexedDB-om je tu, ali **Zadatak** je optimizirati sinkronizaciju da šalje podatke u bazu isključivo koristeći kreirani bulk endpoint (`POST /api/transactions/bulk`), a ne jedno po jedno.

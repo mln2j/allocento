@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
+import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -60,7 +60,8 @@ export class SettingsPage implements OnInit {
     { id: 'accounts', translationKey: 'nav.accounts' },
     { id: 'workspaces', translationKey: 'nav.workspace' },
     { id: 'categories', translationKey: 'nav.categories' },
-    { id: 'projects', translationKey: 'nav.projects' }
+    { id: 'projects', translationKey: 'nav.projects' },
+    { id: 'reports', translationKey: 'nav.reports' }
   ];
   selectedNavPrefs: string[] = [];
   hasNavChanges = false;

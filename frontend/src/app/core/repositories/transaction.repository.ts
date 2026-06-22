@@ -32,13 +32,18 @@ export class TransactionRepository {
     return this.api.get<any>('/transactions').pipe(
       map(res => (res.data || []).map((api: any) => this.mapApiToTransaction(api))),
       tap(async (transactions) => {
-        // Spremi/Keširaj sve transakcije u IndexedDB u pozadini
-        for (const tx of transactions) {
-          try {
-            await this.localDb.put('transactions', this.mapTransactionToLocal(tx));
-          } catch (e) {
-            console.warn('Failed to cache transaction', tx.id, e);
+        try {
+          const offlineQueue = await this.localDb.getAll('offline_queue');
+          if (!offlineQueue || offlineQueue.length === 0) {
+            // Ako nemamo akcija koje čekaju na sinkronizaciju, sigurno je obrisati stare i staviti samo svježe s API-ja
+            await this.localDb.clearStore('transactions');
           }
+          // Spremi/Keširaj sve transakcije u IndexedDB u pozadini
+          for (const tx of transactions) {
+            await this.localDb.put('transactions', this.mapTransactionToLocal(tx));
+          }
+        } catch (e) {
+          console.warn('Failed to cache transactions', e);
         }
       }),
       catchError(() => {
@@ -107,13 +112,17 @@ export class TransactionRepository {
           await this.localDb.put('transactions', this.mapTransactionToLocal(localTx));
           // 2. Spremi u 'offline_queue' za sinkronizaciju kad se internet vrati
           const queueItem = {
-            accountId: accountId,
-            type: localTx.type,
-            amount: localTx.amount,
-            date: localTx.date,
-            description: localTx.description,
-            category_id: localTx.categoryId,
-            project_id: localTx.projectId
+            action: 'create',
+            payload: {
+              account_id: accountId,
+              type: localTx.type,
+              amount: localTx.amount,
+              date: localTx.date,
+              description: localTx.description,
+              category_id: localTx.categoryId,
+              project_id: localTx.projectId,
+              local_id: localId
+            }
           };
           await this.localDb.put('offline_queue', queueItem);
           return localTx;
@@ -156,9 +165,26 @@ export class TransactionRepository {
               amount: payload.amount !== undefined ? payload.amount : localItem.amount,
               date: payload.date || localItem.date,
               description: payload.description !== undefined ? payload.description : localItem.description,
-              categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId
+              categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId,
+              projectId: payload.projectId !== undefined ? payload.projectId : localItem.projectId
             };
             await this.localDb.put('transactions', updated);
+
+            const queueItem = {
+              action: 'update',
+              transaction_id: transactionId,
+              payload: {
+                account_id: accountId,
+                type: updated.type,
+                amount: updated.amount,
+                date: updated.date,
+                description: updated.description,
+                category_id: updated.categoryId,
+                project_id: updated.projectId
+              }
+            };
+            await this.localDb.put('offline_queue', queueItem);
+
             return this.mapLocalToTransaction(updated);
           }
           throw new Error('Transaction to update not found offline.');
@@ -192,6 +218,11 @@ export class TransactionRepository {
       return from(
         (async () => {
           await this.localDb.delete('transactions', transactionId);
+          const queueItem = {
+            action: 'delete',
+            transaction_id: transactionId
+          };
+          await this.localDb.put('offline_queue', queueItem);
         })()
       );
     }
