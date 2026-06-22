@@ -12,6 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -21,6 +26,19 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Ensure clean remote app directory
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          if [ -d /home/allocento/app ]; then
+            sudo rm -rf /home/allocento/app
+          fi
+          EOF
 
       - name: Clone or pull repository on server
         env:
@@ -39,6 +57,18 @@ jobs:
             git reset --hard origin/main
             git clean -fd
           fi
+          EOF
+
+
+      - name: Set repository ownership
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          sudo chown -R $SSH_USER:$SSH_USER /home/allocento/app
           EOF
 
       - name: Install backend dependencies
@@ -89,7 +119,7 @@ jobs:
           sudo systemctl restart allocento-backend
           EOF
 
-      - name: Install frontend dependencies
+      - name: Install Angular CLI globally
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -98,7 +128,7 @@ jobs:
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
           cd /home/allocento/app/frontend
-          npm ci
+          npm install -g @angular/cli
           EOF
 
       - name: Build frontend
