@@ -68,7 +68,7 @@ jobs:
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
-          sudo chown -R $SSH_USER:$SSH_USER /home/allocento/app
+          sudo chown -R $SSH_USER:devteam /home/allocento/app
           EOF
 
       - name: Install backend dependencies
