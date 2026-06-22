@@ -10,7 +10,7 @@ export class LocalDbService {
   private translationService = inject(TranslationService); // <-- INJEKTIRAMO GA
 
   private dbName = 'AllocentoDB';
-  private dbVersion = 2;
+  private dbVersion = 3;
   private db: IDBDatabase | null = null;
 
   /**
@@ -52,6 +52,10 @@ export class LocalDbService {
 
         if (!db.objectStoreNames.contains('categories')) {
           db.createObjectStore('categories', {keyPath: 'id'});
+        }
+
+        if (!db.objectStoreNames.contains('projects')) {
+          db.createObjectStore('projects', {keyPath: 'id'});
         }
 
         if (!db.objectStoreNames.contains('workspaces')) {

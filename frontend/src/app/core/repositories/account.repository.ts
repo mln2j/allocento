@@ -116,6 +116,13 @@ export class AccountRepository {
       return from(
         (async () => {
           await this.localDb.put('accounts', this.mapAccountToLocal(localAcc));
+          const queueItem = {
+            entity: 'account',
+            action: 'create',
+            entity_id: localId,
+            payload: payload
+          };
+          await this.localDb.put('offline_queue', queueItem);
           return localAcc;
         })()
       );
@@ -147,10 +154,17 @@ export class AccountRepository {
               currency: payload.currency !== undefined ? payload.currency : localItem.currency,
               balance: payload.balance !== undefined ? payload.balance : localItem.balance
             };
-            await this.localDb.put('accounts', updated);
-            return this.mapLocalToAccount(updated);
+            await this.localDb.put('accounts', this.mapAccountToLocal(updated));
+            const queueItem = {
+              entity: 'account',
+              action: 'update',
+              entity_id: id,
+              payload: payload
+            };
+            await this.localDb.put('offline_queue', queueItem);
+            return updated;
           }
-          throw new Error('Account to update not found offline.');
+          throw new Error('Account not found offline.');
         })()
       );
     }
@@ -183,6 +197,12 @@ export class AccountRepository {
       return from(
         (async () => {
           await this.localDb.delete('accounts', id);
+          const queueItem = {
+            entity: 'account',
+            action: 'delete',
+            entity_id: id
+          };
+          await this.localDb.put('offline_queue', queueItem);
         })()
       );
     }

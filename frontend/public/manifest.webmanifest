@@ -2,6 +2,9 @@
   "name": "Allocento",
   "short_name": "Allocento",
   "display": "standalone",
+  "theme_color": "#31DDAB",
+  "background_color": "#ffffff",
+  "description": "Allocento - Smart Finance Tracker",
   "scope": "./",
   "start_url": "./",
   "icons": [

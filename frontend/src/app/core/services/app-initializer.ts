@@ -21,6 +21,17 @@ export class AppInitializerService {
   private userApiUrl = `${API_BASE_URL}/user`; // <-- Endpoint za provjeru tokena
   public isOnlineMode = true;
 
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', async () => {
+        this.isOnlineMode = await this.checkBackendHealth();
+      });
+      window.addEventListener('offline', () => {
+        this.isOnlineMode = false;
+      });
+    }
+  }
+
   /**
    * Glavna metoda koja pokreće sve provjere dok je korisnik na Splash Screenu.
    */
