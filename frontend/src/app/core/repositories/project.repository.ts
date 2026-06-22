@@ -3,24 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { WorkspaceService } from '../services/workspace.service';
-
-export interface Project {
-  id: number;
-  workspace_id: number;
-  name: string;
-  description?: string;
-  total_income?: number;
-  total_expense?: number;
-  total?: number;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface ProjectDetailsResponse {
-  project: Project;
-  total_income: number;
-  total_expense: number;
-}
+import { Project, ProjectDetailsResponse } from '../models/project.model';
+export type { Project, ProjectDetailsResponse };
 
 @Injectable({
   providedIn: 'root'

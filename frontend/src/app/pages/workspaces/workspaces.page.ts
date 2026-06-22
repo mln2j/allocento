@@ -296,7 +296,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
           this.toastService.success(this.t('workspaces.removeMemberSuccess') || 'Member removed successfully!');
           const updated = { ...currentWS };
           if (updated.users) {
-            updated.users = updated.users.filter(u => u.id !== userId);
+            updated.users = updated.users.filter((u: any) => u.id !== userId);
           }
           this.selectedWorkspace.set(updated);
           this.closeMemberModal();

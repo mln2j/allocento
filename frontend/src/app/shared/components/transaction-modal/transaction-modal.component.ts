@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, effect, computed, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { TransactionModalService } from '../../../services/transaction-modal.service';
+import { TransactionModalService } from '../../../core/services/transaction-modal.service';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
 import { AccountRepository } from '../../../core/repositories/account.repository';
 import { ProjectRepository, Project } from '../../../core/repositories/project.repository';
@@ -131,7 +131,7 @@ export class TransactionModalComponent implements OnInit {
       
       let canEdit = true;
       if (ws && user?.id) {
-        const wsUser = ws.users?.find(u => u.id === user.id);
+        const wsUser = ws.users?.find((u: any) => u.id === user.id);
         if (wsUser && wsUser.pivot?.role === 'member') {
             canEdit = false;
         }

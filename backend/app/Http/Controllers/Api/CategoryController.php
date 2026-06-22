@@ -4,13 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Transaction;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
+    protected $categoryService;
+
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
     public function index(Request $request)
     {
         $workspaceId = $request->header('X-Workspace-Id');
@@ -18,11 +24,7 @@ class CategoryController extends Controller
             return response()->json(['error' => 'Workspace ID is required.'], 400);
         }
 
-        $categories = Category::where(function($q) use ($workspaceId) {
-            $q->where('workspace_id', $workspaceId)
-              ->orWhereNull('workspace_id'); // Global ones
-        })->orderBy('name')->get();
-
+        $categories = $this->categoryService->getAllForWorkspace($workspaceId);
         return response()->json($categories);
     }
 
@@ -40,7 +42,7 @@ class CategoryController extends Controller
         }
 
         $data['workspace_id'] = $workspaceId;
-        $category = Category::create($data);
+        $category = $this->categoryService->createCategory($data);
 
         return response()->json($category, Response::HTTP_CREATED);
     }
@@ -52,23 +54,12 @@ class CategoryController extends Controller
             return response()->json(['error' => 'Workspace ID is required.'], 400);
         }
 
-        $category = Category::with(['transactions.project', 'transactions.account'])->where(function($q) use ($workspaceId) {
-            $q->where('workspace_id', $workspaceId)
-              ->orWhereNull('workspace_id');
-        })->where('id', $id)->first();
-
-        if (!$category) {
+        $result = $this->categoryService->getCategoryWithTotals($id, $workspaceId);
+        if (!$result) {
             return response()->json(['error' => 'Category not found.'], 404);
         }
 
-        $totalIncome = $category->transactions->where('type', 'income')->sum('amount');
-        $totalExpense = $category->transactions->where('type', 'expense')->sum('amount');
-
-        return response()->json([
-            'category' => $category,
-            'total_income' => $totalIncome,
-            'total_expense' => abs($totalExpense),
-        ]);
+        return response()->json($result);
     }
 
     public function update(Request $request, Category $category)
@@ -79,22 +70,24 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'exists:categories,id'],
         ]);
 
-        if ($category->workspace_id !== null && $category->workspace_id != $request->header('X-Workspace-Id')) {
+        $workspaceId = $request->header('X-Workspace-Id');
+        $updated = $this->categoryService->updateCategory($category, $data, $workspaceId);
+
+        if (!$updated) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $category->update($data);
-
-        return response()->json($category);
+        return response()->json($updated);
     }
 
     public function destroy(Request $request, Category $category)
     {
-        if ($category->workspace_id !== null && $category->workspace_id != $request->header('X-Workspace-Id')) {
+        $workspaceId = $request->header('X-Workspace-Id');
+        $deleted = $this->categoryService->deleteCategory($category, $workspaceId);
+
+        if (!$deleted) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
-        $category->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
@@ -102,40 +95,17 @@ class CategoryController extends Controller
     public function merge(Request $request, int $fromId, int $toId)
     {
         $workspaceId = $request->header('X-Workspace-Id');
-        
-        if ($fromId === $toId) {
-            return response()->json([
-                'message' => 'Cannot merge category into itself',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $result = $this->categoryService->mergeCategories($fromId, $toId, $workspaceId);
+
+        if (is_string($result)) {
+            $status = Response::HTTP_BAD_REQUEST;
+            if ($result === 'Unauthorized') $status = 403;
+            if ($result === 'One or both categories not found') $status = 404;
+            if ($result === 'Cannot merge category into itself') $status = 422;
+
+            return response()->json(['error' => $result], $status);
         }
-
-        $from = Category::find($fromId);
-        $to   = Category::find($toId);
-
-        if (! $from || ! $to) {
-            return response()->json([
-                'message' => 'One or both categories not found',
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        if (($from->workspace_id !== null && $from->workspace_id != $workspaceId) ||
-            ($to->workspace_id !== null && $to->workspace_id != $workspaceId)) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-
-
-        DB::transaction(function () use ($from, $to) {
-            Transaction::where('category_id', $from->id)
-                ->update(['category_id' => $to->id]);
-
-            Category::where('parent_id', $from->id)
-                ->update(['parent_id' => $to->id]);
-
-            $from->delete();
-        });
 
         return response()->json(['message' => 'Categories merged']);
     }
-
 }

@@ -8,7 +8,7 @@ import { AppInitializerService } from '../../core/services/app-initializer';
 import { API_BASE_URL } from '../../core/api.config';
 import { firstValueFrom } from 'rxjs';
 import { WorkspaceService } from '../../core/services/workspace.service';
-import { TransactionModalService } from '../../services/transaction-modal.service';
+import { TransactionModalService } from '../../core/services/transaction-modal.service';
 import { SyncService } from '../../core/services/sync';
 
 @Component({

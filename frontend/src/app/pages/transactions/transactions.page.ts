@@ -13,7 +13,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { Account } from '../../core/models/account.model';
-import { TransactionModalService } from '../../services/transaction-modal.service';
+import { TransactionModalService } from '../../core/services/transaction-modal.service';
 import { SyncService } from '../../core/services/sync';
 
 @Component({

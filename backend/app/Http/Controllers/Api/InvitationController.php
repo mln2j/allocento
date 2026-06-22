@@ -5,235 +5,108 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
 use App\Models\Workspace;
+use App\Services\InvitationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 
 class InvitationController extends Controller
 {
-    /**
-     * Invite user to workspace
-     */
+    protected $invitationService;
+
+    public function __construct(InvitationService $invitationService)
+    {
+        $this->invitationService = $invitationService;
+    }
+
     public function invite(Request $request, Workspace $workspace): JsonResponse
     {
-        $user = $request->user();
-
-        $memberRole = $workspace->users()
-            ->where('users.id', $user->id)
-            ->first()
-            ?->pivot
-            ->role;
-
-        if (!in_array($memberRole, ['owner', 'manager'])) {
-            return response()->json([
-                'message' => 'Unauthorized to invite users to this workspace.'
-            ], 403);
-        }
-
         $validated = $request->validate([
             'email' => ['required', 'email'],
             'role' => ['sometimes', 'in:manager,member'],
         ]);
 
-        $role = $validated['role'] ?? 'member';
+        $result = $this->invitationService->invite($request->user(), $workspace, $validated);
 
-        if ($memberRole === 'manager' && $role === 'manager') {
-            return response()->json([
-                'message' => 'Managers cannot invite other managers.'
-            ], 403);
+        if (is_string($result)) {
+            if ($result === 'Unauthorized' || $result === 'Managers cannot invite other managers.') {
+                return response()->json(['message' => $result], 403);
+            }
+            if ($result === 'User is already a member.') {
+                return response()->json(['message' => $result], 422);
+            }
         }
 
-        $alreadyMember = $workspace->users()
-            ->where('email', $validated['email'])
-            ->exists();
-
-        if ($alreadyMember) {
+        if (is_array($result) && isset($result['error'])) {
             return response()->json([
-                'message' => 'User is already a member.'
+                'message' => $result['error'],
+                'invitation' => $result['invitation']
             ], 422);
-        }
-
-        $pending = Invitation::where('workspace_id', $workspace->id)
-            ->where('email', $validated['email'])
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->first();
-
-        if ($pending) {
-            return response()->json([
-                'message' => 'Pending invitation already exists.',
-                'invitation' => $pending
-            ], 422);
-        }
-
-        $invitation = Invitation::create([
-            'workspace_id' => $workspace->id,
-            'email' => $validated['email'],
-            'role' => $role,
-            'invited_by' => $user->id,
-            'token' => Str::random(40),
-            'expires_at' => now()->addDays(7),
-        ]);
-
-        $invitedUser = \App\Models\User::where('email', $validated['email'])->first();
-        if ($invitedUser) {
-            $invitedUser->notify(new \App\Notifications\WorkspaceInvitationReceived($workspace->name));
         }
 
         return response()->json([
             'message' => 'Invitation created successfully.',
-            'invitation' => $invitation,
+            'invitation' => $result,
         ]);
     }
 
-    /**
-     * Pending invitations for logged user
-     */
     public function pending(Request $request): JsonResponse
     {
-        $invitations = Invitation::with(['workspace', 'inviter'])
-            ->where('email', $request->user()->email)
-            ->whereNull('accepted_at')
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->latest()
-            ->get();
-
+        $invitations = $this->invitationService->getPending($request->user());
         return response()->json($invitations);
     }
 
-    /**
-     * Reject invitation
-     */
     public function reject(Request $request, $token): JsonResponse
     {
-        $invitation = Invitation::where('token', $token)
-            ->where('email', $request->user()->email)
-            ->firstOrFail();
+        $result = $this->invitationService->reject($request->user(), $token);
+        if (!$result) {
+            return response()->json(['message' => 'Invitation not found.'], 404);
+        }
 
-        $invitation->delete();
-
-        return response()->json([
-            'message' => 'Invitation rejected.'
-        ]);
+        return response()->json(['message' => 'Invitation rejected.']);
     }
 
-    /**
-     * Accept invitation
-     */
     public function accept(Request $request, $token): JsonResponse
     {
-        $user = $request->user();
+        $result = $this->invitationService->accept($request->user(), $token);
 
-        $invitation = Invitation::where('token', $token)
-            ->where('email', $user->email)
-            ->firstOrFail();
-
-        if ($invitation->expires_at?->isPast()) {
-            return response()->json([
-                'message' => 'Invitation expired.'
-            ], 422);
+        if ($result === false) {
+            return response()->json(['message' => 'Invitation not found.'], 404);
         }
-
-        $workspace = Workspace::find($invitation->workspace_id);
-
-        if (!$workspace) {
-            return response()->json([
-                'message' => 'Workspace not found.'
-            ], 404);
+        if ($result === 'Expired') {
+            return response()->json(['message' => 'Invitation expired.'], 422);
         }
-
-        DB::transaction(function () use ($workspace, $user, $invitation) {
-
-            $workspace->users()->syncWithoutDetaching([
-                $user->id => ['role' => $invitation->role]
-            ]);
-
-            if (!$user->favorite_workspace_id) {
-                $user->update([
-                    'favorite_workspace_id' => $workspace->id
-                ]);
-            }
-
-            $invitation->update([
-                'accepted_at' => now()
-            ]);
-
-            $invitation->delete();
-        });
+        if ($result === 'Workspace not found') {
+            return response()->json(['message' => 'Workspace not found.'], 404);
+        }
 
         return response()->json([
-            'message' => "Successfully joined '{$workspace->name}'.",
-            'workspace' => $workspace
+            'message' => "Successfully joined '{$result->name}'.",
+            'workspace' => $result
         ]);
     }
 
-    /**
-     * Get pending invitations for a specific workspace (Owner/Manager only)
-     */
     public function index(Request $request, Workspace $workspace): JsonResponse
     {
-        $user = $request->user();
+        $result = $this->invitationService->getForWorkspace($request->user(), $workspace);
 
-        $memberRole = $workspace->users()
-            ->where('users.id', $user->id)
-            ->first()
-            ?->pivot
-            ->role;
-
-        if (!in_array($memberRole, ['owner', 'manager'])) {
-            return response()->json([
-                'message' => 'Unauthorized to view invitations for this workspace.'
-            ], 403);
+        if ($result === false) {
+            return response()->json(['message' => 'Unauthorized to view invitations for this workspace.'], 403);
         }
 
-        $invitations = Invitation::with('inviter')
-            ->where('workspace_id', $workspace->id)
-            ->whereNull('accepted_at')
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->latest()
-            ->get();
-
-        return response()->json($invitations);
+        return response()->json($result);
     }
 
-    /**
-     * Delete/Revoke an active invitation for a workspace (Owner/Manager only)
-     */
     public function destroy(Request $request, Workspace $workspace, Invitation $invitation): JsonResponse
     {
-        $user = $request->user();
+        $result = $this->invitationService->destroyForWorkspace($request->user(), $workspace, $invitation);
 
-        $memberRole = $workspace->users()
-            ->where('users.id', $user->id)
-            ->first()
-            ?->pivot
-            ->role;
-
-        if (!in_array($memberRole, ['owner', 'manager'])) {
-            return response()->json([
-                'message' => 'Unauthorized to manage invitations for this workspace.'
-            ], 403);
+        if ($result === 'Unauthorized') {
+            return response()->json(['message' => 'Unauthorized to manage invitations for this workspace.'], 403);
+        }
+        if ($result === 'Not found') {
+            return response()->json(['message' => 'Invitation not found in this workspace.'], 404);
         }
 
-        if ($invitation->workspace_id !== $workspace->id) {
-            return response()->json([
-                'message' => 'Invitation not found in this workspace.'
-            ], 404);
-        }
-
-        $invitation->delete();
-
-        return response()->json([
-            'message' => 'Invitation revoked successfully.'
-        ]);
+        return response()->json(['message' => 'Invitation revoked successfully.']);
     }
 }

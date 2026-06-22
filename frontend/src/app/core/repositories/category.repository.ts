@@ -3,20 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { WorkspaceService } from '../services/workspace.service';
-
-export interface Category {
-  id: number;
-  name: string;
-  type: string;
-  parent_id?: number | null;
-  workspace_id?: number | null;
-}
-
-export interface CategoryDetailsResponse {
-  category: Category;
-  total_income: number;
-  total_expense: number;
-}
+import { Category, CategoryDetailsResponse } from '../models/category.model';
+export type { Category, CategoryDetailsResponse };
 
 @Injectable({
   providedIn: 'root'

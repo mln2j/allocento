@@ -28,19 +28,19 @@ export const routes: Routes = [
       },
       {
         path: 'verify-email',
-        loadComponent: () => import('./pages/verify-email/verify-email').then(m => m.VerifyEmail)
+        loadComponent: () => import('./pages/verify-email/verify-email.page').then(m => m.VerifyEmail)
       },
       {
         path: 'forgot-password',
-        loadComponent: () => import('./pages/forgot-password/forgot-password').then(m => m.ForgotPassword)
+        loadComponent: () => import('./pages/forgot-password/forgot-password.page').then(m => m.ForgotPassword)
       },
       {
         path: 'reset-password',
-        loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword)
+        loadComponent: () => import('./pages/reset-password/reset-password.page').then(m => m.ResetPassword)
       },
       {
         path: 'onboarding',
-        loadComponent: () => import('./pages/onboarding/onboarding').then(m => m.Onboarding)
+        loadComponent: () => import('./pages/onboarding/onboarding.page').then(m => m.Onboarding)
       }
     ]
   },
@@ -81,7 +81,7 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
-        loadComponent: () => import('./pages/setttings/settings.page').then(m => m.SettingsPage)
+        loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage)
       },
       
       {

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Transaction } from '../core/models/transaction.model';
+import { Transaction } from '../models/transaction.model';
 
 export interface TransactionModalState {
   isOpen: boolean;

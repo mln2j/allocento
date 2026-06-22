@@ -7,7 +7,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import { TransactionModalService } from '../../services/transaction-modal.service';
+import { TransactionModalService } from '../../core/services/transaction-modal.service';
 
 @Component({
   selector: 'app-project-details',

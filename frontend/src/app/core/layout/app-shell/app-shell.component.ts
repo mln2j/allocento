@@ -20,7 +20,7 @@ import { PushNotificationService } from '../../services/push-notification.servic
 import { HeaderComponent } from '../header/header.component';
 import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
-import { TransactionModalService } from '../../../services/transaction-modal.service';
+import { TransactionModalService } from '../../services/transaction-modal.service';
 
 @Component({
   selector: 'app-app-shell',

@@ -4,20 +4,8 @@ import { Observable, catchError, from, map, of, tap } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
 import { LocalDbService } from '../services/local-db';
 import { AppInitializerService } from '../services/app-initializer';
-
-export interface Workspace {
-  id: number;
-  workspace_id: string; // Primijetio sam da u where upitima koristiš workspace_id string/UUID
-  name: string;
-  type: 'personal' | 'household' | 'company';
-  icon: string;
-  currency: string;
-  users_count?: number;
-  pivot?: { role: string };
-  users?: any[];
-  accounts?: any[];
-  enabled_features?: string[];
-}
+import { Workspace } from '../models/workspace.model';
+export type { Workspace };
 
 @Injectable({
   providedIn: 'root'
