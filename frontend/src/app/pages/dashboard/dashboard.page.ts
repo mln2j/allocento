@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -10,11 +10,13 @@ import { firstValueFrom } from 'rxjs';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { TransactionModalService } from '../../core/services/transaction-modal.service';
 import { SyncService } from '../../core/services/sync';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BaseChartDirective],
   templateUrl: './dashboard.page.html',
 })
 export class DashboardPage implements OnInit {
@@ -235,53 +237,58 @@ export class DashboardPage implements OnInit {
     return Math.max(5, Math.round((amount / max) * 90));
   }
 
-  getLineChartPoints() {
+  // Chart.js Configuration
+  lineChartData = computed<ChartConfiguration<'line'>['data']>(() => {
     const days = this.dailySpending();
-    if (!days || days.length === 0) return [];
-    
-    const max = Math.max(...days.map(d => Number(d.amount)), 0);
-    const maxVal = max === 0 ? 1 : max;
-    
-    const width = 700;
-    const height = 200;
-    const paddingLeftRight = 50;
-    const paddingTop = 30;
-    const paddingBottom = 40;
-    const usableWidth = width - (paddingLeftRight * 2);
-    const usableHeight = height - paddingTop - paddingBottom;
-    
-    return days.map((d, i) => {
-      const x = paddingLeftRight + (days.length > 1 ? (i * usableWidth / (days.length - 1)) : 0);
-      const amount = Number(d.amount);
-      const y = (height - paddingBottom) - (amount / maxVal) * usableHeight;
-      return {
-        x,
-        y,
-        amount,
-        date: d.date,
-        dayName: d.day_name
-      };
-    });
-  }
+    if (!days || days.length === 0) {
+      return { labels: [], datasets: [] };
+    }
 
-  getLineChartPath(): string {
-    const pts = this.getLineChartPoints();
-    if (pts.length === 0) return '';
-    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-  }
+    return {
+      labels: days.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString(this.translationService.currentLang(), { weekday: 'short' });
+      }),
+      datasets: [
+        {
+          data: days.map(d => Number(d.amount)),
+          label: this.t('dashboard.spending') || 'Spending',
+          fill: true,
+          tension: 0.4,
+          borderColor: '#7f5af0',
+          backgroundColor: 'rgba(127, 90, 240, 0.2)',
+          pointBackgroundColor: '#7f5af0',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#7f5af0',
+        }
+      ]
+    };
+  });
 
-  getLineChartAreaPath(): string {
-    const pts = this.getLineChartPoints();
-    if (pts.length === 0) return '';
-    const linePath = this.getLineChartPath();
-    const height = 200;
-    const paddingBottom = 40;
-    const yBaseline = height - paddingBottom;
-    const firstPt = pts[0];
-    const lastPt = pts[pts.length - 1];
-    
-    return `${linePath} L ${lastPt.x.toFixed(1)} ${yBaseline} L ${firstPt.x.toFixed(1)} ${yBaseline} Z`;
-  }
+  lineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            let label = context.dataset.label || '';
+            if (label) label += ': ';
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat(this.translationService.currentLang(), { style: 'currency', currency: this.activeWorkspace()?.currency || 'EUR' }).format(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: { border: { display: false } }
+    }
+  };
 
   getTotalSpending(type: 'categories' | 'projects' = 'categories'): number {
     const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();

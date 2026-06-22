@@ -8,11 +8,15 @@ import { ToastService } from '../../core/services/toast.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { TransactionModalService } from '../../core/services/transaction-modal.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { computed } from '@angular/core';
+import { WorkspaceService } from '../../core/services/workspace.service';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent, BaseChartDirective],
   templateUrl: './project-details.page.html'
 })
 export class ProjectDetailsPage implements OnInit {
@@ -38,6 +42,76 @@ export class ProjectDetailsPage implements OnInit {
   get transactions(): Transaction[] {
     return (this.details() as any)?.project?.transactions || [];
   }
+
+  // Analytics Computed Properties
+  activeWorkspace = inject(WorkspaceService).activeWorkspace;
+
+  topCategories = computed(() => {
+    const txs = this.transactions;
+    const catMap = new Map<number, { name: string; amount: number; color?: string }>();
+    
+    txs.forEach(t => {
+      if (t.category) {
+        const current = catMap.get(t.category.id) || { name: t.category.name, amount: 0, color: '#7f5af0' };
+        current.amount += Number(t.amount);
+        catMap.set(t.category.id, current);
+      }
+    });
+
+    return Array.from(catMap.values())
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 3);
+  });
+
+  barChartData = computed<ChartConfiguration<'bar'>['data']>(() => {
+    const txs = this.transactions;
+    if (!txs.length) return { labels: [], datasets: [] };
+
+    // Group by month
+    const monthMap = new Map<string, number>();
+    const now = new Date();
+    
+    // Initialize last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleDateString(this.translationService.currentLang(), { month: 'short', year: '2-digit' });
+      monthMap.set(label, 0);
+    }
+
+    txs.forEach(t => {
+      const date = new Date(t.date);
+      if (date >= new Date(now.getFullYear(), now.getMonth() - 5, 1)) {
+        const label = date.toLocaleDateString(this.translationService.currentLang(), { month: 'short', year: '2-digit' });
+        if (monthMap.has(label)) {
+          monthMap.set(label, monthMap.get(label)! + Number(t.amount));
+        }
+      }
+    });
+
+    return {
+      labels: Array.from(monthMap.keys()),
+      datasets: [
+        {
+          data: Array.from(monthMap.values()),
+          label: this.t('common.spending') || 'Spending',
+          backgroundColor: '#3b82f6',
+          borderRadius: 4
+        }
+      ]
+    };
+  });
+
+  barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: { border: { display: false } }
+    }
+  };
 
   ngOnInit() {
     this.initForm();

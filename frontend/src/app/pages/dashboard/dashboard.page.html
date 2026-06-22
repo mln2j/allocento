@@ -104,7 +104,13 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 class="font-bold font-mono text-sm text-slate-800 uppercase tracking-wider">{{ t('dashboard.spendingAnalysis') || 'Spending Analysis' }}</h3>
 
-        <!-- Tab Switcher -->
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <!-- Advanced Reports Link -->
+          <button routerLink="/reports" class="text-brand-purple hover:underline text-xs font-bold font-mono flex items-center gap-1 cursor-pointer bg-transparent border-none">
+            {{ t('dashboard.advancedReports') || 'Advanced Reports' }} &rarr;
+          </button>
+          
+          <!-- Tab Switcher -->
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto flex-nowrap hide-scrollbar">
           <button
             type="button"
@@ -132,6 +138,7 @@
           >
             {{ t('dashboard.projects') || 'Projects' }}
           </button>
+        </div>
         </div>
       </div>
 
@@ -210,110 +217,18 @@
 
       <!-- By Days Line Chart Tab -->
       <div *ngIf="activeTab() === 'days'" class="space-y-4 py-2 animate-in fade-in duration-200">
-        <!-- SVG Container -->
-        <div class="relative w-full overflow-hidden">
-          <svg
-            viewBox="0 0 700 200"
-            class="w-full h-auto overflow-visible"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <!-- Definitions for gradients -->
-            <defs>
-              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#7f5af0" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#7f5af0" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-
-            <!-- Grid Lines -->
-            <g class="stroke-slate-100 stroke-1 stroke-dasharray-[4,4]">
-              <line x1="50" y1="30" x2="650" y2="30" />
-              <line x1="50" y1="100" x2="650" y2="100" />
-              <line x1="50" y1="160" x2="650" y2="160" />
-            </g>
-
-            <!-- Area Path with Gradient -->
-            <path
-              *ngIf="dailySpending().length > 0"
-              [attr.d]="getLineChartAreaPath()"
-              fill="url(#chartGradient)"
-            />
-
-            <!-- Line Path -->
-            <path
-              *ngIf="dailySpending().length > 0"
-              [attr.d]="getLineChartPath()"
-              fill="none"
-              class="stroke-brand-purple stroke-3 stroke-linecap-round stroke-linejoin-round"
-            />
-
-            <!-- Interactive Points -->
-            <g *ngFor="let p of getLineChartPoints(); let i = index" class="group/point">
-              <!-- Grid line at point's X position on hover -->
-              <line
-                [attr.x1]="p.x"
-                y1="30"
-                [attr.x2]="p.x"
-                y2="160"
-                class="stroke-brand-purple/20 stroke-1 stroke-dasharray-[2,2] opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none"
-              />
-
-              <!-- Shaded Circle behind -->
-              <circle
-                [attr.cx]="p.x"
-                [attr.cy]="p.y"
-                r="10"
-                class="fill-brand-purple/10 opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none"
-              />
-
-              <!-- Point Circle -->
-              <circle
-                [attr.cx]="p.x"
-                [attr.cy]="p.y"
-                r="5"
-                class="fill-brand-purple stroke-white stroke-2 shadow-sm transition-all duration-200 group-hover/point:r-6 cursor-pointer"
-              />
-
-              <!-- Tooltip Popup -->
-              <g class="opacity-0 group-hover/point:opacity-100 transition-opacity duration-200 pointer-events-none z-30">
-                <!-- Tooltip Background Rect -->
-                <rect
-                  [attr.x]="p.x - 55"
-                  [attr.y]="p.y - 40"
-                  width="110"
-                  height="30"
-                  rx="6"
-                  class="fill-slate-900 shadow-xl"
-                />
-                <!-- Tooltip Text -->
-                <text
-                  [attr.x]="p.x"
-                  [attr.y]="p.y - 21"
-                  class="fill-white font-mono text-[10px] font-bold"
-                  text-anchor="middle"
-                >
-                  {{ formatAmount(p.amount) }} {{ activeWorkspace()?.currency || 'EUR' }}
-                </text>
-                <!-- Small Tooltip Arrow -->
-                <polygon
-                  [attr.points]="(p.x - 4) + ',' + (p.y - 10) + ' ' + (p.x + 4) + ',' + (p.y - 10) + ' ' + p.x + ',' + (p.y - 6)"
-                  class="fill-slate-900"
-                />
-              </g>
-            </g>
-          </svg>
+        <div class="relative w-full h-[250px] overflow-hidden">
+          <canvas baseChart
+            *ngIf="dailySpending().length > 0"
+            [data]="lineChartData()"
+            [options]="lineChartOptions"
+            type="line">
+          </canvas>
 
           <!-- Fallback when empty -->
-          <div *ngIf="dailySpending().length === 0" class="w-full h-44 flex items-center justify-center text-xs font-mono text-slate-400 py-12">
+          <div *ngIf="dailySpending().length === 0" class="w-full h-full flex items-center justify-center text-xs font-mono text-slate-400">
             {{ t('dashboard.noSpendingRecords') || 'No spending records in the last 7 days.' }}
           </div>
-        </div>
-
-        <!-- Labels -->
-        <div class="flex justify-between px-[50px] text-[10px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-          <span *ngFor="let stat of dailySpending()" class="w-16 text-center truncate">
-            {{ t('common.days.' + (stat.date | date:'EEE')) || (stat.date | date:'EEE') }}
-          </span>
         </div>
       </div>
     </div>
