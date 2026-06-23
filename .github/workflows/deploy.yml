@@ -55,6 +55,9 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
+          # Calculate the database username locally on the runner
+          DB_USER="${DB_USERNAME:-$SSH_USER}"
+
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << EOF
           set -e
           cd /home/allocento/app/backend
@@ -86,9 +89,8 @@ jobs:
           sed -i '/^[[:space:]]*DB_DATABASE=/d' .env
           echo "DB_DATABASE=\"allocento\"" >> .env
 
-          DB_USER_FINAL="${DB_USERNAME:-$SSH_USER}"
           sed -i '/^[[:space:]]*DB_USERNAME=/d' .env
-          echo "DB_USERNAME=\"$DB_USER_FINAL\"" >> .env
+          echo "DB_USERNAME=\"$DB_USER\"" >> .env
 
           sed -i '/^[[:space:]]*DB_PASSWORD=/d' .env
           echo "DB_PASSWORD=\"$DB_PASSWORD\"" >> .env
