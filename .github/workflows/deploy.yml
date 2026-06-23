@@ -75,6 +75,9 @@ jobs:
           if ! grep -q "^VAPID_PRIVATE_KEY=" .env; then
             echo "VAPID_PRIVATE_KEY=" >> .env
           fi
+          if ! grep -q "^VAPID_SUBJECT=" .env; then
+            echo "VAPID_SUBJECT=\"mailto:no-reply@allocento.komsiluk.org\"" >> .env
+          fi
 
           # Securely write env variables
           sed -i '/^[[:space:]]*DB_CONNECTION=/d' .env
