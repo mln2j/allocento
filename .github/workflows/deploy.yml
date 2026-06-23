@@ -51,6 +51,62 @@ jobs:
           fi
           EOF
 
+      - name: Create backend .env
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/backend
+          
+          # Overwrite or create .env from .env.example
+          cp -f .env.example .env
+          
+          # Replace DB connection details
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=pgsql/' .env
+          sed -i 's/^# DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^# DB_PORT=.*/DB_PORT=5432/' .env
+          sed -i 's/^DB_PORT=.*/DB_PORT=5432/' .env
+          sed -i 's/^# DB_DATABASE=.*/DB_DATABASE=allocento/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=allocento/' .env
+          sed -i 's/^# DB_USERNAME=.*/DB_USERNAME=allocento/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=allocento/' .env
+          
+          # Inject the password securely
+          sed -i 's/^# DB_PASSWORD=.*/DB_PASSWORD='"$DB_PASSWORD"'/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD='"$DB_PASSWORD"'/' .env
+          
+          # Replace other environment variables to match production configuration
+          sed -i 's/^APP_ENV=.*/APP_ENV=production/' .env
+          sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env
+          sed -i 's|^APP_URL=.*|APP_URL=https://allocento.komsiluk.org|' .env
+          
+          # Inject SMTP values
+          sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=smtp/' .env
+          sed -i 's/^MAIL_HOST=.*/MAIL_HOST=smtp.resend.com/' .env
+          sed -i 's/^MAIL_PORT=.*/MAIL_PORT=465/' .env
+          sed -i 's/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=tls/' .env
+          sed -i 's/^MAIL_USERNAME=.*/MAIL_USERNAME=resend/' .env
+          sed -i 's/^MAIL_PASSWORD=.*/MAIL_PASSWORD=re_8auJK71t_CJ7Dhc9CdpVL3LwqhsjumSN1/' .env
+          sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="no-reply@allocento.komsiluk.org"/' .env
+          
+          # Inject VAPID keys
+          if ! grep -q "VAPID_PUBLIC_KEY" .env; then
+            echo "" >> .env
+            echo "VAPID_PUBLIC_KEY=BKC0z8iF5uodid6GpjFnWc5v87Y9nqyJ5ubVUWeIREIod7a4MTYA6OUfto4TwRPtm1qEqN7W3Oi3qccKLLrlQgM" >> .env
+            echo "VAPID_PRIVATE_KEY=PWSydXRG1njZdrc1SsYC93hDnQPG87j6XUOhCG9atqU" >> .env
+          fi
+
+          # Generate APP_KEY if not set
+          if ! grep -q "^APP_KEY=base64:" .env; then
+            php artisan key:generate --no-interaction
+          fi
+          EOF
+
       - name: Install backend dependencies
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
