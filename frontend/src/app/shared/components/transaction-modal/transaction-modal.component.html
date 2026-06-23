@@ -164,9 +164,12 @@
         <!-- Date / Time -->
         <div class="space-y-1">
           <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.dateLabel') || 'Date & Time' }}</label>
-          <div class="relative">
-            <app-date-picker formControlName="date"></app-date-picker>
-          </div>
+            <input 
+              type="datetime-local" 
+              formControlName="date" 
+              [readonly]="isReadonly"
+              class="w-full max-w-full overflow-hidden bg-slate-50 border border-slate-200 text-slate-700 text-[13px] rounded-xl focus:ring-brand-purple focus:border-brand-purple block px-3 py-3 font-mono transition-colors outline-none disabled:opacity-70"
+            />
         </div>
 
         <!-- Description -->
