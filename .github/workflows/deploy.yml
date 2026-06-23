@@ -175,7 +175,7 @@ jobs:
           php artisan route:cache
           EOF
 
-      - name: Restart backend service
+      - name: Setup and restart backend services
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -183,7 +183,37 @@ jobs:
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
+          
+          # Try to create or update the queue worker service
+          SERVICE_FILE="/etc/systemd/system/allocento-queue.service"
+          cat << 'SVC' > /tmp/allocento-queue.service
+          [Unit]
+          Description=Laravel Queue Worker
+          After=network.target
+          
+          [Service]
+          User=allocento
+          Group=www-data
+          Restart=always
+          ExecStart=/usr/bin/php /home/allocento/app/backend/artisan queue:work --tries=3 --max-time=3600
+          
+          [Install]
+          WantedBy=multi-user.target
+          SVC
+          
+          if sudo -n true 2>/dev/null; then
+            echo "We have passwordless sudo, installing queue service..."
+            sudo cp /tmp/allocento-queue.service $SERVICE_FILE
+            sudo systemctl daemon-reload
+            sudo systemctl enable allocento-queue
+            sudo systemctl restart allocento-queue
+          else
+            echo "Cannot install queue service automatically (requires sudo password). Assuming it's already installed or will be done manually."
+          fi
+          
+          # Restart the main backend service (and queue if already installed manually)
           sudo systemctl restart allocento-backend
+          sudo systemctl restart allocento-queue || true
           EOF
 
       - name: Create frontend environment files
