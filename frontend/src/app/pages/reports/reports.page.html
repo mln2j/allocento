@@ -14,11 +14,19 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="space-y-1">
           <label class="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider ml-1">{{ t('common.from') }}</label>
-          <app-date-picker [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"></app-date-picker>
+          <input 
+            type="date"
+            [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
+            class="w-full min-w-0 max-w-full appearance-none overflow-hidden bg-white border border-slate-200 text-slate-700 text-[13px] rounded-xl focus:ring-brand-purple focus:border-brand-purple block px-3 py-3 font-mono transition-colors outline-none"
+          />
         </div>
         <div class="space-y-1">
           <label class="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider ml-1">{{ t('common.to') }}</label>
-          <app-date-picker [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"></app-date-picker>
+          <input 
+            type="date"
+            [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
+            class="w-full min-w-0 max-w-full appearance-none overflow-hidden bg-white border border-slate-200 text-slate-700 text-[13px] rounded-xl focus:ring-brand-purple focus:border-brand-purple block px-3 py-3 font-mono transition-colors outline-none"
+          />
         </div>
       </div>
 
