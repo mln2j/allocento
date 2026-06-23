@@ -31,6 +31,14 @@ Route::post('/email/verify-code', [AuthController::class, 'verifyEmailCode']);
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:1,1']);
 Route::post('/email/check-and-send', [AuthController::class, 'checkAndSendVerificationEmail'])->middleware('auth:sanctum');
 
+Route::get('/push/logs', function () {
+    $logPath = storage_path('logs/laravel.log');
+    if (!file_exists($logPath)) return "No log file found.";
+    // Return last 200 lines
+    $lines = file($logPath);
+    return implode("", array_slice($lines, -200));
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated routes

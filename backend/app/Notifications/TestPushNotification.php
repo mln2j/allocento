@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use App\Notifications\AngularWebPushMessage;
 
-class TestPushNotification extends Notification implements ShouldQueue
+class TestPushNotification extends Notification
 {
     use Queueable;
 
