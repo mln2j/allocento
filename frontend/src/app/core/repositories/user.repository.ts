@@ -32,6 +32,10 @@ export class UserRepository {
 
   // ----------------------
 
+  completeOnboarding(): Observable<{ message: string; user: User }> {
+    return this.http.post<{ message: string; user: User }>(`${this.baseUrl}/onboarding-complete`, {});
+  }
+
   updateProfile(data: Partial<User>): Observable<{ message: string; user: User }> {
     return this.http.put<{ message: string; user: User }>(this.baseUrl, data);
   }

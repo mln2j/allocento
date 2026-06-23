@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { WorkspaceRepository } from '../../core/repositories/workspace.repository';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { AccountRepository } from '../../core/repositories/account.repository';
+import { UserRepository } from '../../core/repositories/user.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -37,6 +38,7 @@ export class Onboarding {
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private userRepo = inject(UserRepository);
 
   step = signal<number>(1);
   loading = signal(false);
@@ -218,19 +220,43 @@ export class Onboarding {
     });
 
     if (createObservables.length === 0) {
-       this.loading.set(false);
-       window.location.href = '/splash';
+       this.userRepo.completeOnboarding().subscribe({
+         next: () => {
+           this.loading.set(false);
+           window.location.href = '/splash';
+         },
+         error: () => {
+           this.loading.set(false);
+           window.location.href = '/splash';
+         }
+       });
        return;
     }
 
     forkJoin(createObservables).subscribe({
       next: () => {
-        this.loading.set(false);
-        window.location.href = '/splash';
+        this.userRepo.completeOnboarding().subscribe({
+          next: () => {
+            this.loading.set(false);
+            window.location.href = '/splash';
+          },
+          error: () => {
+            this.loading.set(false);
+            window.location.href = '/splash';
+          }
+        });
       },
       error: () => {
-        this.loading.set(false);
-        window.location.href = '/splash';
+        this.userRepo.completeOnboarding().subscribe({
+          next: () => {
+            this.loading.set(false);
+            window.location.href = '/splash';
+          },
+          error: () => {
+            this.loading.set(false);
+            window.location.href = '/splash';
+          }
+        });
       }
     });
   }

@@ -109,7 +109,7 @@ export class AppInitializerService {
           return 'verify-email';
         }
 
-        if (!userProfile.workspaces || userProfile.workspaces.length === 0) {
+        if (!userProfile.onboarding_completed) {
           return 'onboarding';
         }
 

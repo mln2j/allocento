@@ -28,7 +28,7 @@ export class WorkspaceService {
     this._activeWorkspace.set(workspace);
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('active_workspace_full', JSON.stringify(workspace));
-      localStorage.setItem('active_workspace_id', workspace.workspace_id || String(workspace.id));
+      localStorage.setItem('active_workspace_id', String(workspace.id));
     }
   }
 

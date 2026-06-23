@@ -17,7 +17,7 @@ class ProjectService
 
     public function getAllWithTotals(User $user, int $workspaceId)
     {
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         if (!$workspace) {
             return null;
         }
@@ -42,7 +42,7 @@ class ProjectService
 
     public function createProject(User $user, int $workspaceId, array $data)
     {
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         if (!$workspace) {
             return null;
         }
@@ -53,7 +53,7 @@ class ProjectService
 
     public function getProjectWithTotals(User $user, int $workspaceId, int $projectId)
     {
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         if (!$workspace) {
             return null;
         }
@@ -79,7 +79,7 @@ class ProjectService
 
     public function updateProject(User $user, int $workspaceId, int $projectId, array $data)
     {
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         if (!$workspace) {
             return null;
         }
@@ -95,7 +95,7 @@ class ProjectService
 
     public function deleteProject(User $user, int $workspaceId, int $projectId)
     {
-        $workspace = $user->workspaces()->where('workspace_id', $workspaceId)->first();
+        $workspace = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
         if (!$workspace) {
             return null;
         }

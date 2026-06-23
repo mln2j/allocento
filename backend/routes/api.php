@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::put('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    Route::post('/profile/onboarding-complete', [\App\Http\Controllers\Api\ProfileController::class, 'completeOnboarding']);
     Route::put('/profile/password', [\App\Http\Controllers\Api\ProfileController::class, 'changePassword']);
     Route::delete('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'destroy']);
     Route::post('/profile/photo', [\App\Http\Controllers\Api\ProfileController::class, 'uploadPhoto']);

@@ -7,4 +7,5 @@ export interface User {
   workspaces?: any[];
   nav_preferences?: string[] | null;
   preferred_language?: string | null;
+  onboarding_completed?: boolean;
 }

@@ -33,6 +33,20 @@ class ProfileController extends Controller
     }
 
     /**
+     * Complete the onboarding process for the user.
+     */
+    public function completeOnboarding(Request $request)
+    {
+        $user = $request->user();
+        $user->update(['onboarding_completed' => true]);
+
+        return response()->json([
+            'message' => 'Onboarding completed.',
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * Change the user's password.
      */
     public function changePassword(Request $request)

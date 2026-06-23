@@ -14,7 +14,6 @@ class Workspace extends Model
     protected $fillable = [
         'name',
         'type',
-        'icon',
         'currency',
         'enabled_features',
     ];

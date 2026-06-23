@@ -25,9 +25,7 @@ class WorkspaceService
 
     public function createWorkspace(array $data, int $ownerId)
     {
-        if (empty($data['workspace_id'])) {
-            $data['workspace_id'] = (string) Str::uuid();
-        }
+
 
         $workspace = $this->workspaceRepository->create($data);
         $this->workspaceRepository->addUser($workspace->id, $ownerId, 'owner');

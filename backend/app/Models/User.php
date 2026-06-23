@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
         'favorite_workspace_id',
         'preferred_language',
         'nav_preferences',
+        'onboarding_completed',
     ];
 
     /**
@@ -75,6 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'nav_preferences' => 'array',
+            'onboarding_completed' => 'boolean',
         ];
     }
 
