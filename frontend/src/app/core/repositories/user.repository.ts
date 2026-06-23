@@ -18,7 +18,7 @@ export class UserRepository {
           const cachedUser = localStorage.getItem('user');
           if (cachedUser) {
             try {
-              const userObj = JSON.parse(cachedUser);
+              const userObj = JSON.parse(cachedUser) as User;
               return of(userObj);
             } catch (e) {
               console.error('Error parsing cached user', e);

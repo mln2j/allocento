@@ -148,11 +148,11 @@ jobs:
           set -e
           cd /home/allocento/app/backend
 
-          if ! grep -q "^APP_KEY=base64:" .env; then
+          if grep -q "^APP_KEY=$" .env; then
             php artisan key:generate --force --no-interaction
           fi
 
-          if ! grep -q "^VAPID_PUBLIC_KEY=" .env; then
+          if grep -q "^VAPID_PUBLIC_KEY=$" .env; then
             php artisan webpush:vapid --force --no-interaction
           fi
 
