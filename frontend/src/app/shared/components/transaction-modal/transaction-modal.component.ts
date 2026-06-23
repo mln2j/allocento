@@ -63,7 +63,8 @@ export class TransactionModalComponent implements OnInit {
       date: [this.getCurrentDateTimeLocal(), Validators.required],
       description: ['', Validators.required],
       categoryId: [''],
-      projectId: ['']
+      projectId: [''],
+      targetAccountId: ['']
     });
   }
 
@@ -101,7 +102,8 @@ export class TransactionModalComponent implements OnInit {
         date: dateStr,
         description: tx.description,
         categoryId: tx.categoryId || (tx as any).category_id || '',
-        projectId: tx.projectId || (tx as any).project_id || ''
+        projectId: tx.projectId || (tx as any).project_id || '',
+        targetAccountId: tx.targetAccountId || (tx as any).target_account_id || ''
       });
       this.checkPermissions(tx.accountId);
     } else {
@@ -115,7 +117,8 @@ export class TransactionModalComponent implements OnInit {
         date: this.getCurrentDateTimeLocal(),
         description: '',
         categoryId: '',
-        projectId: ''
+        projectId: '',
+        targetAccountId: ''
       });
       if (primary) {
         this.checkPermissions(primary.id);
@@ -165,8 +168,30 @@ export class TransactionModalComponent implements OnInit {
 
   closeDropdowns() {
     this.isAccountDropdownOpen = false;
+    this.isTargetAccountDropdownOpen = false;
     this.isCategoryDropdownOpen = false;
     this.isProjectDropdownOpen = false;
+  }
+
+  isTargetAccountDropdownOpen = false;
+
+  toggleTargetAccountDropdown() {
+    if (this.isReadonly) return;
+    this.isTargetAccountDropdownOpen = !this.isTargetAccountDropdownOpen;
+    this.isAccountDropdownOpen = false;
+    this.isCategoryDropdownOpen = false;
+    this.isProjectDropdownOpen = false;
+  }
+
+  selectTargetAccount(accId: number) {
+    this.transactionForm.get('targetAccountId')?.setValue(accId);
+    this.closeDropdowns();
+  }
+
+  getTargetAccount(): Account | undefined {
+    const accId = this.transactionForm.get('targetAccountId')?.value;
+    if (!accId) return undefined;
+    return this.accounts().find(a => a.id === Number(accId));
   }
 
   toggleAccountDropdown() {
@@ -226,9 +251,12 @@ export class TransactionModalComponent implements OnInit {
     return proj ? proj.name : (this.t('transactions.unprojected') || 'None');
   }
 
-  setTxType(type: 'income' | 'expense') {
+  setTxType(type: 'income' | 'expense' | 'transfer') {
     if (this.isReadonly) return;
     this.transactionForm.get('type')?.setValue(type);
+    if (type !== 'transfer') {
+      this.transactionForm.get('targetAccountId')?.setValue('');
+    }
   }
 
   t(key: string): string {
@@ -237,15 +265,29 @@ export class TransactionModalComponent implements OnInit {
 
   saveTransaction() {
     if (this.transactionForm.invalid || this.isSaving || this.isReadonly) return;
-    this.isSaving = true;
 
     const payload = { ...this.transactionForm.value };
+
+    if (payload.type === 'transfer') {
+      if (!payload.targetAccountId) {
+        this.toastService.error('Molimo odaberite odredišni račun.');
+        return;
+      }
+      if (Number(payload.accountId) === Number(payload.targetAccountId)) {
+        this.toastService.error('Ishodišni i odredišni račun moraju biti različiti.');
+        return;
+      }
+    }
+
+    this.isSaving = true;
+
     // Convert local datetime string from input to UTC ISO string for backend
     if (payload.date) {
       payload.date = new Date(payload.date).toISOString();
     }
     payload.categoryId = payload.categoryId ? Number(payload.categoryId) : null;
     payload.projectId = payload.projectId ? Number(payload.projectId) : null;
+    payload.targetAccountId = payload.targetAccountId ? Number(payload.targetAccountId) : null;
 
     const accId = payload.accountId;
     const txState = this.modalService.state().transaction;

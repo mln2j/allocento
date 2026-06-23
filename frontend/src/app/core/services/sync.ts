@@ -77,7 +77,9 @@ export class SyncService {
               date: item.date,
               description: item.description,
               category_id: item.category_id,
-              project_id: item.project_id
+              project_id: item.project_id,
+              target_account_id: item.target_account_id || item.targetAccountId || null,
+              exclude_from_analytics: item.exclude_from_analytics || item.excludeFromAnalytics || null
             }
           };
         }

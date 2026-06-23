@@ -31,6 +31,7 @@ class ReportController extends Controller
             ->select('category_id', DB::raw('SUM(amount) as total_expense'))
             ->whereIn('account_id', $accountIds)
             ->where('type', 'expense')
+            ->where('exclude_from_analytics', false)
             ->whereBetween('date', [$start, $end])
             ->groupBy('category_id')
             ->get();

@@ -69,13 +69,15 @@ class TransactionController extends Controller
         }
 
         $data = $request->validate([
-            'type' => ['required', 'in:income,expense'],
-            'amount' => ['required', 'numeric'],
+            'type' => ['required', 'in:income,expense,transfer'],
+            'target_account_id' => ['nullable', 'integer', 'exists:accounts,id'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
             'date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'tags' => ['nullable', 'array'],
+            'exclude_from_analytics' => ['nullable', 'boolean'],
         ]);
 
         $transaction = $this->transactionService->createForAccount($request->user(), $accountId, $data);
@@ -112,13 +114,15 @@ class TransactionController extends Controller
         }
 
         $data = $request->validate([
-            'type' => ['sometimes', 'required', 'in:income,expense'],
-            'amount' => ['sometimes', 'required', 'numeric'],
+            'type' => ['sometimes', 'required', 'in:income,expense,transfer'],
+            'target_account_id' => ['sometimes', 'nullable', 'integer', 'exists:accounts,id'],
+            'amount' => ['sometimes', 'required', 'numeric', 'min:0.01'],
             'date' => ['sometimes', 'required', 'date'],
             'description' => ['sometimes', 'nullable', 'string'],
             'category_id' => ['sometimes', 'nullable', 'exists:categories,id'],
             'project_id' => ['sometimes', 'nullable', 'exists:projects,id'],
             'tags' => ['sometimes', 'nullable', 'array'],
+            'exclude_from_analytics' => ['sometimes', 'nullable', 'boolean'],
         ]);
 
         $transaction = $this->transactionService->updateForAccount(

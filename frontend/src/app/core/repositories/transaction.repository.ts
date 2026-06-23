@@ -103,6 +103,8 @@ export class TransactionRepository {
         description: payload.description || null,
         categoryId: payload.categoryId || null,
         projectId: payload.projectId || null,
+        targetAccountId: payload.targetAccountId || null,
+        excludeFromAnalytics: payload.excludeFromAnalytics || null,
         user: null
       };
 
@@ -121,6 +123,8 @@ export class TransactionRepository {
               description: localTx.description,
               category_id: localTx.categoryId,
               project_id: localTx.projectId,
+              target_account_id: localTx.targetAccountId,
+              exclude_from_analytics: localTx.excludeFromAnalytics,
               local_id: localId
             }
           };
@@ -137,6 +141,8 @@ export class TransactionRepository {
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
       project_id: payload.projectId !== undefined ? payload.projectId : undefined,
+      target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : undefined,
+      exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : undefined,
     };
 
     return this.api.post<any>(`/accounts/${accountId}/transactions`, apiPayload).pipe(
@@ -166,7 +172,9 @@ export class TransactionRepository {
               date: payload.date || localItem.date,
               description: payload.description !== undefined ? payload.description : localItem.description,
               categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId,
-              projectId: payload.projectId !== undefined ? payload.projectId : localItem.projectId
+              projectId: payload.projectId !== undefined ? payload.projectId : localItem.projectId,
+              targetAccountId: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.targetAccountId,
+              excludeFromAnalytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.excludeFromAnalytics
             };
             await this.localDb.put('transactions', updated);
 
@@ -180,7 +188,9 @@ export class TransactionRepository {
                 date: updated.date,
                 description: updated.description,
                 category_id: updated.categoryId,
-                project_id: updated.projectId
+                project_id: updated.projectId,
+                target_account_id: updated.targetAccountId,
+                exclude_from_analytics: updated.excludeFromAnalytics
               }
             };
             await this.localDb.put('offline_queue', queueItem);
@@ -199,6 +209,8 @@ export class TransactionRepository {
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
       project_id: payload.projectId !== undefined ? payload.projectId : undefined,
+      target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : undefined,
+      exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : undefined,
     };
 
     return this.api.put<any>(`/accounts/${accountId}/transactions/${transactionId}`, apiPayload).pipe(
@@ -248,6 +260,8 @@ export class TransactionRepository {
       description: api.description,
       categoryId: api.category_id ?? null,
       projectId: api.project_id ?? null,
+      targetAccountId: api.target_account_id ?? null,
+      excludeFromAnalytics: api.exclude_from_analytics ?? null,
       user: (api.user || api.created_by)
         ? {
           id: (api.user || api.created_by).id,
@@ -271,6 +285,8 @@ export class TransactionRepository {
       description: local.description,
       categoryId: local.categoryId,
       projectId: local.projectId,
+      targetAccountId: local.targetAccountId,
+      excludeFromAnalytics: local.excludeFromAnalytics,
       user: local.user,
       account: local.account,
       category: local.category,
@@ -288,6 +304,8 @@ export class TransactionRepository {
       description: tx.description,
       categoryId: tx.categoryId,
       projectId: tx.projectId,
+      targetAccountId: tx.targetAccountId,
+      excludeFromAnalytics: tx.excludeFromAnalytics,
       user: tx.user,
       account: tx.account,
       category: tx.category,

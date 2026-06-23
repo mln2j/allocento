@@ -38,6 +38,7 @@ class DashboardController extends Controller
         // 5. Spending by Category (Last 30 days)
         $spendingByCategory = Transaction::whereIn('account_id', $accountIds)
             ->where('type', 'expense')
+            ->where('exclude_from_analytics', false)
             ->where('date', '>=', now()->subDays(30))
             ->selectRaw('category_id, sum(amount) as total')
             ->groupBy('category_id')
@@ -55,6 +56,7 @@ class DashboardController extends Controller
         // 5.5 Spending by Project (Last 30 days)
         $spendingByProject = Transaction::whereIn('account_id', $accountIds)
             ->where('type', 'expense')
+            ->where('exclude_from_analytics', false)
             ->where('date', '>=', now()->subDays(30))
             ->selectRaw('project_id, sum(amount) as total')
             ->groupBy('project_id')
@@ -76,6 +78,7 @@ class DashboardController extends Controller
             $dateString = $date->toDateString();
             $total = Transaction::whereIn('account_id', $accountIds)
                 ->where('type', 'expense')
+                ->where('exclude_from_analytics', false)
                 ->whereDate('date', $dateString)
                 ->sum('amount');
             $dailySpending[] = [
