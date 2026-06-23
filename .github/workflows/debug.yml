@@ -1,0 +1,48 @@
+name: Debug Server State
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run Diagnostics
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          cd /home/allocento/app/backend
+          
+          echo "=== 1. CHECKING JOBS TABLE ==="
+          php artisan tinker --execute="echo 'Pending Jobs: ' . \DB::table('jobs')->count() . \"\n\"; echo 'Failed Jobs: ' . \DB::table('failed_jobs')->count() . \"\n\";"
+          
+          echo "=== 2. CHECKING PUSH SUBSCRIPTIONS ==="
+          php artisan tinker --execute="echo 'Push Subscriptions: ' . \DB::table('push_subscriptions')->count() . \"\n\";"
+          
+          echo "=== 3. CHECKING QUEUE WORKER STATUS ==="
+          if systemctl status allocento-queue >/dev/null 2>&1; then
+            echo "allocento-queue service is installed."
+            systemctl status allocento-queue --no-pager
+          else
+            echo "allocento-queue service is NOT installed."
+            ps aux | grep "[q]ueue:work" || echo "No queue worker process found."
+          fi
+          
+          echo "=== 4. CHECKING LARAVEL LOG ==="
+          tail -n 50 storage/logs/laravel.log
+          
+          EOF
