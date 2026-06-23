@@ -32,9 +32,29 @@ export class PushNotificationService {
       const vapidPublicKey = response.public_key;
 
       // 2. Request subscription from the browser
-      const pushSubscription = await this.swPush.requestSubscription({
-        serverPublicKey: vapidPublicKey
-      });
+      let pushSubscription: PushSubscription;
+      try {
+        pushSubscription = await this.swPush.requestSubscription({
+          serverPublicKey: vapidPublicKey
+        });
+      } catch (subError) {
+        // If the key changed, we might get an InvalidStateError. Let's try to unsubscribe first.
+        this.logger.warn('Pretplata nije uspjela. Pokušavam odjaviti staru pretplatu i ponoviti...', subError);
+        
+        try {
+          const oldSub = await firstValueFrom(this.swPush.subscription);
+          if (oldSub) {
+            await oldSub.unsubscribe();
+          }
+        } catch (e) {
+          // ignore unsubscribe errors
+        }
+        
+        // Retry subscription
+        pushSubscription = await this.swPush.requestSubscription({
+          serverPublicKey: vapidPublicKey
+        });
+      }
 
       // 3. Send the subscription object to Laravel
       await firstValueFrom(
