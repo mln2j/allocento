@@ -356,6 +356,8 @@
   },
   "transactions": {
     "other": "Other",
+    "transferBtn": "Transfer",
+    "selectTargetAccount": "Select Target Account",
     "deleteSuccess": "Transaction deleted successfully!",
     "deleteFailed": "Failed to delete transaction.",
     "accountLabel": "Account",

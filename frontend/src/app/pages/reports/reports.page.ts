@@ -13,10 +13,11 @@ import autoTable from 'jspdf-autotable';
 // Import Space Mono font base64 if provided
 import { SPACE_MONO_FONT } from '../../core/utils/space-mono-font';
 import { TransactionModalService } from '../../core/services/transaction-modal.service';
+import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, DatePickerComponent],
   templateUrl: './reports.page.html',
   styleUrl: './reports.page.css'
 })

@@ -356,6 +356,8 @@
   },
   "transactions": {
     "other": "Ostalo",
+    "transferBtn": "Prijenos",
+    "selectTargetAccount": "Odaberi ciljni račun",
     "deleteSuccess": "Transakcija uspješno obrisana!",
     "deleteFailed": "Greška pri brisanju transakcije.",
     "accountLabel": "Racun",
