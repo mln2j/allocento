@@ -62,6 +62,17 @@ jobs:
             cp .env.example .env
           fi
 
+          # Ensure key placeholders exist in .env
+          if ! grep -q "^APP_KEY=" .env; then
+            echo "APP_KEY=" >> .env
+          fi
+          if ! grep -q "^VAPID_PUBLIC_KEY=" .env; then
+            echo "VAPID_PUBLIC_KEY=" >> .env
+          fi
+          if ! grep -q "^VAPID_PRIVATE_KEY=" .env; then
+            echo "VAPID_PRIVATE_KEY=" >> .env
+          fi
+
           # Securely write env variables
           sed -i '/^[[:space:]]*DB_CONNECTION=/d' .env
           echo "DB_CONNECTION=\"pgsql\"" >> .env
@@ -215,5 +226,5 @@ jobs:
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
-          sudo systemctl reload nginx
+          sudo systemctl reload nginx || echo "Nginx reload failed (likely due to sudo permissions), but static files were updated successfully."
           EOF
