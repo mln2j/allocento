@@ -31,14 +31,6 @@ Route::post('/email/verify-code', [AuthController::class, 'verifyEmailCode']);
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:1,1']);
 Route::post('/email/check-and-send', [AuthController::class, 'checkAndSendVerificationEmail'])->middleware('auth:sanctum');
 
-Route::get('/queue-status', function () {
-    return [
-        'jobs' => \Illuminate\Support\Facades\DB::table('jobs')->count(),
-        'failed_jobs' => \Illuminate\Support\Facades\DB::table('failed_jobs')->count(),
-        'failed_records' => \Illuminate\Support\Facades\DB::table('failed_jobs')->get()
-    ];
-});
-
 /*
 |--------------------------------------------------------------------------
 | Authenticated routes
