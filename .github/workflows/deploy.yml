@@ -99,6 +99,29 @@ jobs:
           sudo systemctl restart allocento-backend
           EOF
 
+      - name: Create frontend environment files
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          set -e
+          mkdir -p /home/allocento/app/frontend/src/environments
+          cat <<EOT > /home/allocento/app/frontend/src/environments/environment.prod.ts
+export const environment = {
+  production: true,
+  apiBaseUrl: 'https://allocento.komsiluk.org/api'
+};
+EOT
+          cat <<EOT > /home/allocento/app/frontend/src/environments/environment.ts
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://localhost:8000/api'
+};
+EOT
+          EOF
+
       - name: Install frontend dependencies
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
