@@ -259,11 +259,6 @@ export class TransactionModalComponent implements OnInit {
     }
   }
 
-  handleStatusClick(newStatus: string) {
-    if (this.isReadonly) return;
-    this.transactionForm.patchValue({ status: newStatus });
-    this.isStatusOpen = false;
-  }
 
   parseAmount(val: any): number {
     if (!val) return 0;
