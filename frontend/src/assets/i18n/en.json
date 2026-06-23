@@ -214,8 +214,8 @@
     "testPushSuccess": "Test notification sent successfully!",
     "testPushError": "Error sending test notification.",
     "languageChanged": "Language updated successfully!",
-    "greKaPriPromjen": "GreÅ¡ka pri promjeni postavki obavijesti.",
-    "doLoJeDoGreKePr": "Došlo je do greške pri obradi slike."
+    "pushError": "Error changing push notification settings.",
+    "imageProcessingError": "An error occurred while processing the image."
   },
   "security": {
     "title": "Security",

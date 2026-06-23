@@ -73,8 +73,8 @@
     "testPushSuccess": "Testna obavijest uspješno poslana!",
     "testPushError": "Greška pri slanju testne obavijesti.",
     "languageChanged": "Jezik je uspješno promijenjen!",
-    "greKaPriPromjen": "Greška pri promjeni postavki obavijesti.",
-    "doLoJeDoGreKePr": "Došlo je do greške pri obradi slike."
+    "pushError": "Greška pri promjeni postavki obavijesti.",
+    "imageProcessingError": "Došlo je do greške pri obradi slike."
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",

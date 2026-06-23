@@ -124,7 +124,7 @@ export class SettingsPage implements OnInit {
       console.error('Push error:', err);
       // Revert visual state if error
       event.target.checked = !isChecked;
-      this.toastService.error(this.t('settings.greKaPriPromjen'));
+      this.toastService.error(this.t('settings.pushError'));
     }
   }
 
@@ -211,7 +211,7 @@ export class SettingsPage implements OnInit {
           reader.readAsDataURL(compressedFile);
         } catch (error) {
           console.error('Error compressing image', error);
-          this.toastService.error(this.t('settings.doLoJeDoGreKePr'));
+          this.toastService.error(this.t('settings.imageProcessingError'));
         }
       } else {
         this.selectedFile = file;
