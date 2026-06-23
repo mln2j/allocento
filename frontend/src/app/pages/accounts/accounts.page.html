@@ -221,7 +221,8 @@
           {{ activeWorkspace()?.type === 'company' ? t('accounts.projectBudget') : t('accounts.balanceLabel') }}
         </label>
         <input 
-          type="number" 
+          type="text" 
+          inputmode="decimal"
           formControlName="balance" 
           class="input-field font-mono text-sm"
           [placeholder]="t('accounts.balancePlaceholder') || 'e.g. 5000.00'"

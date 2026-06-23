@@ -259,6 +259,31 @@ export class TransactionModalComponent implements OnInit {
     }
   }
 
+  handleStatusClick(newStatus: string) {
+    if (this.isReadonly) return;
+    this.transactionForm.patchValue({ status: newStatus });
+    this.isStatusOpen = false;
+  }
+
+  parseAmount(val: any): number {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    
+    let str = String(val).trim();
+    if (str.includes('.') && str.includes(',')) {
+      const lastDot = str.lastIndexOf('.');
+      const lastComma = str.lastIndexOf(',');
+      if (lastComma > lastDot) {
+        str = str.replace(/\./g, '').replace(',', '.');
+      } else {
+        str = str.replace(/,/g, '');
+      }
+    } else if (str.includes(',')) {
+      str = str.replace(',', '.');
+    }
+    return parseFloat(str) || 0;
+  }
+
   t(key: string): string {
     return this.translationService.translate(key) || key.split('.').pop() || key;
   }
@@ -278,6 +303,9 @@ export class TransactionModalComponent implements OnInit {
         return;
       }
     }
+
+    // Parse amount from string formatting (e.g., 1.000,50 -> 1000.50)
+    payload.amount = this.parseAmount(payload.amount);
 
     this.isSaving = true;
 

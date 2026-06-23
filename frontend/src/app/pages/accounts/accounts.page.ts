@@ -186,7 +186,8 @@ export class AccountsPage implements OnInit {
     if (this.accountForm.invalid || this.isSaving) return;
     this.isSaving = true;
 
-    const payload = this.accountForm.value;
+    const payload = { ...this.accountForm.value };
+    payload.balance = this.parseAmount(payload.balance);
 
     if (this.editingAccountId) {
       // Build sharing sync calls
@@ -307,6 +308,25 @@ export class AccountsPage implements OnInit {
 
   formatAmount(amount: number): string {
     return amount.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  parseAmount(val: any): number {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    
+    let str = String(val).trim();
+    if (str.includes('.') && str.includes(',')) {
+      const lastDot = str.lastIndexOf('.');
+      const lastComma = str.lastIndexOf(',');
+      if (lastComma > lastDot) {
+        str = str.replace(/\./g, '').replace(',', '.');
+      } else {
+        str = str.replace(/,/g, '');
+      }
+    } else if (str.includes(',')) {
+      str = str.replace(',', '.');
+    }
+    return parseFloat(str) || 0;
   }
 
   getBudgetSpentPercent(acc: Account): number {

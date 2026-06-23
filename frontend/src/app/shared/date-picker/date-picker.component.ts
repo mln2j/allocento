@@ -26,13 +26,16 @@ import { CommonModule } from '@angular/common';
         </div>
       </button>
 
-      <!-- Calendar Popover -->
+      <!-- Calendar Popover (Fixed Modal) -->
       <div 
         *ngIf="isOpen"
-        class="absolute z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl p-3 animate-in fade-in zoom-in-95 duration-100 min-w-[280px]"
-        [ngClass]="dropdownClass"
-        (click)="$event.stopPropagation()"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm"
+        (click)="isOpen = false; $event.stopPropagation()"
       >
+        <div 
+          class="bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-200 min-w-[300px] max-w-sm w-full"
+          (click)="$event.stopPropagation()"
+        >
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <button type="button" (click)="prevMonth()" class="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-600">
