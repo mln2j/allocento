@@ -64,32 +64,37 @@ import { CommonModule } from '@angular/common';
 
         <!-- Sheet -->
         <div
-          class="relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 p-6 modal-sheet"
+          class="relative w-full bg-white sm:rounded-2xl rounded-t-2xl max-h-[90vh] shadow-xl border border-slate-100 flex flex-col overflow-hidden modal-sheet"
           [class.entering]="isVisible"
           [class.leaving]="!isVisible"
           [ngClass]="sizeClass"
         >
-          <!-- Mobile drag handle -->
-          <div class="sm:hidden w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+          <!-- Fixed Top Area -->
+          <div class="shrink-0 bg-white px-6 pt-6 sm:pt-6 pb-4 z-10 border-b border-slate-100/50">
+            <!-- Mobile drag handle -->
+            <div class="sm:hidden w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 -mt-2"></div>
 
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-bold font-mono text-slate-900">
-              {{ title }}
-            </h2>
-            <button
-              type="button"
-              (click)="close.emit()"
-              class="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none border-none bg-transparent"
-            >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+              <h2 class="text-base font-bold font-mono text-slate-900">
+                {{ title }}
+              </h2>
+              <button
+                type="button"
+                (click)="close.emit()"
+                class="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none border-none bg-transparent"
+              >
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Projected content -->
-          <ng-content></ng-content>
+          <div class="flex-1 overflow-y-auto px-6 pb-6 pt-2 custom-scrollbar relative">
+            <ng-content></ng-content>
+          </div>
         </div>
       </div>
     </ng-container>
