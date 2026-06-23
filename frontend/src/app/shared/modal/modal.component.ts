@@ -92,7 +92,7 @@ import { CommonModule } from '@angular/common';
           </div>
 
           <!-- Projected content -->
-          <div class="flex-1 overflow-y-auto px-6 pb-6 pt-2 custom-scrollbar relative">
+          <div class="flex-1 overflow-y-auto px-6 pt-2 custom-scrollbar relative" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom));">
             <ng-content></ng-content>
           </div>
         </div>
