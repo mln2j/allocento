@@ -55,7 +55,7 @@
         <div 
           *ngFor="let ws of workspaces()"
           (click)="viewDetails(ws)"
-          [ngClass]="activeWorkspaceId() === (ws.workspace_id || ws.id) ? 'border-brand-purple bg-brand-purple/5 shadow-sm' : 'bg-white border-slate-200/60 hover:border-slate-300 shadow-[0_4px_15px_rgba(15,23,42,0.01)]'"
+          [ngClass]="activeWorkspaceId() === (ws.id) ? 'border-brand-purple bg-brand-purple/5 shadow-sm' : 'bg-white border-slate-200/60 hover:border-slate-300 shadow-[0_4px_15px_rgba(15,23,42,0.01)]'"
           class="border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all group"
         >
         <div class="flex items-center gap-4">
@@ -76,7 +76,7 @@
 
         <div class="flex items-center gap-4 text-right">
           <span 
-            *ngIf="activeWorkspaceId() === (ws.workspace_id || ws.id)"
+            *ngIf="activeWorkspaceId() === (ws.id)"
             class="px-2 py-1 bg-brand-mint/10 text-brand-mint text-[9px] font-bold font-mono uppercase rounded-lg border border-brand-mint/20"
           >
             {{ t('workspaces.active') }}
@@ -132,7 +132,7 @@
         
         <div class="flex items-center gap-2">
           <!-- Activate / Active badge -->
-          <button *ngIf="activeWorkspaceId() !== (selectedWorkspace()?.workspace_id || selectedWorkspace()?.id)"
+          <button *ngIf="activeWorkspaceId() !== (selectedWorkspace()?.id)"
                     (click)="setActive()"
                     class="flex items-center gap-1.5 px-3 py-1.5 bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20 transition-colors rounded-lg font-bold font-mono text-xs cursor-pointer outline-none shadow-xs flex-shrink-0">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

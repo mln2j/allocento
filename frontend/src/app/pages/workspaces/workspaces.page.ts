@@ -73,7 +73,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   });
   workspaceForm!: FormGroup;
 
-  activeWorkspaceId = computed(() => this.workspaceService.activeWorkspace()?.workspace_id || this.workspaceService.activeWorkspace()?.id);
+  activeWorkspaceId = computed(() => this.workspaceService.activeWorkspace()?.id);
 
   isLoading = signal<boolean>(false);
   isLoadingDetails = false;
@@ -243,7 +243,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   }
 
   viewDetails(workspace: Workspace) {
-    const id = workspace.workspace_id || workspace.id;
+    const id = workspace.id;
     this.selectedWorkspace.set(workspace);
     this.isLoadingDetails = true;
 
@@ -287,7 +287,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       const currentWS = this.selectedWorkspace();
       if (!currentWS) return;
 
-      const wsId = currentWS.workspace_id || currentWS.id;
+      const wsId = currentWS.id;
       this.loadingService.show();
 
       this.workspaceRepo.removeMember(wsId, userId).subscribe({
@@ -333,7 +333,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     const ws = this.selectedWorkspace();
     if (!ws) return;
 
-    this.editingWorkspaceId = ws.workspace_id || ws.id;
+    this.editingWorkspaceId = ws.id;
     this.workspaceForm.patchValue({
       name: ws.name,
       type: ws.type,
@@ -433,7 +433,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     const currentWS = this.selectedWorkspace();
     if (!currentWS) return;
 
-    const wsId = currentWS.workspace_id || currentWS.id;
+    const wsId = currentWS.id;
     const userId = this.selectedMember.id;
     
     if (this.selectedMember.pivot?.role === this.selectedMemberRole) {
@@ -490,7 +490,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     ).subscribe(confirmed => {
       if (!confirmed) return;
 
-      const id = currentWS.workspace_id || currentWS.id;
+      const id = currentWS.id;
       this.loadingService.show();
 
       this.workspaceRepo.deleteWorkspace(id).subscribe({
@@ -524,7 +524,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     ).subscribe(confirmed => {
       if (!confirmed) return;
 
-      const id = currentWS.workspace_id || currentWS.id;
+      const id = currentWS.id;
       this.loadingService.show();
 
       this.workspaceRepo.leaveWorkspace(id).subscribe({
@@ -550,7 +550,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     const currentWS = this.selectedWorkspace();
     if (!currentWS || !this.inviteEmail) return;
 
-    const wsId = currentWS.workspace_id || currentWS.id;
+    const wsId = currentWS.id;
     this.loadingService.show();
 
     this.workspaceRepo.inviteMember(wsId, this.inviteEmail, this.inviteRole).subscribe({
@@ -584,7 +584,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       const currentWS = this.selectedWorkspace();
       if (!currentWS) return;
 
-      const wsId = currentWS.workspace_id || currentWS.id;
+      const wsId = currentWS.id;
       this.loadingService.show();
 
       this.workspaceRepo.deleteInvitation(wsId, invitationId).subscribe({
@@ -636,7 +636,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   }
 
   private handleAccountLinks(ws: Workspace) {
-    const wsId = String(ws.workspace_id || ws.id);
+    const wsId = String(ws.id);
     const calls: any[] = [];
 
     this.editModalAccounts().forEach(acc => {

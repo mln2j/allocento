@@ -195,9 +195,9 @@ export class AccountsPage implements OnInit {
         const isChecked = !!this.selectedWorkspacesMap[ws.id];
         const wasChecked = !!this.initialWorkspacesMap[ws.id];
         if (isChecked && !wasChecked) {
-          sharePromises.push(firstValueFrom(this.accountRepo.shareWithWorkspace(ws.workspace_id || String(ws.id), this.editingAccountId!)));
+          sharePromises.push(firstValueFrom(this.accountRepo.shareWithWorkspace(String(ws.id), this.editingAccountId!)));
         } else if (!isChecked && wasChecked) {
-          sharePromises.push(firstValueFrom(this.accountRepo.unshareFromWorkspace(ws.workspace_id || String(ws.id), this.editingAccountId!)));
+          sharePromises.push(firstValueFrom(this.accountRepo.unshareFromWorkspace(String(ws.id), this.editingAccountId!)));
         }
       });
 
