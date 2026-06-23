@@ -57,6 +57,9 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
@@ -91,14 +94,17 @@ jobs:
           sed -i 's/^MAIL_PORT=.*/MAIL_PORT=465/' .env
           sed -i 's/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=tls/' .env
           sed -i 's/^MAIL_USERNAME=.*/MAIL_USERNAME=resend/' .env
-          sed -i 's/^MAIL_PASSWORD=.*/MAIL_PASSWORD=re_8auJK71t_CJ7Dhc9CdpVL3LwqhsjumSN1/' .env
+          sed -i 's/^MAIL_PASSWORD=.*/MAIL_PASSWORD='"$MAIL_PASSWORD"'/' .env
           sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="no-reply@allocento.komsiluk.org"/' .env
           
           # Inject VAPID keys
           if ! grep -q "VAPID_PUBLIC_KEY" .env; then
             echo "" >> .env
-            echo "VAPID_PUBLIC_KEY=BKC0z8iF5uodid6GpjFnWc5v87Y9nqyJ5ubVUWeIREIod7a4MTYA6OUfto4TwRPtm1qEqN7W3Oi3qccKLLrlQgM" >> .env
-            echo "VAPID_PRIVATE_KEY=PWSydXRG1njZdrc1SsYC93hDnQPG87j6XUOhCG9atqU" >> .env
+            echo "VAPID_PUBLIC_KEY=$VAPID_PUBLIC_KEY" >> .env
+            echo "VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY" >> .env
+          else
+            sed -i 's/^VAPID_PUBLIC_KEY=.*/VAPID_PUBLIC_KEY='"$VAPID_PUBLIC_KEY"'/' .env
+            sed -i 's/^VAPID_PRIVATE_KEY=.*/VAPID_PRIVATE_KEY='"$VAPID_PRIVATE_KEY"'/' .env
           fi
 
           # Generate APP_KEY if not set
