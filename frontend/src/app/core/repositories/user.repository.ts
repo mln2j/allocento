@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { API_BASE_URL } from '../api.config';
 
@@ -11,8 +12,24 @@ export class UserRepository {
   constructor(private http: HttpClient) {}
 
   getCurrentUser(timestamp: number): Observable<User> {
-    return this.http.get<User>(`${API_BASE_URL}/user?v=${timestamp}`);
+    return this.http.get<User>(`${API_BASE_URL}/user?v=${timestamp}`).pipe(
+      catchError(err => {
+        if (typeof localStorage !== 'undefined') {
+          const cachedUser = localStorage.getItem('user');
+          if (cachedUser) {
+            try {
+              const userObj = JSON.parse(cachedUser);
+              return of(userObj);
+            } catch (e) {
+              console.error('Error parsing cached user', e);
+            }
+          }
+        }
+        return throwError(() => err);
+      })
+    );
   }
+
   // ----------------------
 
   updateProfile(data: Partial<User>): Observable<{ message: string; user: User }> {

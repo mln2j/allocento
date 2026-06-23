@@ -215,7 +215,7 @@
     "changePhoto": "Promijeni sliku",
     "subtitle": "Upravljajte postavkama računa i aplikacije.",
     "offlineNotice": "Offline: Uređivanje profila onemogućeno",
-    "loadFailed": "Failed to load user settings."
+    "loadFailed": "Učitavanje korisničkih postavki nije uspjelo."
   },
   "security": {
     "title": "Sigurnost",

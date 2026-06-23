@@ -12,11 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '26'
-
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -56,61 +51,66 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
-          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
         run: |
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << EOF
           set -e
           cd /home/allocento/app/backend
-          
-          # Overwrite or create .env from .env.example
-          cp -f .env.example .env
-          
-          # Replace DB connection details
-          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=pgsql/' .env
-          sed -i 's/^# DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/^# DB_PORT=.*/DB_PORT=5432/' .env
-          sed -i 's/^DB_PORT=.*/DB_PORT=5432/' .env
-          sed -i 's/^# DB_DATABASE=.*/DB_DATABASE=allocento/' .env
-          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=allocento/' .env
-          sed -i 's/^# DB_USERNAME=.*/DB_USERNAME=allocento/' .env
-          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=allocento/' .env
-          
-          # Inject the password securely
-          sed -i 's/^# DB_PASSWORD=.*/DB_PASSWORD='"$DB_PASSWORD"'/' .env
-          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD='"$DB_PASSWORD"'/' .env
-          
-          # Replace other environment variables to match production configuration
-          sed -i 's/^APP_ENV=.*/APP_ENV=production/' .env
-          sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env
-          sed -i 's|^APP_URL=.*|APP_URL=https://allocento.komsiluk.org|' .env
-          
-          # Inject SMTP values
-          sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=smtp/' .env
-          sed -i 's/^MAIL_HOST=.*/MAIL_HOST=smtp.resend.com/' .env
-          sed -i 's/^MAIL_PORT=.*/MAIL_PORT=465/' .env
-          sed -i 's/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=tls/' .env
-          sed -i 's/^MAIL_USERNAME=.*/MAIL_USERNAME=resend/' .env
-          sed -i 's/^MAIL_PASSWORD=.*/MAIL_PASSWORD='"$MAIL_PASSWORD"'/' .env
-          sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="no-reply@allocento.komsiluk.org"/' .env
-          
-          # Inject VAPID keys
-          if ! grep -q "VAPID_PUBLIC_KEY" .env; then
-            echo "" >> .env
-            echo "VAPID_PUBLIC_KEY=$VAPID_PUBLIC_KEY" >> .env
-            echo "VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY" >> .env
-          else
-            sed -i 's/^VAPID_PUBLIC_KEY=.*/VAPID_PUBLIC_KEY='"$VAPID_PUBLIC_KEY"'/' .env
-            sed -i 's/^VAPID_PRIVATE_KEY=.*/VAPID_PRIVATE_KEY='"$VAPID_PRIVATE_KEY"'/' .env
+          if [ ! -f .env ]; then
+            cp .env.example .env
           fi
 
-          # Generate APP_KEY if not set
-          if ! grep -q "^APP_KEY=base64:" .env; then
-            php artisan key:generate --no-interaction
-          fi
+          # Securely write env variables
+          sed -i '/^[[:space:]]*DB_CONNECTION=/d' .env
+          echo "DB_CONNECTION=\"pgsql\"" >> .env
+
+          sed -i '/^[[:space:]]*DB_HOST=/d' .env
+          echo "DB_HOST=\"127.0.0.1\"" >> .env
+
+          sed -i '/^[[:space:]]*DB_PORT=/d' .env
+          echo "DB_PORT=\"5432\"" >> .env
+
+          sed -i '/^[[:space:]]*DB_DATABASE=/d' .env
+          echo "DB_DATABASE=\"allocento\"" >> .env
+
+          DB_USER_FINAL="${DB_USERNAME:-$SSH_USER}"
+          sed -i '/^[[:space:]]*DB_USERNAME=/d' .env
+          echo "DB_USERNAME=\"$DB_USER_FINAL\"" >> .env
+
+          sed -i '/^[[:space:]]*DB_PASSWORD=/d' .env
+          echo "DB_PASSWORD=\"$DB_PASSWORD\"" >> .env
+
+          sed -i '/^[[:space:]]*APP_ENV=/d' .env
+          echo "APP_ENV=\"production\"" >> .env
+
+          sed -i '/^[[:space:]]*APP_DEBUG=/d' .env
+          echo "APP_DEBUG=\"false\"" >> .env
+
+          sed -i '/^[[:space:]]*APP_URL=/d' .env
+          echo "APP_URL=\"https://allocento.komsiluk.org\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_MAILER=/d' .env
+          echo "MAIL_MAILER=\"smtp\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_HOST=/d' .env
+          echo "MAIL_HOST=\"smtp.resend.com\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_PORT=/d' .env
+          echo "MAIL_PORT=\"465\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_ENCRYPTION=/d' .env
+          echo "MAIL_ENCRYPTION=\"tls\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_USERNAME=/d' .env
+          echo "MAIL_USERNAME=\"resend\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_PASSWORD=/d' .env
+          echo "MAIL_PASSWORD=\"$MAIL_PASSWORD\"" >> .env
+
+          sed -i '/^[[:space:]]*MAIL_FROM_ADDRESS=/d' .env
+          echo "MAIL_FROM_ADDRESS=\"no-reply@allocento.komsiluk.org\"" >> .env
           EOF
 
       - name: Install backend dependencies
@@ -125,7 +125,7 @@ jobs:
           composer install --no-dev --optimize-autoloader --no-interaction
           EOF
 
-      - name: Run backend migrations
+      - name: Generate keys and run backend migrations
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -134,6 +134,15 @@ jobs:
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
           cd /home/allocento/app/backend
+
+          if ! grep -q "^APP_KEY=base64:" .env; then
+            php artisan key:generate --force --no-interaction
+          fi
+
+          if ! grep -q "^VAPID_PUBLIC_KEY=" .env; then
+            php artisan webpush:vapid --force --no-interaction
+          fi
+
           php artisan migrate --force
           EOF
 
@@ -170,18 +179,8 @@ jobs:
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
           set -e
           mkdir -p /home/allocento/app/frontend/src/environments
-          cat <<EOT > /home/allocento/app/frontend/src/environments/environment.prod.ts
-export const environment = {
-  production: true,
-  apiBaseUrl: 'https://allocento.komsiluk.org/api'
-};
-EOT
-          cat <<EOT > /home/allocento/app/frontend/src/environments/environment.ts
-export const environment = {
-  production: false,
-  apiBaseUrl: 'http://localhost:8000/api'
-};
-EOT
+          echo "export const environment = { production: true, apiBaseUrl: 'https://allocento.komsiluk.org/api' };" > /home/allocento/app/frontend/src/environments/environment.prod.ts
+          echo "export const environment = { production: false, apiBaseUrl: 'http://localhost:8000/api' };" > /home/allocento/app/frontend/src/environments/environment.ts
           EOF
 
       - name: Install frontend dependencies
