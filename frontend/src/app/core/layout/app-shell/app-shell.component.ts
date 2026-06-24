@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, inject } from '@angular/core';
+import { Component, OnInit, HostListener, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -54,6 +54,7 @@ export class AppShellComponent implements OnInit {
   private localDb = inject(LocalDbService);
   public toastService = inject(ToastService);
   private pushService = inject(PushNotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   t(key: string, params?: any): string {
     return this.translationService.translate(key, params);
@@ -150,7 +151,10 @@ export class AppShellComponent implements OnInit {
     }
 
     this.inviteRepo.getPending().subscribe({
-      next: (invites) => (this.pendingInvitations = invites),
+      next: (invites) => {
+        this.pendingInvitations = invites;
+        this.cdr.detectChanges();
+      },
       error: (err) => this.logger.error(this.t('logs.invitationsLoadError'), err)
     });
   }
