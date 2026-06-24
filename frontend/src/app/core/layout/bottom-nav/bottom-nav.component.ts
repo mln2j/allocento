@@ -176,10 +176,6 @@ export class BottomNavComponent {
   }
 
   isHidden(): boolean {
-    const url = this.currentUrl();
-    if (!url) return false;
-    // Hide bottom nav on sub-screens like transactions
-    if (url.startsWith('/transactions')) return true;
     return false;
   }
 }
