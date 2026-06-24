@@ -3,14 +3,9 @@
   [title]="isEditing ? (t('transactions.editTitle') || 'Edit Transaction') : (t('transactions.createTitle') || 'Record Transaction')"
   (close)="closeModal()"
 >
-  <div class="overflow-y-visible custom-scrollbar flex-1 relative">
-    
-    <div *ngIf="isReadonly" class="mb-4 inline-flex items-center text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">Read-Only</div>
-      <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="flex flex-col min-h-full">
-
-        <!-- Transaction Type (Expense/Income/Transfer) -->
-        <div class="sticky top-0 z-30 bg-white -mx-6 px-6 pb-4 pt-1 shadow-[0_10px_10px_-10px_rgba(0,0,0,0.05)]">
-          <div class="flex p-1 bg-slate-100 rounded-2xl relative w-full overflow-hidden">
+    <div modal-header class="w-full pb-2">
+    <!-- Transaction Type (Expense/Income/Transfer) -->
+    <div class="flex p-1 bg-slate-100 rounded-2xl relative w-full overflow-hidden">
           <div 
             class="absolute inset-y-1 w-[calc(33.33%-4px)] bg-white rounded-xl shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
             [style.transform]="transactionForm.get('type')?.value === 'expense' ? 'translateX(0)' : (transactionForm.get('type')?.value === 'income' ? 'translateX(100%)' : 'translateX(200%)')"
@@ -43,9 +38,15 @@
             {{ t('transactions.transferBtn') || 'Prijenos' }}
           </button>
         </div>
+  </div>
+
+  <div class="flex-1 relative h-full">
+    
+    <div *ngIf="isReadonly" class="mb-4 inline-flex items-center text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">Read-Only</div>
+      <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="flex flex-col min-h-full">
 
         <!-- Middle Scrollable Fields Wrapper -->
-        <div class="space-y-6 py-2 flex-1 pb-16">
+        <div class="space-y-6 py-2 flex-1 pb-6">
           
           <!-- Amount Input (Prominent) -->
           <div class="flex flex-col items-center py-2">
@@ -226,12 +227,13 @@
             </div>
             </div>
           </div>
-        </div>
         </div> <!-- End of Middle Scrollable Fields Wrapper -->
 
-        <!-- Action Buttons -->
-        <div class="sticky bottom-[-1.5rem] z-30 bg-white -mx-6 px-6 pt-4 mt-auto border-t border-slate-100" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom));" *ngIf="!isReadonly">
-          <div class="flex gap-3">
+            </form>
+  </div>
+
+  <div modal-footer class="pt-4 w-full" *ngIf="!isReadonly">
+    <div class="flex gap-3">
             <button 
             *ngIf="isEditing"
             type="button"
@@ -245,7 +247,7 @@
             </svg>
           </button>
           <button 
-            type="submit" 
+            type="button" (click)="saveTransaction()" 
             [disabled]="transactionForm.invalid || isSaving"
             class="flex-1 h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold font-mono rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:shadow-none cursor-pointer outline-none flex justify-center items-center gap-2"
           >
@@ -253,7 +255,5 @@
             <span>{{ isSaving ? (t('common.loading') || 'Saving...') : (isEditing ? (t('common.save') || 'Save Changes') : (t('transactions.submitBtn') || 'Add Transaction')) }}</span>
           </button>
           </div>
-        </div>
-      </form>
   </div>
 </app-modal>

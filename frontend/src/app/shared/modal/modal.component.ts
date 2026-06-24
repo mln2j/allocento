@@ -89,11 +89,18 @@ import { CommonModule } from '@angular/common';
                 </svg>
               </button>
             </div>
+            
+            <ng-content select="[modal-header]"></ng-content>
           </div>
 
           <!-- Projected content -->
           <div class="flex-1 overflow-y-auto px-6 pt-2 custom-scrollbar relative" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom));">
             <ng-content></ng-content>
+          </div>
+          
+          <!-- Fixed Bottom Area -->
+          <div class="shrink-0 bg-white border-t border-slate-100 z-10">
+            <ng-content select="[modal-footer]"></ng-content>
           </div>
         </div>
       </div>
