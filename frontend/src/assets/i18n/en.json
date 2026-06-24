@@ -1,5 +1,6 @@
 {
   "common": {
+    "serverError": "Server error",
     "offline": "offline",
     "from": "From",
     "to": "To",
@@ -53,7 +54,8 @@
     "accounts": "Overview and management of your accounts",
     "categories": "Management of expense categories",
     "projects": "Project management and expense tracking",
-    "transactions": "Overview of all incomes and expenses"
+    "transactions": "Overview of all incomes and expenses",
+    "reports": "Overview of your finances"
   },
   "splash": {
     "initializing": "Initializing Allocento platform...",

@@ -1,10 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Category, CategoryRepository, CategoryDetailsResponse } from '../../core/repositories/category.repository';
 import { TranslationService } from '../../core/services/translation.service';
 import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { TransactionModalService } from '../../core/services/transaction-modal.service';
@@ -26,7 +27,9 @@ export class CategoryDetailsPage implements OnInit {
   private toastService = inject(ToastService);
   private location = inject(Location);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private transactionModalService = inject(TransactionModalService);
+  private dialogService = inject(DialogService);
 
   details = signal<CategoryDetailsResponse | null>(null);
   isLoading = signal<boolean>(true);
@@ -34,6 +37,7 @@ export class CategoryDetailsPage implements OnInit {
   isModalOpen = false;
   categoryForm!: FormGroup;
   isSaving = false;
+  isDeleting = false;
 
   get category(): Category | null {
     return this.details()?.category || null;
@@ -164,6 +168,33 @@ export class CategoryDetailsPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  deleteCategory() {
+    if (!this.category || this.isDeleting) return;
+    
+    this.dialogService.confirm(
+      this.t('common.delete') || 'Obriši',
+      this.t('categories.deleteConfirm') || 'Jeste li sigurni da želite obrisati kategoriju?',
+      this.t('common.delete') || 'Obriši',
+      this.t('common.cancel') || 'Odustani'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.isDeleting = true;
+        this.categoryRepo.delete(this.category!.id).subscribe({
+          next: () => {
+            this.toastService.success(this.t('common.success'));
+            this.closeModal();
+            this.isDeleting = false;
+            this.router.navigate(['/categories']);
+          },
+          error: () => {
+            this.toastService.error(this.t('common.error'));
+            this.isDeleting = false;
+          }
+        });
+      }
+    });
   }
 
   saveCategory() {

@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { WorkspaceService } from '../../core/services/workspace.service';
@@ -27,8 +27,10 @@ export class ReportsPage implements OnInit {
   private translation = inject(TranslationService);
   private syncService = inject(SyncService);
   private transactionModalService = inject(TransactionModalService);
+  private location = inject(Location);
 
   t = this.translation.translate.bind(this.translation);
+  activeWorkspace = this.workspaceService.activeWorkspace;
 
   // States
   isLoading = signal<boolean>(true);
@@ -241,6 +243,10 @@ export class ReportsPage implements OnInit {
   isFuture(tx: any): boolean {
     if (!tx || !tx.date) return false;
     return new Date(tx.date).getTime() > Date.now();
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   formatAmount(amount: number | string | null | undefined): string {

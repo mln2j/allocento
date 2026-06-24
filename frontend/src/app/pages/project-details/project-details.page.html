@@ -52,7 +52,7 @@
       <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex items-center justify-between">
         <h3 class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">Total</h3>
         <p class="text-2xl font-bold font-mono" [ngClass]="(details()?.total_income || 0) - (details()?.total_expense || 0) >= 0 ? 'text-green-600' : 'text-red-500'">
-          {{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) > 0 ? '+' : '' }}{{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) | number:'1.2-2' }} &euro;
+          {{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) > 0 ? '+' : '' }}{{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}
         </p>
       </div>
       
@@ -60,12 +60,12 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm flex flex-col justify-center">
           <p class="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider truncate">{{ t('projects.totalIncome') || 'Prihodi' }}</p>
-          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_income | number:'1.2-2' }} &euro;</p>
+          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_income | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm flex flex-col justify-center">
           <p class="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider truncate">{{ t('projects.totalExpense') || 'TroA.Akovi' }}</p>
-          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_expense | number:'1.2-2' }} &euro;</p>
+          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_expense | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@
             <div class="flex items-start justify-between gap-4">
               <div class="font-bold text-sm text-slate-800 truncate leading-tight">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</div>
               <div class="font-mono text-sm flex-shrink-0" [ngClass]="tx.type === 'income' ? 'text-green-600 font-bold' : 'text-slate-900 font-medium'">
-                {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-normal">&euro;</span>
+                {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
               </div>
             </div>
             
@@ -181,9 +181,12 @@
     </div>
 
     <div class="pt-4 flex gap-3">
-      <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
-        {{ t('common.cancel') || 'Odustani' }}
+      <button *ngIf="project" type="button" (click)="deleteProject()" [disabled]="isDeleting || isSaving" class="py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer flex-shrink-0" [title]="t('common.delete') || 'Obriši'">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
       </button>
+
       <button type="submit" [disabled]="projectForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
         {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
       </button>

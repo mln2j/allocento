@@ -1,6 +1,29 @@
 <div class="bg-slate-50 flex flex-col pb-24">
-  <main class="flex-1 max-w-lg w-full mx-auto px-4 pt-6 space-y-8 animate-in fade-in duration-500">
+  <main class="flex-1 max-w-lg w-full mx-auto px-4 pt-6 space-y-6 animate-in fade-in duration-500">
     
+    <!-- Page Header -->
+    <div class="mb-2 pb-4 border-b border-slate-200/50 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200/50 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none flex-shrink-0"
+          [title]="t('common.back') || 'Back'"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
+            {{ t('nav.reports') || 'Izvještaji' }}
+          </h1>
+          <p class="text-slate-500 text-sm font-sans mt-1">
+            {{ t('pageSubtitles.reports') || 'Pregled vaših financija' }}
+          </p>
+        </div>
+      </div>
+    </div>
     <!-- Filters Card -->
     <div class="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm border border-slate-100 space-y-4">
       <div class="flex items-center gap-2 text-slate-800 font-bold font-mono">
@@ -81,11 +104,11 @@
     <div class="grid grid-cols-2 gap-3" *ngIf="!isLoading()">
       <div class="bg-emerald-50 rounded-3xl p-4 shadow-sm border border-emerald-100">
         <div class="text-[10px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-1">{{ t('reports.income') }}</div>
-        <div class="text-xl font-black text-emerald-700 tracking-tight">{{ totalIncome() | number:'1.2-2' }} €</div>
+        <div class="text-xl font-black text-emerald-700 tracking-tight">{{ totalIncome() | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</div>
       </div>
       <div class="bg-rose-50 rounded-3xl p-4 shadow-sm border border-rose-100">
         <div class="text-[10px] font-mono font-bold text-rose-600 uppercase tracking-wider mb-1">{{ t('reports.expense') }}</div>
-        <div class="text-xl font-black text-rose-700 tracking-tight">{{ totalExpense() | number:'1.2-2' }} €</div>
+        <div class="text-xl font-black text-rose-700 tracking-tight">{{ totalExpense() | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</div>
       </div>
       <div class="col-span-2 bg-slate-800 rounded-3xl p-5 shadow-sm">
         <div class="flex items-center justify-between">
@@ -94,14 +117,11 @@
             <div class="text-3xl font-black text-white tracking-tight"
                  [class.text-emerald-400]="balance() > 0"
                  [class.text-rose-400]="balance() < 0">
-              {{ balance() > 0 ? '+' : '' }}{{ balance() | number:'1.2-2' }} €
+              {{ balance() > 0 ? '+' : '' }}{{ balance() | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}
             </div>
           </div>
           <div class="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23"/>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
+            <span class="text-lg font-bold font-mono">{{ activeWorkspace()?.currency || 'EUR' }}</span>
           </div>
         </div>
       </div>
@@ -131,7 +151,7 @@
             <div class="w-28 h-28 bg-white rounded-full flex flex-col items-center justify-center shadow-xs">
               <span class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ t('dashboard.totalSpent') || 'Ukupno potrošeno' }}</span>
               <span class="text-sm font-bold font-mono text-slate-800 mt-0.5">
-                {{ formatAmount(getTotalSpending()) }} <span class="text-[9px] font-normal text-slate-400">€</span>
+                {{ formatAmount(getTotalSpending()) }} <span class="text-[9px] font-normal text-slate-400">{{ activeWorkspace()?.currency || 'EUR' }}</span>
               </span>
             </div>
           </div>
@@ -149,7 +169,7 @@
               <div class="flex items-center gap-2 text-right pl-2 flex-shrink-0">
                 <span class="text-[10px] font-mono text-slate-400">{{ getCategoryPercentage(stat.amount) }}%</span>
                 <span class="font-mono text-xs font-bold text-slate-800">
-                  {{ formatAmount(stat.amount) }} <span class="text-[9px] font-normal text-slate-400">€</span>
+                  {{ formatAmount(stat.amount) }} <span class="text-[9px] font-normal text-slate-400">{{ activeWorkspace()?.currency || 'EUR' }}</span>
                 </span>
               </div>
             </div>
@@ -206,7 +226,7 @@
           <div class="flex items-start justify-between gap-4">
             <div class="font-bold text-sm text-slate-800 truncate leading-tight">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</div>
             <div class="font-mono text-sm flex-shrink-0" [ngClass]="tx.type === 'income' ? 'text-green-600 font-bold' : 'text-slate-900 font-medium'">
-              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-normal">&euro;</span>
+              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
             </div>
           </div>
           

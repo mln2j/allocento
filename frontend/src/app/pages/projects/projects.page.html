@@ -64,7 +64,7 @@
             <div *ngIf="p.total !== undefined && ((p.total_income || 0) > 0 || (p.total_expense || 0) > 0)" 
                  class="flex items-center gap-1"
                  [ngClass]="p.total > 0 ? 'text-green-600' : (p.total < 0 ? 'text-red-500' : 'text-slate-600')">
-              <span class="text-xs font-mono font-bold">{{ p.total > 0 ? '+' : '' }}{{ p.total | number:'1.2-2' }} &euro;</span>
+              <span class="text-xs font-mono font-bold">{{ p.total > 0 ? '+' : '' }}{{ p.total | number:'1.2-2' }} {{ workspaceService.activeWorkspace()?.currency || 'EUR' }}</span>
             </div>
             <div *ngIf="!p.total_income && !p.total_expense" class="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
               {{ t('projects.noTransactions') || 'Nema prometa' }}
@@ -109,9 +109,7 @@
     </div>
 
     <div class="pt-4 flex gap-3">
-      <button type="button" (click)="closeModal()" class="flex-1 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold font-mono text-sm rounded-xl transition-colors outline-none cursor-pointer">
-        {{ t('common.cancel') || 'Odustani' }}
-      </button>
+
       <button type="submit" [disabled]="projectForm.invalid || isSaving" class="flex-1 py-3 px-4 bg-brand-purple hover:bg-[#4a1772] text-white font-bold font-mono text-sm rounded-xl transition-all shadow-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed">
         {{ isSaving ? (t('common.saving') || 'Spremanje...') : (t('common.save') || 'Spremi') }}
       </button>

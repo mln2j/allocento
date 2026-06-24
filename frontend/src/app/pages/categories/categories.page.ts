@@ -8,6 +8,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { ToastService } from '../../core/services/toast.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
+import { DialogService } from '../../core/services/dialog.service';
 
 @Component({
   selector: 'app-categories',
@@ -24,6 +25,7 @@ export class CategoriesPage implements OnInit {
   private router = inject(Router);
   public workspaceService = inject(WorkspaceService);
   private appInitializer = inject(AppInitializerService);
+  private dialogService = inject(DialogService);
 
   get isMainNav(): boolean {
     try {
@@ -41,6 +43,8 @@ export class CategoriesPage implements OnInit {
   isModalOpen = false;
   categoryForm!: FormGroup;
   isSaving = false;
+  categoryToEdit: Category | null = null;
+  isDeleting = false;
 
   ngOnInit() {
     this.isOnline.set(this.appInitializer.isOnlineMode);
@@ -70,12 +74,32 @@ export class CategoriesPage implements OnInit {
   }
 
   openCreateModal() {
+    this.categoryToEdit = null;
     this.categoryForm.reset({ type: 'expense' });
+    this.categoryForm.enable();
+    this.isModalOpen = true;
+  }
+
+  openEditModal(category: Category) {
+    this.categoryToEdit = category;
+    this.categoryForm.patchValue({
+      name: category.name,
+      type: category.type
+    });
+    
+    // Global categories can't be edited if they don't belong to a workspace
+    if (!category.workspace_id) {
+      this.categoryForm.disable();
+    } else {
+      this.categoryForm.enable();
+    }
+    
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.categoryToEdit = null;
   }
 
   saveCategory() {
@@ -84,16 +108,58 @@ export class CategoriesPage implements OnInit {
 
     const data = this.categoryForm.value;
 
-    this.categoryRepo.create(data).subscribe({
-      next: (created) => {
-        this.categories.update(list => [...list, created]);
-        this.toastService.success(this.t('common.success'));
-        this.closeModal();
-        this.isSaving = false;
-      },
-      error: () => {
-        this.toastService.error(this.t('common.error'));
-        this.isSaving = false;
+    if (this.categoryToEdit) {
+      this.categoryRepo.update(this.categoryToEdit.id, data).subscribe({
+        next: (updated) => {
+          this.categories.update(list => list.map(c => c.id === updated.id ? updated : c));
+          this.toastService.success(this.t('common.success'));
+          this.closeModal();
+          this.isSaving = false;
+        },
+        error: () => {
+          this.toastService.error(this.t('common.error'));
+          this.isSaving = false;
+        }
+      });
+    } else {
+      this.categoryRepo.create(data).subscribe({
+        next: (created) => {
+          this.categories.update(list => [...list, created]);
+          this.toastService.success(this.t('common.success'));
+          this.closeModal();
+          this.isSaving = false;
+        },
+        error: () => {
+          this.toastService.error(this.t('common.error'));
+          this.isSaving = false;
+        }
+      });
+    }
+  }
+
+  deleteCategory() {
+    if (!this.categoryToEdit || this.isDeleting) return;
+    
+    this.dialogService.confirm(
+      this.t('common.delete') || 'Obriši',
+      this.t('categories.deleteConfirm') || 'Jeste li sigurni da želite obrisati kategoriju?',
+      this.t('common.delete') || 'Obriši',
+      this.t('common.cancel') || 'Odustani'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.isDeleting = true;
+        this.categoryRepo.delete(this.categoryToEdit!.id).subscribe({
+          next: () => {
+            this.categories.update(list => list.filter(c => c.id !== this.categoryToEdit?.id));
+            this.toastService.success(this.t('common.success'));
+            this.closeModal();
+            this.isDeleting = false;
+          },
+          error: () => {
+            this.toastService.error(this.t('common.error'));
+            this.isDeleting = false;
+          }
+        });
       }
     });
   }

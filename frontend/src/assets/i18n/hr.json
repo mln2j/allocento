@@ -1,5 +1,6 @@
 {
   "common": {
+    "serverError": "Greška poslužitelja",
     "offline": "offline",
     "from": "Od",
     "to": "Do",
@@ -53,7 +54,8 @@
     "accounts": "Pregled i upravljanje vašim računima",
     "categories": "Upravljanje kategorijama troškova",
     "projects": "Upravljanje projektima i praćenje troškova",
-    "transactions": "Pregled svih prihoda i rashoda"
+    "transactions": "Pregled svih prihoda i rashoda",
+    "reports": "Pregled vaših financija"
   },
   "settings": {
     "subtitle": "Upravljanje profilom i postavkama.",

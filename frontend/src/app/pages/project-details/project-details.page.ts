@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Project, ProjectRepository, ProjectDetailsResponse } from '../../core/repositories/project.repository';
 import { TranslationService } from '../../core/services/translation.service';
@@ -12,6 +12,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { computed } from '@angular/core';
 import { WorkspaceService } from '../../core/services/workspace.service';
+import { DialogService } from '../../core/services/dialog.service';
 
 @Component({
   selector: 'app-project-details',
@@ -27,6 +28,8 @@ export class ProjectDetailsPage implements OnInit {
   private location = inject(Location);
   private route = inject(ActivatedRoute);
   private transactionModalService = inject(TransactionModalService);
+  private dialogService = inject(DialogService);
+  private router = inject(Router);
 
   details = signal<ProjectDetailsResponse | null>(null);
   isLoading = signal<boolean>(true);
@@ -34,6 +37,7 @@ export class ProjectDetailsPage implements OnInit {
   isModalOpen = false;
   projectForm!: FormGroup;
   isSaving = false;
+  isDeleting = false;
 
   get project(): Project | null {
     return this.details()?.project || null;
@@ -164,6 +168,33 @@ export class ProjectDetailsPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  deleteProject() {
+    if (!this.project || this.isDeleting) return;
+
+    this.dialogService.confirm(
+      this.t('common.delete') || 'Obriši',
+      this.t('projects.deleteConfirm') || 'Jeste li sigurni da želite obrisati projekt?',
+      this.t('common.delete') || 'Obriši',
+      this.t('common.cancel') || 'Odustani'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.isDeleting = true;
+        this.projectRepo.delete(this.project!.id).subscribe({
+          next: () => {
+            this.toastService.success(this.t('common.success'));
+            this.closeModal();
+            this.isDeleting = false;
+            this.router.navigate(['/projects']);
+          },
+          error: () => {
+            this.toastService.error(this.t('common.error'));
+            this.isDeleting = false;
+          }
+        });
+      }
+    });
   }
 
   saveProject() {
