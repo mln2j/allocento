@@ -191,7 +191,7 @@
 
         <div class="flex flex-col gap-4">
           <!-- Category Selector Dropdown -->
-          <div class="relative space-y-1" *ngIf="categories().length > 0" [class.z-50]="isCategoryDropdownOpen">
+          <div class="relative space-y-1" *ngIf="hasFeature('categories')" [class.z-50]="isCategoryDropdownOpen">
             <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.categoryLabel') || 'Category' }}</label>
             <button 
               type="button"
@@ -209,7 +209,7 @@
           </div>
 
           <!-- Project Selector Dropdown -->
-          <div class="relative space-y-1" *ngIf="projects().length > 0" [class.z-50]="isProjectDropdownOpen">
+          <div class="relative space-y-1" *ngIf="hasFeature('projects')" [class.z-50]="isProjectDropdownOpen">
             <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.projectLabel') || 'Project' }}</label>
             <button 
               type="button"

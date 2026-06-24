@@ -46,6 +46,8 @@ class WorkspaceController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'in:personal,household,company'],
             'currency' => ['required', 'string', 'size:3'],
+            'enabled_features' => ['nullable', 'array'],
+            'enabled_features.*' => ['string', 'in:categories,projects,reports'],
         ]);
 
         $workspace = $this->workspaceService->createWorkspace($validated, $request->user()->id);
@@ -59,6 +61,8 @@ class WorkspaceController extends Controller
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'type' => ['sometimes', 'required', 'in:personal,household,company'],
             'currency' => ['sometimes', 'required', 'string', 'size:3'],
+            'enabled_features' => ['nullable', 'array'],
+            'enabled_features.*' => ['string', 'in:categories,projects,reports'],
         ]);
 
         $result = $this->workspaceService->updateWorkspace($request->user(), $id, $validated);

@@ -65,6 +65,13 @@ export class SettingsPage implements OnInit {
     { id: 'projects', translationKey: 'nav.projects' },
     { id: 'reports', translationKey: 'nav.reports' }
   ];
+
+  get filteredNavOptions() {
+    return this.availableNavOptions.filter(opt => 
+      opt.id === 'accounts' || opt.id === 'workspaces' || this.hasFeature(opt.id)
+    );
+  }
+
   selectedNavPrefs: string[] = [];
   hasNavChanges = false;
   isMainNav = false;

@@ -88,7 +88,7 @@
           </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs w-full mb-2">
               <button 
-                *ngFor="let option of availableNavOptions"
+                *ngFor="let option of filteredNavOptions"
                 type="button"
                 [disabled]="!selectedNavPrefs.includes(option.id) && selectedNavPrefs.length >= 2"
                 (click)="toggleNavPrefBtn(option.id)"

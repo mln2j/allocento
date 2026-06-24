@@ -201,8 +201,28 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.workspaceForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
       type: ['household', [Validators.required]],
-      currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]]
+      currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
+      enabled_features: [['categories', 'projects', 'reports']]
     });
+  }
+
+  toggleFeature(feature: string) {
+    const current = this.workspaceForm.get('enabled_features')?.value || [];
+    if (current.includes(feature)) {
+      this.workspaceForm.patchValue({
+        enabled_features: current.filter((f: string) => f !== feature)
+      });
+    } else {
+      this.workspaceForm.patchValue({
+        enabled_features: [...current, feature]
+      });
+    }
+    this.workspaceForm.markAsDirty();
+  }
+
+  hasFeatureForm(feature: string): boolean {
+    const current = this.workspaceForm.get('enabled_features')?.value || [];
+    return current.includes(feature);
   }
 
   loadWorkspaces() {
@@ -337,7 +357,10 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     this.workspaceForm.patchValue({
       name: ws.name,
       type: ws.type,
-      currency: ws.currency || 'EUR'
+      currency: ws.currency || 'EUR',
+      enabled_features: ws.enabled_features && ws.enabled_features.length > 0 
+        ? ws.enabled_features 
+        : ['categories', 'projects', 'reports']
     });
 
     if (ws.type === 'personal') {
