@@ -6,6 +6,8 @@
     "to": "To",
     "transactions": "Transactions",
     "trend": "Income and Expense Trend",
+    "spendingtrend": "Spending trend",
+    "months": "months",
     "categoriesSplit": "Expense Split",
     "error": "Error!",
     "retryButton": "Try again",
