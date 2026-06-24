@@ -9,7 +9,11 @@ class AngularWebPushMessage extends WebPushMessage
     public function toArray(): array
     {
         return [
-            'notification' => parent::toArray()
+            'notification' => parent::toArray(),
+            'data' => [
+                'onActionClick' => ['default' => ['operation' => 'navigateLastFocusedOrOpen', 'url' => '/']],
+                'type' => 'push_event'
+            ]
         ];
     }
 }
