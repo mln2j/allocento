@@ -117,7 +117,7 @@
             <div class="text-3xl font-black text-white tracking-tight"
                  [class.text-emerald-400]="balance() > 0"
                  [class.text-rose-400]="balance() < 0">
-              {{ balance() > 0 ? '+' : '' }}{{ balance() | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}
+              {{ balance() > 0 ? '+' : '' }}{{ balance() | number:'1.2-2' }}
             </div>
           </div>
           <div class="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">

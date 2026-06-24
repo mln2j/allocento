@@ -71,7 +71,10 @@ export class SettingsPage implements OnInit {
 
   hasFeature(feature: string): boolean {
     const ws = this.workspaceService.activeWorkspace();
-    return ws?.enabled_features?.includes(feature) || false;
+    if (!ws?.enabled_features || ws.enabled_features.length === 0) {
+      return true;
+    }
+    return ws.enabled_features.includes(feature);
   }
 
   isPushEnabled = signal<boolean>(false);
