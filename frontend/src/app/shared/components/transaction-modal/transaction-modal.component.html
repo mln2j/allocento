@@ -5,13 +5,6 @@
 >
   <div class="overflow-y-visible custom-scrollbar flex-1 relative">
     
-    <!-- Click outside listener layer to close dropdowns -->
-    <div 
-      *ngIf="isAccountDropdownOpen || isTargetAccountDropdownOpen || isCategoryDropdownOpen || isProjectDropdownOpen" 
-      class="fixed inset-0 z-40"
-      (click)="closeDropdowns()"
-    ></div>
-
     <div *ngIf="isReadonly" class="mb-4 inline-flex items-center text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">Read-Only</div>
       <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="flex flex-col min-h-full">
 
@@ -95,7 +88,7 @@
             </div>
           </button>
 
-          <div *ngIf="isAccountDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 custom-scrollbar">
+          <div *ngIf="isAccountDropdownOpen" (click)="$event.stopPropagation()" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 custom-scrollbar">
             <button 
               type="button" 
               *ngFor="let acc of accounts()"
@@ -146,7 +139,7 @@
             </div>
           </button>
 
-          <div *ngIf="isTargetAccountDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 custom-scrollbar">
+          <div *ngIf="isTargetAccountDropdownOpen" (click)="$event.stopPropagation()" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 custom-scrollbar">
             <button 
               type="button" 
               *ngFor="let acc of accounts()"
@@ -209,7 +202,7 @@
               <span class="truncate pr-2">{{ getSelectedCategoryName() }}</span>
               <svg *ngIf="!isReadonly" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200" [class.rotate-180]="isCategoryDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div *ngIf="isCategoryDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
+            <div *ngIf="isCategoryDropdownOpen" (click)="$event.stopPropagation()" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
               <button type="button" (click)="selectCategory(null)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">{{ t('transactions.uncategorized') || 'Uncategorized' }}</button>
               <button type="button" *ngFor="let cat of categories()" (click)="selectCategory(cat.id)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors">{{ cat.name }}</button>
             </div>
@@ -227,7 +220,7 @@
               <span class="truncate pr-2">{{ getSelectedProjectName() }}</span>
               <svg *ngIf="!isReadonly" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200" [class.rotate-180]="isProjectDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div *ngIf="isProjectDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
+            <div *ngIf="isProjectDropdownOpen" (click)="$event.stopPropagation()" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
               <button type="button" (click)="selectProject(null)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">{{ t('transactions.unprojected') || 'None' }}</button>
               <button type="button" *ngFor="let proj of projects()" (click)="selectProject(proj.id)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors">{{ proj.name }}</button>
             </div>

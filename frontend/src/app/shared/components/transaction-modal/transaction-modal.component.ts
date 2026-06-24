@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, computed, untracked } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TransactionModalService } from '../../../core/services/transaction-modal.service';
@@ -171,6 +171,13 @@ export class TransactionModalComponent implements OnInit {
     this.isTargetAccountDropdownOpen = false;
     this.isCategoryDropdownOpen = false;
     this.isProjectDropdownOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.isAccountDropdownOpen || this.isTargetAccountDropdownOpen || this.isCategoryDropdownOpen || this.isProjectDropdownOpen) {
+      this.closeDropdowns();
+    }
   }
 
   isTargetAccountDropdownOpen = false;
