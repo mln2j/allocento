@@ -202,7 +202,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       name: ['', [Validators.required, Validators.maxLength(255)]],
       type: ['household', [Validators.required]],
       currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
-      enabled_features: [['categories', 'projects', 'reports']]
+      enabled_features: [['categories', 'projects']]
     });
   }
 
@@ -360,7 +360,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
       currency: ws.currency || 'EUR',
       enabled_features: ws.enabled_features && ws.enabled_features.length > 0 
         ? ws.enabled_features 
-        : ['categories', 'projects', 'reports']
+        : ['categories', 'projects']
     });
 
     if (ws.type === 'personal') {

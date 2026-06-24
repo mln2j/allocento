@@ -68,7 +68,7 @@ export class SettingsPage implements OnInit {
 
   get filteredNavOptions() {
     return this.availableNavOptions.filter(opt => 
-      opt.id === 'accounts' || opt.id === 'workspaces' || this.hasFeature(opt.id)
+      opt.id === 'accounts' || opt.id === 'workspaces' || opt.id === 'reports' || this.hasFeature(opt.id)
     );
   }
 
