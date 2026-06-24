@@ -67,6 +67,19 @@ export class AppShellComponent implements OnInit {
       this.logger.log('Primljena push obavijest, osvježavam pozivnice...');
       this.loadPendingInvitations();
     });
+
+    this.pushService.notificationClicks$.subscribe((click: any) => {
+      this.logger.log('Kliknuta push obavijest, osvježavam pozivnice...');
+      this.loadPendingInvitations();
+    });
+  }
+
+  @HostListener('window:visibilitychange')
+  onVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+      this.logger.log('Aplikacija je ponovno vidljiva, osvježavam pozivnice...');
+      this.loadPendingInvitations();
+    }
   }
 
   @HostListener('document:click', ['$event'])

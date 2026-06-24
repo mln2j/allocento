@@ -17,6 +17,10 @@ export class PushNotificationService {
     return this.swPush.messages;
   }
 
+  public get notificationClicks$() {
+    return this.swPush.notificationClicks;
+  }
+
   async subscribeToNotifications() {
     if (!this.swPush.isEnabled) {
       this.logger.warn('Service Worker i Push Notifications nisu omogućeni u ovom pregledniku.');
