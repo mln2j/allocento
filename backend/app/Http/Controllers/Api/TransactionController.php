@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Account;
 use App\Services\TransactionService;
+use App\Notifications\SyncCompletedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -231,6 +232,10 @@ class TransactionController extends Controller
             }
             return ['synced' => $syncedCount, 'errors' => $errors, 'id_mappings' => $idMappings];
         });
+
+        if ($results['synced'] > 0) {
+            $request->user()->notify(new SyncCompletedNotification($results['synced']));
+        }
 
         return response()->json($results, count($results['errors']) > 0 ? 207 : 200); // 207 Multi-Status if there are errors
     }
