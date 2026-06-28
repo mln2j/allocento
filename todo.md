@@ -20,7 +20,7 @@ Ovaj dokument sadrži plan i upute za implementaciju preostalih funkcionalnosti 
 
 ---
 
-## 2. [Produkcija] PostgreSQL konfiguracija
+## 2. [Produkcija] PostgreSQL konfiguracija [DOVRŠENO]
 * **Opis:** Službeni zadatak diplomskog rada zahtijeva korištenje PostgreSQL baze podataka. Lokalno se koristi SQLite radi jednostavnosti.
 * **Koraci za implementaciju:**
   1. Provjeriti je li PostgreSQL instaliran i pokrenut na produkcijskom poslužitelju.
