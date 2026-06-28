@@ -37,7 +37,7 @@ Ovaj dokument sadrži plan i upute za implementaciju preostalih funkcionalnosti 
 
 ---
 
-## 3. [Frontend] Sučelje za ponavljajuće transakcije
+## 3. [Frontend] Sučelje za ponavljajuće transakcije [DOVRŠENO]
 * **Opis:** Backend dio za automatsko kreiranje transakcija na temelju predložaka je implementiran (model `RecurringTemplate`, controller i artisan command `transactions:process-recurring`). Na frontendu je potrebno dodati sučelje za upravljanje ovim predlošcima.
 * **Koraci za implementaciju:**
   1. Kreirati novu stranicu ili dodati sekciju unutar postavki za ponavljajuće transakcije.
