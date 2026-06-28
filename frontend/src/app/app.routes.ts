@@ -83,6 +83,10 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage)
       },
+      {
+        path: 'settings/recurring-templates',
+        loadComponent: () => import('./pages/settings/recurring-templates/recurring-templates.page').then(m => m.RecurringTemplatesPage)
+      },
       
       {
         path: 'reports',

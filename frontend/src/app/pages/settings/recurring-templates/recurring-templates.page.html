@@ -1,0 +1,134 @@
+<div class="w-full space-y-6 pb-24">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+    <div class="flex items-center gap-3">
+      <button 
+        type="button" 
+        (click)="goBack()"
+        class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer outline-none border-none flex-shrink-0"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono transition-all">
+          {{ t('settings.recurringTemplates') || 'Ponavljajuce Transakcije' }}
+        </h1>
+      </div>
+    </div>
+    
+    <button 
+      (click)="openModal()"
+      class="flex items-center justify-center w-10 h-10 rounded-full bg-brand-purple hover:bg-[#4a1772] text-white transition-colors cursor-pointer outline-none flex-shrink-0 shadow-sm"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading()" class="space-y-4">
+    <div *ngFor="let i of [1,2,3]" class="h-20 w-full bg-slate-100 animate-pulse rounded-2xl"></div>
+  </div>
+
+  <div *ngIf="!isLoading() && templates().length === 0" class="text-center py-12">
+    <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+    </div>
+    <p class="text-slate-500 font-mono text-sm">{{ t('settings.noTemplates') || 'Nema ponavljajucih transakcija.' }}</p>
+  </div>
+
+  <div *ngIf="!isLoading() && templates().length > 0" class="space-y-3">
+    <div *ngFor="let tpl of templates()" class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" [ngClass]="tpl.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'">
+          <svg *ngIf="tpl.type === 'income'" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          <svg *ngIf="tpl.type === 'expense'" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 font-mono">{{ tpl.name }}</h3>
+          <p class="text-xs text-slate-500">{{ tpl.amount | number:'1.2-2' }} • {{ tpl.frequency }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+          <input type="checkbox" [checked]="tpl.is_active" (change)="toggleActive(tpl, $event)" class="sr-only peer">
+          <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-purple"></div>
+        </label>
+        
+        <button (click)="openModal(tpl)" class="w-8 h-8 rounded-full bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.89l12.675-12.675zM19.5 7.125L16.875 4.5" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-modal [isOpen]="isModalOpen" [title]="editingTemplateId ? 'Uredi Predlozak' : 'Novi Predlozak'" (close)="closeModal()">
+  <form [formGroup]="templateForm" (ngSubmit)="saveTemplate()" class="space-y-4">
+    <!-- Type -->
+    <div class="flex gap-2 p-1 bg-slate-100 rounded-xl">
+      <button type="button" (click)="templateForm.patchValue({type: 'expense'})" [ngClass]="templateForm.get('type')?.value === 'expense' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2 rounded-lg text-xs font-bold font-mono transition-all">
+        Trosak
+      </button>
+      <button type="button" (click)="templateForm.patchValue({type: 'income'})" [ngClass]="templateForm.get('type')?.value === 'income' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2 rounded-lg text-xs font-bold font-mono transition-all">
+        Prihod
+      </button>
+    </div>
+    
+    <div>
+      <label class="text-xs font-bold text-slate-500 uppercase">Naziv</label>
+      <input type="text" formControlName="name" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Iznos</label>
+        <input type="number" step="0.01" formControlName="amount" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+      </div>
+      
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Frekvencija</label>
+        <select formControlName="frequency" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+          <option value="daily">Dnevno</option>
+          <option value="weekly">Tjedno</option>
+          <option value="monthly">Mjesecno</option>
+          <option value="yearly">Godisnje</option>
+        </select>
+      </div>
+    </div>
+    
+    <div *ngIf="templateForm.get('frequency')?.value === 'monthly' || templateForm.get('frequency')?.value === 'yearly'">
+      <label class="text-xs font-bold text-slate-500 uppercase">Dan u mjesecu (1-31)</label>
+      <input type="number" formControlName="day_of_month" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+    </div>
+    
+    <div>
+      <label class="text-xs font-bold text-slate-500 uppercase">Racun</label>
+      <select formControlName="account_id" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+        <option *ngFor="let acc of accounts()" [value]="acc.id">{{ acc.name }}</option>
+      </select>
+    </div>
+    
+    <div>
+      <label class="text-xs font-bold text-slate-500 uppercase">Kategorija</label>
+      <select formControlName="category_id" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-purple outline-none">
+        <option value="">Bez kategorije</option>
+        <option *ngFor="let cat of filteredCategories" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+    </div>
+    
+    <div class="flex gap-3 pt-4">
+      <button *ngIf="editingTemplateId" type="button" (click)="deleteTemplate(editingTemplateId)" [disabled]="isSaving" class="px-4 py-3 bg-red-50 text-red-600 rounded-xl text-sm font-bold font-mono">
+        Obrisi
+      </button>
+      <button type="submit" [disabled]="templateForm.invalid || isSaving" class="flex-1 py-3 bg-brand-purple text-white rounded-xl text-sm font-bold font-mono disabled:opacity-50">
+        {{ isSaving ? 'Spremanje...' : 'Spremi' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
