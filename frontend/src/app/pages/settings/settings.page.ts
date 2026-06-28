@@ -62,7 +62,6 @@ export class SettingsPage implements OnInit {
     { id: 'accounts', translationKey: 'nav.accounts' },
     { id: 'workspaces', translationKey: 'nav.workspace' },
     { id: 'categories', translationKey: 'nav.categories' },
-    { id: 'projects', translationKey: 'nav.projects' },
     { id: 'reports', translationKey: 'nav.reports' }
   ];
 

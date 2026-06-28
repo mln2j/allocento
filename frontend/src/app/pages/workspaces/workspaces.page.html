@@ -54,7 +54,7 @@
       <ng-container *ngIf="!isLoading()">
         <div 
           *ngFor="let ws of workspaces()"
-          (click)="viewDetails(ws)"
+          (click)="isOnline() ? viewDetails(ws) : setActiveWorkspace(ws)"
           [ngClass]="activeWorkspaceId() === (ws.id) ? 'border-brand-purple bg-brand-purple/5 shadow-sm' : 'bg-white border-slate-200/60 hover:border-slate-300 shadow-[0_4px_15px_rgba(15,23,42,0.01)]'"
           class="border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all group"
         >

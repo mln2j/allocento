@@ -172,9 +172,13 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   setActive() {
     const ws = this.selectedWorkspace();
     if (ws) {
-      this.workspaceService.setActiveWorkspace(ws);
-      this.toastService.success(this.t('workspaces.setActiveSuccess'));
+      this.setActiveWorkspace(ws);
     }
+  }
+
+  setActiveWorkspace(ws: Workspace) {
+    this.workspaceService.setActiveWorkspace(ws);
+    this.toastService.success(this.t('workspaces.setActiveSuccess'));
   }
 
   ngOnDestroy() {

@@ -217,12 +217,6 @@
         </div>
         <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.categories') || 'Kategorije' }}</h3>
       </a>
-      <a *ngIf="hasFeature('projects')" routerLink="/projects" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
-        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
-        </div>
-        <h3 class="font-bold text-slate-800 text-xs font-mono">{{ t('nav.projects') || 'Projekti' }}</h3>
-      </a>
       <a routerLink="/reports" class="bg-white border border-slate-200/60 rounded-2xl p-4 flex flex-col items-center text-center gap-3 hover:border-brand-purple/40 shadow-[0_4px_15px_rgba(15,23,42,0.01)] transition-all outline-none">
         <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25C7.004 12 7.5 12.504 7.5 13.125v6.75C7.5 20.496 7.004 21 6.375 21h-2.25C3.504 21 3 20.496 3 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
@@ -234,76 +228,78 @@
 
   <!-- Edit Mode (Bento Grid split) -->
   <form *ngIf="isEditMode" [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="grid grid-cols-1 md:grid-cols-12 gap-6">
-    <!-- Left Column: User details -->
-    <div class="md:col-span-6 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6 space-y-4">
-      <div class="text-xs font-bold text-slate-400 font-mono uppercase tracking-wider border-b border-slate-100 pb-2">
-        {{ t('profile.editTitle') }}
-      </div>
-
-      <div class="flex flex-col items-center space-y-2 pb-2">
-        <div class="w-20 h-20 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden relative">
-          <img *ngIf="photoPreview || user()?.profile_photo_url" [src]="photoPreview || user()?.profile_photo_url" class="w-full h-full object-cover">
-          <span *ngIf="!photoPreview && !user()?.profile_photo_url" class="text-2xl font-bold text-slate-400 font-mono">
-            {{ user()?.name?.[0]?.toUpperCase() }}
-          </span>
-        </div>
-        <label class="text-xs font-bold text-brand-purple cursor-pointer hover:underline font-mono select-none">
-          {{ t('profile.changePhoto') }}
-          <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
-        </label>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('profile.nameLabel') }}</label>
-        <input type="text" formControlName="name" autocomplete="name" class="input-field font-mono text-sm">
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('profile.emailLabel') }}</label>
-        <input type="email" formControlName="email" autocomplete="username" class="input-field font-mono text-sm">
-      </div>
-    </div>
-
-    <!-- Right Column: Security/Password modification -->
-    <div class="md:col-span-6 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6 flex flex-col justify-between">
-      <div class="space-y-4">
+    <fieldset [disabled]="!isOnline()" class="contents">
+      <!-- Left Column: User details -->
+      <div class="md:col-span-6 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6 space-y-4">
         <div class="text-xs font-bold text-slate-400 font-mono uppercase tracking-wider border-b border-slate-100 pb-2">
-          {{ t('security.title') }}
+          {{ t('profile.editTitle') }}
         </div>
 
-        <div class="space-y-3">
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.currentPassword') }}</label>
-            <input type="password" formControlName="current_password" autocomplete="current-password" class="input-field font-mono text-sm">
+        <div class="flex flex-col items-center space-y-2 pb-2">
+          <div class="w-20 h-20 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden relative">
+            <img *ngIf="photoPreview || user()?.profile_photo_url" [src]="photoPreview || user()?.profile_photo_url" class="w-full h-full object-cover">
+            <span *ngIf="!photoPreview && !user()?.profile_photo_url" class="text-2xl font-bold text-slate-400 font-mono">
+              {{ user()?.name?.[0]?.toUpperCase() }}
+            </span>
+          </div>
+          <label class="text-xs font-bold text-brand-purple cursor-pointer hover:underline font-mono select-none" [class.opacity-50]="!isOnline()" [class.pointer-events-none]="!isOnline()">
+            {{ t('profile.changePhoto') }}
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden" [disabled]="!isOnline()">
+          </label>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('profile.nameLabel') }}</label>
+          <input type="text" formControlName="name" autocomplete="name" class="input-field font-mono text-sm">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('profile.emailLabel') }}</label>
+          <input type="email" formControlName="email" autocomplete="username" class="input-field font-mono text-sm">
+        </div>
+      </div>
+
+      <!-- Right Column: Security/Password modification -->
+      <div class="md:col-span-6 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl p-6 flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="text-xs font-bold text-slate-400 font-mono uppercase tracking-wider border-b border-slate-100 pb-2">
+            {{ t('security.title') }}
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.newPassword') }}</label>
-            <input type="password" formControlName="password" autocomplete="new-password" class="input-field font-mono text-sm">
-          </div>
+          <div class="space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.currentPassword') }}</label>
+              <input type="password" formControlName="current_password" autocomplete="current-password" class="input-field font-mono text-sm">
+            </div>
 
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.confirmPassword') }}</label>
-            <input type="password" formControlName="password_confirmation" autocomplete="new-password" class="input-field font-mono text-sm">
-            <div *ngIf="profileForm.hasError('notMatching') && profileForm.get('password_confirmation')?.touched" class="text-xs font-bold text-brand-error font-mono mt-1">
-              {{ t('security.passwordMismatch') }}
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.newPassword') }}</label>
+              <input type="password" formControlName="password" autocomplete="new-password" class="input-field font-mono text-sm">
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 font-mono">{{ t('security.confirmPassword') }}</label>
+              <input type="password" formControlName="password_confirmation" autocomplete="new-password" class="input-field font-mono text-sm">
+              <div *ngIf="profileForm.hasError('notMatching') && profileForm.get('password_confirmation')?.touched" class="text-xs font-bold text-brand-error font-mono mt-1">
+                {{ t('security.passwordMismatch') }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Save / Cancel Edit Grid -->
-      <div class="pt-6 grid grid-cols-2 gap-3 font-mono text-xs mt-6 border-t border-slate-100">
-        <button type="button" (click)="cancelEdit()"
-                class="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer outline-none">
-          {{ t('profile.cancel') }}
-        </button>
-        <button type="submit" [disabled]="profileForm.invalid || isSaving"
-                class="w-full py-2.5 px-4 bg-brand-purple hover:bg-brand-purple/90 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer outline-none">
-          {{ isSaving ? t('profile.saving') : t('profile.save') }}
-        </button>
+        <!-- Save / Cancel Edit Grid -->
+        <div class="pt-6 grid grid-cols-2 gap-3 font-mono text-xs mt-6 border-t border-slate-100">
+          <button type="button" (click)="cancelEdit()" [disabled]="false"
+                  class="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer outline-none pointer-events-auto">
+            {{ t('profile.cancel') }}
+          </button>
+          <button type="submit" [disabled]="profileForm.invalid || isSaving || !isOnline()"
+                  class="w-full py-2.5 px-4 bg-brand-purple hover:bg-brand-purple/90 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer outline-none">
+            {{ isSaving ? t('profile.saving') : t('profile.save') }}
+          </button>
+        </div>
       </div>
-    </div>
+    </fieldset>
   </form>
 
 </div>

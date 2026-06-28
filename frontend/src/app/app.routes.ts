@@ -92,9 +92,7 @@ export const routes: Routes = [
         path: 'reports',
         loadComponent: () => import('./pages/reports/reports.page').then(m => m.ReportsPage)
       },
-      {
-        path: 'projects', loadComponent: () => import('./pages/projects/projects.page').then(m => m.ProjectsPage) },
-      { path: 'projects/:id', loadComponent: () => import('./pages/project-details/project-details.page').then(m => m.ProjectDetailsPage) },
+
       {
         path: 'categories', loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage) },
       { path: 'categories/:id', loadComponent: () => import('./pages/category-details/category-details.page').then(m => m.CategoryDetailsPage) }

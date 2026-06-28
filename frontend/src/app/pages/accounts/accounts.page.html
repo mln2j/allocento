@@ -112,20 +112,19 @@
         </div>
       </div>
 
-      <!-- Company Workspace: Spent / Budget Progress Bar Layout -->
       <div class="relative z-10 mt-6 w-full space-y-2.5" *ngIf="activeWorkspace()?.type === 'company'">
         <div class="w-full space-y-1">
           <div class="flex justify-between text-[10px] font-bold font-mono text-slate-400">
-            <span>{{ t('accounts.spent') }}: {{ formatAmount((acc.opening_balance ?? acc.balance) - acc.balance) }} {{ acc.currency }}</span>
-            <span class="text-brand-purple">{{ getBudgetSpentPercent(acc) }}%</span>
+            <span>{{ t('accounts.spent') }}: {{ formatAmount((acc.opening_balance || 0) - acc.balance) }} {{ acc.currency }}</span>
+            <span *ngIf="acc.opening_balance" class="text-brand-purple">{{ getBudgetSpentPercent(acc) }}%</span>
           </div>
-          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden" *ngIf="acc.opening_balance">
             <div class="h-full bg-brand-purple rounded-full transition-all duration-500" [style.width.%]="getBudgetSpentPercent(acc)"></div>
           </div>
         </div>
         <div class="text-[10px] font-mono text-slate-400 flex justify-between items-center pt-1 border-t border-slate-50">
-          <span>{{ t('accounts.projectBudget') }}: {{ formatAmount(acc.opening_balance ?? acc.balance) }}</span>
-          <span class="font-bold text-slate-700">{{ t('accounts.remaining') }}: {{ formatAmount(acc.balance) }}</span>
+          <span>{{ t('accounts.projectBudget') }}: {{ formatAmount(acc.opening_balance || 0) }}</span>
+          <span class="font-bold" [ngClass]="acc.balance < 0 ? 'text-red-500' : 'text-slate-700'" *ngIf="acc.opening_balance">{{ t('accounts.remaining') }}: {{ formatAmount(acc.balance) }}</span>
         </div>
       </div>
 

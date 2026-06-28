@@ -329,9 +329,9 @@ export class AccountsPage implements OnInit {
   }
 
   getBudgetSpentPercent(acc: Account): number {
-    const total = acc.opening_balance || acc.balance || 0;
-    if (total === 0) return 0;
-    const spent = Math.max(0, total - acc.balance);
-    return Math.min(100, Math.round((spent / total) * 100));
+    const budget = acc.opening_balance || 0;
+    if (budget === 0) return 100; // If no budget, it's all spent technically, or just return 100% full
+    const spent = Math.max(0, budget - acc.balance);
+    return Math.min(100, Math.round((spent / budget) * 100));
   }
 }

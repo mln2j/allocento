@@ -25,7 +25,7 @@
       </div>
     </div>
     <!-- Filters Card -->
-    <div class="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm border border-slate-100 space-y-4">
+    <div class="bg-white rounded-2xl p-6 shadow-[0_10px_25px_rgba(15,23,42,0.03)] border border-slate-200/60 space-y-4">
       <div class="flex items-center gap-2 text-slate-800 font-bold font-mono">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
@@ -129,7 +129,7 @@
 
     <!-- Charts -->
     <div class="space-y-4" *ngIf="!isLoading()">
-      <div class="bg-white rounded-3xl border border-slate-200/60 p-5 shadow-sm">
+      <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-[0_10px_25px_rgba(15,23,42,0.03)]">
         <div class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-4">{{ t('common.trend') || 'Trend Prihoda i Rashoda' }}</div>
         <div class="relative w-full h-[250px]">
           <canvas baseChart
@@ -141,7 +141,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-3xl border border-slate-200/60 p-5 shadow-sm">
+      <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-[0_10px_25px_rgba(15,23,42,0.03)]">
         <div class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-4">{{ t('dashboard.spendingAnalysis') || 'Analiza potrošnje' }}</div>
         
         <div class="flex flex-col md:flex-row items-center justify-center gap-8 py-4 animate-in fade-in duration-200">

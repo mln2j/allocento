@@ -209,24 +209,7 @@
             </div>
           </div>
 
-          <!-- Project Selector Dropdown -->
-          <div class="relative space-y-1" *ngIf="hasFeature('projects')" [class.z-50]="isProjectDropdownOpen">
-            <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.projectLabel') || 'Project' }}</label>
-            <button 
-              type="button"
-              [disabled]="isReadonly"
-              (click)="toggleProjectDropdown(); $event.stopPropagation()"
-              class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-200 hover:border-brand-purple/40 rounded-xl text-sm font-mono text-slate-700 transition-all outline-none disabled:opacity-70 disabled:cursor-not-allowed group"
-            >
-              <span class="truncate pr-2">{{ getSelectedProjectName() }}</span>
-              <svg *ngIf="!isReadonly" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200" [class.rotate-180]="isProjectDropdownOpen" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div *ngIf="isProjectDropdownOpen" (click)="$event.stopPropagation()" class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-1 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-100 bottom-full mb-2">
-              <button type="button" (click)="selectProject(null)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">{{ t('transactions.unprojected') || 'None' }}</button>
-              <button type="button" *ngFor="let proj of projects()" (click)="selectProject(proj.id)" class="w-full text-left px-3 py-2 text-sm font-mono text-slate-700 hover:bg-slate-50 rounded-lg transition-colors">{{ proj.name }}</button>
-            </div>
-            </div>
-          </div>
+        </div> <!-- End of flex flex-col gap-4 -->
         </div> <!-- End of Middle Scrollable Fields Wrapper -->
 
             </form>

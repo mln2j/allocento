@@ -167,7 +167,7 @@ export class ReportsPage implements OnInit {
     const catMap = new Map<string, { amount: number, color: string }>();
 
     txs.forEach(t => {
-      const name = t.category?.name || this.t('transactions.other') || 'Ostalo';
+      const name = t.category?.name || this.t('reports.uncategorized') || 'Ostalo';
       const color = t.category?.color || '#cbd5e1'; // fallback color
       const current = catMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
@@ -184,7 +184,7 @@ export class ReportsPage implements OnInit {
     const projMap = new Map<string, { amount: number, color: string }>();
 
     txs.forEach(t => {
-      const name = t.project?.name || this.t('transactions.other') || 'Ostalo';
+      const name = t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
       const color = t.project?.color || '#94a3b8'; // fallback color
       const current = projMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
@@ -304,7 +304,7 @@ export class ReportsPage implements OnInit {
       const date = new Date(t.date).toLocaleDateString(this.translation.currentLang());
       const type = t.type === 'income' ? (this.t('transactions.income') || 'Prihod') : (this.t('transactions.expense') || 'Rashod');
       const amount = Number(t.amount).toFixed(2);
-      const cat = t.category?.name || this.t('transactions.other') || '';
+      const cat = t.category?.name || this.t('reports.uncategorized') || '';
       const proj = t.project?.name || '';
       const desc = t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description ? t.description.replace(/"/g, '""') : '');
       
@@ -360,7 +360,7 @@ export class ReportsPage implements OnInit {
       new Date(t.date).toLocaleDateString(this.translation.currentLang()),
       t.type === 'income' ? '+' : '-',
       `${Number(t.amount).toFixed(2)} ${currency}`,
-      t.category?.name || this.t('transactions.other') || '-',
+      t.category?.name || this.t('reports.uncategorized') || '-',
       t.project?.name || '-',
       t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description || '-')
     ]);

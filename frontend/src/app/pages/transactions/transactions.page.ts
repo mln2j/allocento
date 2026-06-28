@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
 import { AccountRepository } from '../../core/repositories/account.repository';
-import { ProjectRepository } from '../../core/repositories/project.repository';
+
 import { TranslationService } from '../../core/services/translation.service';
 import { AppInitializerService } from '../../core/services/app-initializer';
 import { LoadingService } from '../../core/services/loading/loading.service';

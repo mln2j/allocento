@@ -30,6 +30,10 @@ export class WorkspaceService {
       localStorage.setItem('active_workspace_full', JSON.stringify(workspace));
       localStorage.setItem('active_workspace_id', String(workspace.id));
     }
+    // Also notify backend so it persists across logins
+    this.workspaceRepo.setFavoriteWorkspace(workspace.id).subscribe({
+      error: (err) => console.warn('Could not set favorite workspace on backend', err)
+    });
   }
 
   clearActiveWorkspace() {

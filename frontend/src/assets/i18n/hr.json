@@ -496,6 +496,7 @@
     "totalIncome": "Ukupni prihod",
     "totalExpense": "Ukupni rashod",
     "balance": "Stanje",
-    "date": "Datum"
+    "date": "Datum",
+    "uncategorized": "Nekategorizirano"
   }
 }

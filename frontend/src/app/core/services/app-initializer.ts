@@ -25,7 +25,39 @@ export class AppInitializerService {
     return this._isOnlineMode();
   }
   set isOnlineMode(val: boolean) {
-    this._isOnlineMode.set(val);
+    if (this._isOnlineMode() !== val) {
+      this._isOnlineMode.set(val);
+      if (!val) {
+        this.startOfflinePing();
+      } else {
+        this.stopOfflinePing();
+        // Trigger global event so SyncService can catch it
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('online-restored'));
+        }
+      }
+    }
+  }
+
+  private pingInterval: any = null;
+
+  private startOfflinePing() {
+    if (this.pingInterval) return;
+    // Ping every 10 seconds to check if internet is back
+    this.pingInterval = setInterval(async () => {
+      const isUp = await this.checkBackendHealth();
+      if (isUp) {
+        this.logger.log('Internet recovered! Reconnecting...');
+        this.isOnlineMode = true;
+      }
+    }, 10000);
+  }
+
+  private stopOfflinePing() {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
   }
 
   constructor() {

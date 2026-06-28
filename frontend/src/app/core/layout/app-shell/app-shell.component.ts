@@ -69,6 +69,13 @@ export class AppShellComponent implements OnInit {
       this.loadPendingInvitations();
     });
 
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        this.logger.log('Primljena SW message obavijest, osvježavam pozivnice...');
+        this.loadPendingInvitations();
+      });
+    }
+
     this.pushService.notificationClicks$.subscribe((click: any) => {
       this.logger.log('Kliknuta push obavijest, osvježavam pozivnice...');
       this.loadPendingInvitations();

@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { TransactionModalService } from '../../../core/services/transaction-modal.service';
 import { TransactionRepository } from '../../../core/repositories/transaction.repository';
 import { AccountRepository } from '../../../core/repositories/account.repository';
-import { ProjectRepository, Project } from '../../../core/repositories/project.repository';
 import { WorkspaceService } from '../../../core/services/workspace.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -24,7 +23,6 @@ export class TransactionModalComponent implements OnInit {
   private fb = inject(FormBuilder);
   private accountRepo = inject(AccountRepository);
   private transactionRepo = inject(TransactionRepository);
-  private projectRepo = inject(ProjectRepository);
   private workspaceService = inject(WorkspaceService);
   public translationService = inject(TranslationService);
   private dialogService = inject(DialogService);
@@ -33,7 +31,6 @@ export class TransactionModalComponent implements OnInit {
   transactionForm!: FormGroup;
   accounts = signal<Account[]>([]);
   categories = signal<any[]>([]);
-  projects = signal<Project[]>([]);
   
   isEditing = false;
   isSaving = false;
@@ -41,7 +38,6 @@ export class TransactionModalComponent implements OnInit {
   
   isAccountDropdownOpen = false;
   isCategoryDropdownOpen = false;
-  isProjectDropdownOpen = false;
 
   constructor() {
     effect(() => {
@@ -63,7 +59,6 @@ export class TransactionModalComponent implements OnInit {
       date: [this.getCurrentDateTimeLocal(), Validators.required],
       description: ['', Validators.required],
       categoryId: [''],
-      projectId: [''],
       targetAccountId: ['']
     });
   }
@@ -102,7 +97,6 @@ export class TransactionModalComponent implements OnInit {
         date: dateStr,
         description: tx.description,
         categoryId: tx.categoryId || (tx as any).category_id || '',
-        projectId: tx.projectId || (tx as any).project_id || '',
         targetAccountId: tx.targetAccountId || (tx as any).target_account_id || ''
       });
       this.checkPermissions(tx.accountId);
@@ -117,7 +111,6 @@ export class TransactionModalComponent implements OnInit {
         date: this.getCurrentDateTimeLocal(),
         description: '',
         categoryId: '',
-        projectId: '',
         targetAccountId: ''
       });
       if (primary) {
@@ -166,7 +159,6 @@ export class TransactionModalComponent implements OnInit {
     });
 
     this.transactionRepo.getCategories().subscribe(cats => this.categories.set(cats));
-    this.projectRepo.getAll().subscribe(projs => this.projects.set(projs));
   }
 
   closeModal() {
@@ -178,12 +170,11 @@ export class TransactionModalComponent implements OnInit {
     this.isAccountDropdownOpen = false;
     this.isTargetAccountDropdownOpen = false;
     this.isCategoryDropdownOpen = false;
-    this.isProjectDropdownOpen = false;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
-    if (this.isAccountDropdownOpen || this.isTargetAccountDropdownOpen || this.isCategoryDropdownOpen || this.isProjectDropdownOpen) {
+    if (this.isAccountDropdownOpen || this.isTargetAccountDropdownOpen || this.isCategoryDropdownOpen) {
       this.closeDropdowns();
     }
   }
@@ -195,7 +186,6 @@ export class TransactionModalComponent implements OnInit {
     this.isTargetAccountDropdownOpen = !this.isTargetAccountDropdownOpen;
     this.isAccountDropdownOpen = false;
     this.isCategoryDropdownOpen = false;
-    this.isProjectDropdownOpen = false;
   }
 
   selectTargetAccount(accId: number) {
@@ -213,7 +203,6 @@ export class TransactionModalComponent implements OnInit {
     if (this.isReadonly) return;
     this.isAccountDropdownOpen = !this.isAccountDropdownOpen;
     this.isCategoryDropdownOpen = false;
-    this.isProjectDropdownOpen = false;
   }
 
   selectAccount(accId: number) {
@@ -232,7 +221,6 @@ export class TransactionModalComponent implements OnInit {
     if (this.isReadonly) return;
     this.isCategoryDropdownOpen = !this.isCategoryDropdownOpen;
     this.isAccountDropdownOpen = false;
-    this.isProjectDropdownOpen = false;
   }
 
   selectCategory(catId: number | string | null) {
@@ -245,25 +233,6 @@ export class TransactionModalComponent implements OnInit {
     if (!id) return this.t('transactions.uncategorized') || 'Uncategorized';
     const cat = this.categories().find(c => c.id === Number(id));
     return cat ? cat.name : (this.t('transactions.uncategorized') || 'Uncategorized');
-  }
-
-  toggleProjectDropdown() {
-    if (this.isReadonly) return;
-    this.isProjectDropdownOpen = !this.isProjectDropdownOpen;
-    this.isAccountDropdownOpen = false;
-    this.isCategoryDropdownOpen = false;
-  }
-
-  selectProject(projId: number | string | null) {
-    this.transactionForm.get('projectId')?.setValue(projId || '');
-    this.closeDropdowns();
-  }
-
-  getSelectedProjectName(): string {
-    const id = this.transactionForm.get('projectId')?.value;
-    if (!id) return this.t('transactions.unprojected') || 'None';
-    const proj = this.projects().find(p => p.id === Number(id));
-    return proj ? proj.name : (this.t('transactions.unprojected') || 'None');
   }
 
   setTxType(type: 'income' | 'expense' | 'transfer') {

@@ -90,48 +90,49 @@ export class TransactionRepository {
     );
   }
 
+  private createOffline(accountId: number, payload: Partial<Transaction>): Observable<Transaction> {
+    const localId = -Date.now(); // Negativni ID za razlikovanje lokalnih transakcija
+    const localTx: Transaction = {
+      id: localId,
+      accountId: accountId,
+      type: payload.type || 'expense',
+      amount: payload.amount || 0,
+      date: payload.date || new Date().toISOString(),
+      description: payload.description || null,
+      categoryId: payload.categoryId || null,
+      targetAccountId: payload.targetAccountId || null,
+      excludeFromAnalytics: payload.excludeFromAnalytics || null,
+      user: null
+    };
+
+    return from(
+      (async () => {
+        // 1. Spremi u 'transactions' kako bi se odmah prikazala u povijesti
+        await this.localDb.put('transactions', this.mapTransactionToLocal(localTx));
+        // 2. Spremi u 'offline_queue' za sinkronizaciju kad se internet vrati
+        const queueItem = {
+          action: 'create',
+          payload: {
+            account_id: accountId,
+            type: localTx.type,
+            amount: localTx.amount,
+            date: localTx.date,
+            description: localTx.description,
+            category_id: localTx.categoryId,
+            target_account_id: localTx.targetAccountId,
+            exclude_from_analytics: localTx.excludeFromAnalytics,
+            local_id: localId
+          }
+        };
+        await this.localDb.put('offline_queue', queueItem);
+        return localTx;
+      })()
+    );
+  }
+
   create(accountId: number, payload: Partial<Transaction>): Observable<Transaction> {
     if (!this.appInitializer.isOnlineMode) {
-      // Offline: Stvori lokalnu transakciju, spremi je u 'transactions' i stavi u 'offline_queue'
-      const localId = -Date.now(); // Negativni ID za razlikovanje lokalnih transakcija
-      const localTx: Transaction = {
-        id: localId,
-        accountId: accountId,
-        type: payload.type || 'expense',
-        amount: payload.amount || 0,
-        date: payload.date || new Date().toISOString(),
-        description: payload.description || null,
-        categoryId: payload.categoryId || null,
-        projectId: payload.projectId || null,
-        targetAccountId: payload.targetAccountId || null,
-        excludeFromAnalytics: payload.excludeFromAnalytics || null,
-        user: null
-      };
-
-      return from(
-        (async () => {
-          // 1. Spremi u 'transactions' kako bi se odmah prikazala u povijesti
-          await this.localDb.put('transactions', this.mapTransactionToLocal(localTx));
-          // 2. Spremi u 'offline_queue' za sinkronizaciju kad se internet vrati
-          const queueItem = {
-            action: 'create',
-            payload: {
-              account_id: accountId,
-              type: localTx.type,
-              amount: localTx.amount,
-              date: localTx.date,
-              description: localTx.description,
-              category_id: localTx.categoryId,
-              project_id: localTx.projectId,
-              target_account_id: localTx.targetAccountId,
-              exclude_from_analytics: localTx.excludeFromAnalytics,
-              local_id: localId
-            }
-          };
-          await this.localDb.put('offline_queue', queueItem);
-          return localTx;
-        })()
-      );
+      return this.createOffline(accountId, payload);
     }
 
     const apiPayload: any = {
@@ -140,7 +141,6 @@ export class TransactionRepository {
       date: payload.date,
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
-      project_id: payload.projectId !== undefined ? payload.projectId : undefined,
       target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : undefined,
       exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : undefined,
     };
@@ -153,53 +153,62 @@ export class TransactionRepository {
         } catch (e) {
           console.warn('Failed to cache new transaction', tx.id, e);
         }
+      }),
+      catchError((error) => {
+        if (error.status === 0 || error.status === 503 || error.status === 504) {
+          console.warn('Network error during create. Falling back to offline mode.');
+          this.appInitializer.isOnlineMode = false;
+          return this.createOffline(accountId, payload);
+        }
+        throw error;
       })
+    );
+  }
+
+  private updateOffline(accountId: number, transactionId: number, payload: Partial<Transaction>): Observable<Transaction> {
+    return from(
+      (async () => {
+        const list = await this.localDb.getAll('transactions');
+        const localItem = list.find(tx => tx.id === transactionId);
+        if (localItem) {
+          const updated = {
+            ...localItem,
+            type: payload.type || localItem.type,
+            amount: payload.amount !== undefined ? payload.amount : localItem.amount,
+            date: payload.date || localItem.date,
+            description: payload.description !== undefined ? payload.description : localItem.description,
+            categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId,
+            targetAccountId: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.targetAccountId,
+            excludeFromAnalytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.excludeFromAnalytics
+          };
+          await this.localDb.put('transactions', updated);
+
+          const queueItem = {
+            action: 'update',
+            transaction_id: transactionId,
+            payload: {
+              account_id: accountId,
+              type: updated.type,
+              amount: updated.amount,
+              date: updated.date,
+              description: updated.description,
+              category_id: updated.categoryId,
+              target_account_id: updated.targetAccountId,
+              exclude_from_analytics: updated.excludeFromAnalytics
+            }
+          };
+          await this.localDb.put('offline_queue', queueItem);
+
+          return this.mapLocalToTransaction(updated);
+        }
+        throw new Error('Transaction to update not found offline.');
+      })()
     );
   }
 
   update(accountId: number, transactionId: number, payload: Partial<Transaction>): Observable<Transaction> {
     if (!this.appInitializer.isOnlineMode) {
-      // Za offline update, samo lokalno ažuriramo transakciju
-      return from(
-        (async () => {
-          const list = await this.localDb.getAll('transactions');
-          const localItem = list.find(tx => tx.id === transactionId);
-          if (localItem) {
-            const updated = {
-              ...localItem,
-              type: payload.type || localItem.type,
-              amount: payload.amount !== undefined ? payload.amount : localItem.amount,
-              date: payload.date || localItem.date,
-              description: payload.description !== undefined ? payload.description : localItem.description,
-              categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId,
-              projectId: payload.projectId !== undefined ? payload.projectId : localItem.projectId,
-              targetAccountId: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.targetAccountId,
-              excludeFromAnalytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.excludeFromAnalytics
-            };
-            await this.localDb.put('transactions', updated);
-
-            const queueItem = {
-              action: 'update',
-              transaction_id: transactionId,
-              payload: {
-                account_id: accountId,
-                type: updated.type,
-                amount: updated.amount,
-                date: updated.date,
-                description: updated.description,
-                category_id: updated.categoryId,
-                project_id: updated.projectId,
-                target_account_id: updated.targetAccountId,
-                exclude_from_analytics: updated.excludeFromAnalytics
-              }
-            };
-            await this.localDb.put('offline_queue', queueItem);
-
-            return this.mapLocalToTransaction(updated);
-          }
-          throw new Error('Transaction to update not found offline.');
-        })()
-      );
+      return this.updateOffline(accountId, transactionId, payload);
     }
 
     const apiPayload: any = {
@@ -208,7 +217,6 @@ export class TransactionRepository {
       date: payload.date,
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
-      project_id: payload.projectId !== undefined ? payload.projectId : undefined,
       target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : undefined,
       exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : undefined,
     };
@@ -221,22 +229,34 @@ export class TransactionRepository {
         } catch (e) {
           console.warn('Failed to update cached transaction', tx.id, e);
         }
+      }),
+      catchError((error) => {
+        if (error.status === 0 || error.status === 503 || error.status === 504) {
+          console.warn('Network error during update. Falling back to offline mode.');
+          this.appInitializer.isOnlineMode = false;
+          return this.updateOffline(accountId, transactionId, payload);
+        }
+        throw error;
       })
+    );
+  }
+
+  private deleteOffline(accountId: number, transactionId: number): Observable<void> {
+    return from(
+      (async () => {
+        await this.localDb.delete('transactions', transactionId);
+        const queueItem = {
+          action: 'delete',
+          transaction_id: transactionId
+        };
+        await this.localDb.put('offline_queue', queueItem);
+      })()
     );
   }
 
   delete(accountId: number, transactionId: number): Observable<void> {
     if (!this.appInitializer.isOnlineMode) {
-      return from(
-        (async () => {
-          await this.localDb.delete('transactions', transactionId);
-          const queueItem = {
-            action: 'delete',
-            transaction_id: transactionId
-          };
-          await this.localDb.put('offline_queue', queueItem);
-        })()
-      );
+      return this.deleteOffline(accountId, transactionId);
     }
 
     return this.api.delete<void>(`/accounts/${accountId}/transactions/${transactionId}`).pipe(
@@ -244,11 +264,20 @@ export class TransactionRepository {
         try {
           await this.localDb.delete('transactions', transactionId);
         } catch (e) {
-          console.warn('Failed to remove transaction from cache', transactionId, e);
+          console.warn('Failed to delete cached transaction', transactionId, e);
         }
+      }),
+      catchError((error) => {
+        if (error.status === 0 || error.status === 503 || error.status === 504) {
+          console.warn('Network error during delete. Falling back to offline mode.');
+          this.appInitializer.isOnlineMode = false;
+          return this.deleteOffline(accountId, transactionId);
+        }
+        throw error;
       })
     );
   }
+
 
   private mapApiToTransaction(api: any): Transaction {
     return {

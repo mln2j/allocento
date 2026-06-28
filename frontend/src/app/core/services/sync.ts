@@ -24,6 +24,11 @@ export class SyncService {
       this.syncOfflineQueue();
     });
 
+    window.addEventListener('online-restored', () => {
+      console.log('🌍 Internet se vratio (ping recovered)! Pokrećem pozadinsku sinkronizaciju...');
+      this.syncOfflineQueue();
+    });
+
     window.addEventListener('offline', () => {
       console.log('📴 Uređaj je izgubio vezu s internetom. Prebačeno na lokalni rad.');
     });

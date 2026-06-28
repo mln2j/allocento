@@ -167,17 +167,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
         Route::post('categories/{from}/merge-into/{to}', [CategoryController::class, 'merge']);
 
-        /*
-        |-------------------------
-        | Projects
-        |-------------------------
-        */
-
-        Route::get('projects', [\App\Http\Controllers\Api\ProjectController::class, 'index']);
-        Route::post('projects', [\App\Http\Controllers\Api\ProjectController::class, 'store']);
-        Route::get('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'show']);
-        Route::put('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'update']);
-        Route::delete('projects/{project}', [\App\Http\Controllers\Api\ProjectController::class, 'destroy']);
 
         /*
         |-------------------------
