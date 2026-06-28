@@ -473,7 +473,14 @@
     "createFirst": "Create category",
     "editTitle": "Edit category",
     "createTitle": "New category",
-    "globalEditWarning": "This is a global category and you can only edit its name for your workspace."
+    "globalEditWarning": "This is a global category and you can only edit its name for your workspace.",
+    "mergeBtn": "Merge with another category",
+    "mergeTitle": "Merge categories",
+    "mergeDesc": "By merging this category, all its transactions and subcategories will be transferred to the selected category, and this category will be permanently deleted.",
+    "mergeTarget": "Target category",
+    "mergeConfirm": "Merge",
+    "mergeSuccess": "Categories successfully merged!",
+    "mergeFailed": "Failed to merge categories."
   },
   "reports": {
     "filters": "Filters",

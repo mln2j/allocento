@@ -473,7 +473,14 @@
     "createFirst": "Kreiraj kategoriju",
     "editTitle": "Uredi kategoriju",
     "createTitle": "Nova kategorija",
-    "globalEditWarning": "Ovo je globalna kategorija i možete uređivati samo njeno ime za svoj prostor."
+    "globalEditWarning": "Ovo je globalna kategorija i možete uređivati samo njeno ime za svoj prostor.",
+    "mergeBtn": "Spoji s drugom kategorijom",
+    "mergeTitle": "Spajanje kategorija",
+    "mergeDesc": "Spajanjem ove kategorije, sve njezine transakcije i podkategorije bit će prebačene u odabranu kategoriju, a ova kategorija će biti trajno obrisana.",
+    "mergeTarget": "Ciljna kategorija",
+    "mergeConfirm": "Spoji",
+    "mergeSuccess": "Kategorije uspješno spojene!",
+    "mergeFailed": "Spajanje kategorija nije uspjelo."
   },
   "reports": {
     "filters": "Filteri",
