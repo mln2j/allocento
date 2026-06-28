@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { LocalDbService } from './local-db';
 import { AuthService } from './auth.service';
@@ -19,7 +19,14 @@ export class AppInitializerService {
 
   private apiPingUrl = `${API_BASE_URL}/health`;
   private userApiUrl = `${API_BASE_URL}/user`; // <-- Endpoint za provjeru tokena
-  public isOnlineMode = true;
+  
+  private _isOnlineMode = signal<boolean>(true);
+  get isOnlineMode(): boolean {
+    return this._isOnlineMode();
+  }
+  set isOnlineMode(val: boolean) {
+    this._isOnlineMode.set(val);
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -37,14 +37,13 @@ export class ProjectsPage implements OnInit {
 
   projects = signal<Project[]>([]);
   isLoading = signal<boolean>(true);
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
   
   isModalOpen = false;
   projectForm!: FormGroup;
   isSaving = false;
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadProjects();
   }

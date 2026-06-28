@@ -34,7 +34,7 @@ export class TransactionsPage implements OnInit {
   private syncService = inject(SyncService);
 
   transactions = signal<Transaction[]>([]);
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
   isLoading = signal<boolean>(false);
 
   // Search & Filter State
@@ -65,7 +65,6 @@ export class TransactionsPage implements OnInit {
   });
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.loadData();
 
     // Check query params to open modal

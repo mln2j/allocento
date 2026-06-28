@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, signal, inject } from '@angular/core';
+import { Component, OnInit, HostListener, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -53,7 +53,7 @@ export class SettingsPage implements OnInit {
     { value: 'hr', label: 'Hrvatski' },
     { value: 'en', label: 'English' }
   ];
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
 
   selectedFile: File | null = null;
   photoPreview: string | null = null;
@@ -87,7 +87,6 @@ export class SettingsPage implements OnInit {
   isPushEnabled = signal<boolean>(false);
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.currentLang = this.translationService.currentLang() || 'en';
     
     // Check if settings is in the main nav

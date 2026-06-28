@@ -34,7 +34,7 @@ export class AccountsPage implements OnInit {
   private location = inject(Location);
 
   accounts = signal<Account[]>([]);
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
   totalLiquidBalance = signal<number>(0);
   activeWorkspace = computed(() => this.workspaceService.activeWorkspace());
   isLoading = signal<boolean>(false);
@@ -70,7 +70,6 @@ export class AccountsPage implements OnInit {
   }
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadAccounts();
     this.loadWorkspacesForSharing();

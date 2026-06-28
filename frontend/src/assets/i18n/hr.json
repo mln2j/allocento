@@ -1,7 +1,7 @@
 {
   "common": {
     "serverError": "Greška poslužitelja",
-    "offline": "offline",
+    "offline": "Izvanmrežno",
     "from": "Od",
     "to": "Do",
     "transactions": "Transakcije",

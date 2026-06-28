@@ -84,7 +84,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   selectedAccountsMap: Record<number, boolean> = {};
   initialAccountsMap: Record<number, boolean> = {};
 
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
 
   selectedWorkspace = signal<Workspace | null>(null);
 
@@ -151,7 +151,6 @@ export class WorkspacesPage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.initForm();
     this.loadWorkspaces();
     this.loadAccounts();

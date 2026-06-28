@@ -36,7 +36,7 @@ export class DashboardPage implements OnInit {
   spendingStats = signal<any[]>([]);
   dailySpending = signal<any[]>([]);
   activeWorkspaceName = signal<string>('');
-  isOnline = signal<boolean>(true);
+  isOnline = computed(() => this.appInitializer.isOnlineMode);
   isLoading = signal<boolean>(true);
   activeWorkspace = this.workspaceService.activeWorkspace;
 
@@ -63,7 +63,6 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnInit() {
-    this.isOnline.set(this.appInitializer.isOnlineMode);
     this.loadDashboardData();
 
     // Refresh dashboard on modal save
