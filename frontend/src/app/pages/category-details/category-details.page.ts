@@ -13,6 +13,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { computed } from '@angular/core';
 import { WorkspaceService } from '../../core/services/workspace.service';
+import { AppInitializerService } from '../../core/services/app-initializer';
 
 @Component({
   selector: 'app-category-details',
@@ -30,6 +31,7 @@ export class CategoryDetailsPage implements OnInit {
   private router = inject(Router);
   private transactionModalService = inject(TransactionModalService);
   private dialogService = inject(DialogService);
+  appInitializer = inject(AppInitializerService);
 
   details = signal<CategoryDetailsResponse | null>(null);
   isLoading = signal<boolean>(true);
@@ -38,6 +40,10 @@ export class CategoryDetailsPage implements OnInit {
   categoryForm!: FormGroup;
   isSaving = false;
   isDeleting = false;
+  isMergeModalOpen = false;
+  isMerging = false;
+  categories = signal<Category[]>([]);
+  mergeForm!: FormGroup;
 
   get category(): Category | null {
     return this.details()?.category || null;
@@ -129,6 +135,10 @@ export class CategoryDetailsPage implements OnInit {
         this.loadDetails(Number(id));
       }
     });
+
+    this.categoryRepo.getAll().subscribe(cats => {
+      this.categories.set(cats);
+    });
   }
 
   openTxModal(tx: Transaction) {
@@ -139,6 +149,10 @@ export class CategoryDetailsPage implements OnInit {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
       type: ['global', [Validators.required]]
+    });
+    
+    this.mergeForm = this.fb.group({
+      targetId: ['', [Validators.required]]
     });
   }
 
@@ -168,6 +182,38 @@ export class CategoryDetailsPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+    this.isMergeModalOpen = false;
+  }
+
+  openMergeModal() {
+    if (!this.category || !this.appInitializer.isOnlineMode) return;
+    this.mergeForm.reset();
+    this.isMergeModalOpen = true;
+  }
+
+  get mergeableCategories(): Category[] {
+    if (!this.category) return [];
+    return this.categories().filter(c => c.id !== this.category!.id);
+  }
+
+  mergeCategory() {
+    if (this.mergeForm.invalid || this.isMerging || !this.category) return;
+    const targetId = this.mergeForm.value.targetId;
+    if (!targetId) return;
+
+    this.isMerging = true;
+    this.categoryRepo.merge(this.category.id, Number(targetId)).subscribe({
+      next: () => {
+        this.toastService.success(this.t('categories.mergeSuccess') || 'Kategorije uspješno spojene!');
+        this.closeModal();
+        this.isMerging = false;
+        this.router.navigate(['/categories']);
+      },
+      error: () => {
+        this.toastService.error(this.t('categories.mergeFailed') || 'Spajanje kategorija nije uspjelo.');
+        this.isMerging = false;
+      }
+    });
   }
 
   deleteCategory() {
