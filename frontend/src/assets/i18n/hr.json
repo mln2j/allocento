@@ -80,7 +80,12 @@
     "testPushError": "Greška pri slanju testne obavijesti.",
     "languageChanged": "Jezik je uspješno promijenjen!",
     "pushError": "Greška pri promjeni postavki obavijesti.",
-    "imageProcessingError": "Došlo je do greške pri obradi slike."
+    "imageProcessingError": "Došlo je do greške pri obradi slike.",
+    "recurringTemplates": "Ponavljajuće Transakcije",
+    "recurringTemplatesDesc": "Upravljajte transakcijama koje se automatski ponavljaju",
+    "noTemplates": "Nema ponavljajućih transakcija.",
+    "installApp": "Instaliraj aplikaciju",
+    "installAppDesc": "Dodajte aplikaciju na početni zaslon za brži pristup"
   },
   "splash": {
     "initializing": "Inicijalizacija Allocento platforme...",

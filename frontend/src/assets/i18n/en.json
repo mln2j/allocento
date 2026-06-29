@@ -221,7 +221,12 @@
     "testPushError": "Error sending test notification.",
     "languageChanged": "Language updated successfully!",
     "pushError": "Error changing push notification settings.",
-    "imageProcessingError": "An error occurred while processing the image."
+    "imageProcessingError": "An error occurred while processing the image.",
+    "recurringTemplates": "Recurring Templates",
+    "recurringTemplatesDesc": "Manage your automatically recurring transactions",
+    "noTemplates": "No recurring templates.",
+    "installApp": "Install App",
+    "installAppDesc": "Add the application to your home screen for quick access"
   },
   "security": {
     "title": "Security",
