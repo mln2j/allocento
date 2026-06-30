@@ -43,10 +43,7 @@ class Workspace extends Model
         return $this->hasMany(RecurringTemplate::class);
     }
 
-    public function projects(): HasMany
-    {
-        return $this->hasMany(Project::class);
-    }
+
 
     /**
      * Get all transactions associated with this workspace.

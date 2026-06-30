@@ -11,8 +11,7 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\EloquentUserRepository;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCategoryRepository;
-use App\Repositories\Contracts\ProjectRepositoryInterface;
-use App\Repositories\Eloquent\EloquentProjectRepository;
+
 use App\Repositories\Contracts\WorkspaceRepositoryInterface;
 use App\Repositories\Eloquent\EloquentWorkspaceRepository;
 use App\Repositories\Contracts\InvitationRepositoryInterface;
@@ -29,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TransactionRepositoryInterface::class, EloquentTransactionRepository::class);
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
-        $this->app->bind(ProjectRepositoryInterface::class, EloquentProjectRepository::class);
+
         $this->app->bind(WorkspaceRepositoryInterface::class, EloquentWorkspaceRepository::class);
         $this->app->bind(InvitationRepositoryInterface::class, EloquentInvitationRepository::class);
     }
