@@ -37,6 +37,7 @@ export class AmountInputDirective implements OnInit {
   @HostListener('input')
   onInput() {
     const value = this.el.nativeElement.value;
+    console.log('onInput triggered. value:', value);
     if (!value) {
       if (this.control && this.control.control) {
         this.control.control.setValue(null, { emitEvent: true, emitModelToViewChange: false });
@@ -65,6 +66,7 @@ export class AmountInputDirective implements OnInit {
     if (isNegative) num = -num;
 
     // Format value and set it back immediately
+    console.log('formatting num:', num);
     this.formatValue(num);
   }
 
