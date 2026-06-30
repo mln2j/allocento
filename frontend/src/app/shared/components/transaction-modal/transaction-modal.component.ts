@@ -12,11 +12,12 @@ import { Account } from '../../../core/models/account.model';
 import { Transaction } from '../../../core/models/transaction.model';
 import { ModalComponent } from '../../modal/modal.component';
 import { SyncService } from '../../../core/services/sync';
+import { AmountInputDirective } from '../../directives/amount-input.directive';
 
 @Component({
   selector: 'app-transaction-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, AmountInputDirective],
   templateUrl: './transaction-modal.component.html'
 })
 export class TransactionModalComponent implements OnInit {
