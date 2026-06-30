@@ -164,6 +164,22 @@ export class ReportsPage implements OnInit {
     }
   };
 
+  // Helper to generate a consistent color based on string
+  getColorForName(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).slice(-2);
+    }
+    // Prevent it from being too light/grey
+    if (color === '#cbd5e1' || color === '#ffffff') return '#621E95';
+    return color;
+  }
+
   // CSS Donut Chart logic
   spendingStats = computed(() => {
     const txs = this.filteredTransactions().filter(t => t.type === 'expense');
@@ -173,7 +189,7 @@ export class ReportsPage implements OnInit {
     txs.forEach(t => {
       const categoryObj = categories.find(c => c.id === t.categoryId || c.id === t.category?.id);
       const name = categoryObj?.name || t.category?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = categoryObj?.color || t.category?.color || '#cbd5e1'; // fallback color
+      const color = categoryObj?.color || t.category?.color || this.getColorForName(name); 
       const current = catMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       catMap.set(name, current);
@@ -192,7 +208,7 @@ export class ReportsPage implements OnInit {
     txs.forEach(t => {
       const projectObj = projects.find(p => p.id === t.projectId || p.id === t.project?.id);
       const name = projectObj?.name || t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = projectObj?.color || t.project?.color || '#94a3b8'; // fallback color
+      const color = projectObj?.color || t.project?.color || this.getColorForName(name); 
       const current = projMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       projMap.set(name, current);
