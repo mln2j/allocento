@@ -13,6 +13,13 @@ class Category extends Model
         'parent_id',
     ];
 
+    protected $appends = ['color'];
+
+    public function getColorAttribute()
+    {
+        return '#' . substr(md5($this->name ?? 'default'), 0, 6);
+    }
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
