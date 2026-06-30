@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TransactionRepository } from '../../core/repositories/transaction.repository';
+import { CategoryRepository } from '../../core/repositories/category.repository';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { Transaction } from '../../core/models/transaction.model';
@@ -24,6 +25,7 @@ import { TransactionModalService } from '../../core/services/transaction-modal.s
 })
 export class ReportsPage implements OnInit {
   private transactionRepo = inject(TransactionRepository);
+  private categoryRepo = inject(CategoryRepository);
   private workspaceService = inject(WorkspaceService);
   private translation = inject(TranslationService);
   private syncService = inject(SyncService);
@@ -55,16 +57,7 @@ export class ReportsPage implements OnInit {
     return Array.from(projMap.values());
   });
   
-  categories = computed(() => {
-    const txs = this.allTransactions();
-    const catMap = new Map<number, { id: number, name: string, color?: string }>();
-    txs.forEach(t => {
-      if (t.category) {
-        catMap.set(t.category.id, t.category);
-      }
-    });
-    return Array.from(catMap.values());
-  });
+  categories = signal<{ id: number, name: string, color?: string }[]>([]);
 
   // Filtered transactions
   filteredTransactions = computed(() => {
@@ -272,6 +265,7 @@ export class ReportsPage implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCategories();
     this.loadTransactions();
     
     // Default to this month
@@ -285,6 +279,13 @@ export class ReportsPage implements OnInit {
     // Osvježi kad se dogodi sinkronizacija
     this.syncService.syncCompleted$.subscribe(() => {
       this.loadTransactions();
+    });
+  }
+
+  loadCategories() {
+    this.categoryRepo.getAll().subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: (err) => console.error('Failed to load categories', err)
     });
   }
 
