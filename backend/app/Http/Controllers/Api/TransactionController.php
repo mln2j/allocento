@@ -152,8 +152,11 @@ class TransactionController extends Controller
 
     public function sync(Request $request): JsonResponse
     {
-        $workspace = $request->get('_workspace');
-        $accountIds = $workspace->accounts()->pluck('accounts.id')->toArray();
+        // Fetch all accounts the user has access to across all their workspaces
+        // This is necessary because offline transactions might belong to a different
+        // workspace than the currently active one during the sync request.
+        $accountIds = $request->user()->workspaces()->with('accounts')->get()
+            ->pluck('accounts.*.id')->flatten()->unique()->toArray();
 
         $data = $request->validate([
             'operations' => ['required', 'array', 'max:500'],
