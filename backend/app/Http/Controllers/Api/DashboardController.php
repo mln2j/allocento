@@ -35,11 +35,11 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // 5. Spending by Category (Last 30 days)
+        // 5. Spending by Category (Current month)
         $spendingByCategory = Transaction::whereIn('account_id', $accountIds)
             ->where('type', 'expense')
             ->where('exclude_from_analytics', false)
-            ->where('date', '>=', now()->subDays(30))
+            ->where('date', '>=', now()->startOfMonth())
             ->selectRaw('category_id, sum(amount) as total')
             ->groupBy('category_id')
             ->with('category')
