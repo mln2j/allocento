@@ -92,6 +92,14 @@ export class TransactionRepository {
 
   private createOffline(accountId: number, payload: Partial<Transaction>): Observable<Transaction> {
     const localId = -Date.now(); // Negativni ID za razlikovanje lokalnih transakcija
+    let currentUser = null;
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      if (u && u.id) {
+        currentUser = { id: u.id, name: u.name, email: u.email };
+      }
+    } catch (e) {}
+
     const localTx: Transaction = {
       id: localId,
       accountId: accountId,
@@ -102,7 +110,7 @@ export class TransactionRepository {
       categoryId: payload.categoryId || null,
       targetAccountId: payload.targetAccountId || null,
       excludeFromAnalytics: payload.excludeFromAnalytics || null,
-      user: null
+      user: currentUser
     };
 
     return from(
