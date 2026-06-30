@@ -76,28 +76,7 @@
         </div>
       </div>
 
-      <!-- Project Filter -->
-      <div class="space-y-1">
-        <label class="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider ml-1">{{ t('reports.project') }}</label>
-        <div class="flex flex-wrap gap-2">
-          <button type="button" (click)="selectedProject.set(null)"
-            [class.bg-brand-purple]="selectedProject() === null"
-            [class.text-white]="selectedProject() === null"
-            [class.bg-slate-100]="selectedProject() !== null"
-            [class.text-slate-600]="selectedProject() !== null"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-colors">
-            {{ t('reports.all') }}
-          </button>
-          <button *ngFor="let proj of projects()" type="button" (click)="selectedProject.set(proj.id)"
-            [class.bg-brand-purple]="selectedProject() === proj.id"
-            [class.text-white]="selectedProject() === proj.id"
-            [class.bg-slate-100]="selectedProject() !== proj.id"
-            [class.text-slate-600]="selectedProject() !== proj.id"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-colors">
-            {{ proj.name }}
-          </button>
-        </div>
-      </div>
+
     </div>
 
     <!-- Summary Cards -->
@@ -248,10 +227,7 @@
             <div class="text-slate-400 truncate max-w-[120px]">{{ tx.account?.name || t('transactions.accountLabel') || 'Account' }}</div>
             
             <div class="flex-shrink-0">
-              <span *ngIf="tx.project" class="px-2 py-0.5 rounded bg-brand-purple/10 text-[9px] font-bold font-mono text-brand-purple uppercase tracking-wider">
-                {{ tx.project.name }}
-              </span>
-              <span *ngIf="!tx.project && tx.category" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
+              <span *ngIf="tx.category" class="px-2 py-0.5 rounded bg-slate-100 text-[9px] font-bold font-mono text-slate-500 uppercase tracking-wider">
                 {{ tx.category.name }}
               </span>
             </div>

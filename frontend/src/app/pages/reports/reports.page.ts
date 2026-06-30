@@ -42,21 +42,9 @@ export class ReportsPage implements OnInit {
   // Filters
   startDate = signal<string>('');
   endDate = signal<string>('');
-  selectedProject = signal<number | null>(null);
   selectedCategory = signal<number | null>(null);
 
   // Lists for dropdowns
-  projects = computed(() => {
-    const txs = this.allTransactions();
-    const projMap = new Map<number, { id: number, name: string, color?: string }>();
-    txs.forEach(t => {
-      if (t.project) {
-        projMap.set(t.project.id, t.project);
-      }
-    });
-    return Array.from(projMap.values());
-  });
-  
   categories = signal<{ id: number, name: string, color?: string }[]>([]);
 
   // Filtered transactions
@@ -72,10 +60,6 @@ export class ReportsPage implements OnInit {
       const end = new Date(this.endDate());
       end.setHours(23, 59, 59, 999);
       txs = txs.filter(t => new Date(t.date) <= end);
-    }
-
-    if (this.selectedProject()) {
-      txs = txs.filter(t => t.projectId === this.selectedProject());
     }
 
     if (this.selectedCategory()) {
@@ -127,7 +111,7 @@ export class ReportsPage implements OnInit {
     if (hasIncome) {
       datasets.push({
         data: labelArr.map(l => dayMapIncome.get(l) || 0),
-        label: this.t('projects.totalIncome') || 'Prihodi',
+        label: this.t('reports.totalIncome') || 'Prihodi',
         borderColor: '#16a34a',
         backgroundColor: 'rgba(22, 163, 74, 0.1)',
         fill: true,
@@ -138,7 +122,7 @@ export class ReportsPage implements OnInit {
     if (hasExpense || !hasIncome) {
       datasets.push({
         data: labelArr.map(l => dayMapExpense.get(l) || 0),
-        label: this.t('projects.totalExpense') || 'Troškovi',
+        label: this.t('reports.totalExpense') || 'Troškovi',
         borderColor: '#ef4444',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         fill: true,
@@ -201,33 +185,13 @@ export class ReportsPage implements OnInit {
       .sort((a, b) => b.amount - a.amount);
   });
 
-  spendingByProject = computed(() => {
-    const txs = this.filteredTransactions().filter(t => t.type === 'expense');
-    const projMap = new Map<string, { amount: number, color: string }>();
-    const projects = this.projects();
-
-    txs.forEach(t => {
-      const projectObj = projects.find(p => p.id === t.projectId || p.id === t.project?.id);
-      const isUncategorized = !projectObj && !t.project;
-      const name = projectObj?.name || t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = projectObj?.color || t.project?.color || (isUncategorized ? '#c21f96' : this.getColorForName(name)); 
-      const current = projMap.get(name) || { amount: 0, color: color };
-      current.amount += Number(t.amount);
-      projMap.set(name, current);
-    });
-
-    return Array.from(projMap.entries())
-      .map(([name, data]) => ({ name, amount: data.amount, color: data.color }))
-      .sort((a, b) => b.amount - a.amount);
-  });
-
-  getTotalSpending(type: 'categories' | 'projects' = 'categories'): number {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getTotalSpending(): number {
+    const stats = this.spendingStats();
     return stats.reduce((sum, item) => sum + item.amount, 0);
   }
 
-  getDonutGradientStyle(type: 'categories' | 'projects' = 'categories'): string {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getDonutGradientStyle(): string {
+    const stats = this.spendingStats();
     if (!stats || stats.length === 0) {
       return 'conic-gradient(#f1f5f9 0% 100%)';
     }
@@ -245,8 +209,8 @@ export class ReportsPage implements OnInit {
     return `conic-gradient(${slices.join(', ')})`;
   }
 
-  getCategoryPercentage(amount: number, type: 'categories' | 'projects' = 'categories'): number {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getCategoryPercentage(amount: number): number {
+    const stats = this.spendingStats();
     const total = stats.reduce((sum, item) => sum + item.amount, 0);
     if (total === 0) return 0;
     return Math.round((amount / total) * 100);
@@ -327,11 +291,10 @@ export class ReportsPage implements OnInit {
 
     // CSV Headers
     const headers = [
-      this.t('common.date') || 'Datum', 
+      this.t('transactions.dateLabel') || 'Datum', 
       this.t('transactions.typeLabel') || 'Tip', 
       this.t('transactions.amountLabel') || 'Iznos', 
       this.t('transactions.categoryLabel') || 'Kategorija', 
-      this.t('transactions.projectLabel') || 'Projekt', 
       this.t('transactions.descLabel') || 'Opis'
     ];
     
@@ -340,10 +303,9 @@ export class ReportsPage implements OnInit {
       const type = t.type === 'income' ? (this.t('transactions.income') || 'Prihod') : (this.t('transactions.expense') || 'Rashod');
       const amount = Number(t.amount).toFixed(2);
       const cat = t.category?.name || this.t('reports.uncategorized') || '';
-      const proj = t.project?.name || '';
       const desc = t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description ? t.description.replace(/"/g, '""') : '');
       
-      return `"${date}","${type}","${amount}","${cat}","${proj}","${desc}"`;
+      return `"${date}","${type}","${amount}","${cat}","${desc}"`;
     });
 
     const csvContent = headers.join(',') + '\n' + rows.join('\n');
@@ -396,7 +358,6 @@ export class ReportsPage implements OnInit {
       t.type === 'income' ? '+' : '-',
       `${Number(t.amount).toFixed(2)} ${currency}`,
       t.category?.name || this.t('reports.uncategorized') || '-',
-      t.project?.name || '-',
       t.description === 'balance_correction' ? (this.t('transactions.balanceCorrection') || 'Korekcija stanja') : (t.description || '-')
     ]);
 
@@ -407,7 +368,6 @@ export class ReportsPage implements OnInit {
         this.t('transactions.typeLabel') || 'Tip', 
         this.t('transactions.amountLabel') || 'Iznos', 
         this.t('transactions.categoryLabel') || 'Kategorija', 
-        this.t('transactions.projectLabel') || 'Projekt', 
         this.t('transactions.descLabel') || 'Opis'
       ]],
       body: body,
