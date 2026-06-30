@@ -41,19 +41,10 @@ export class DashboardPage implements OnInit {
   activeWorkspace = this.workspaceService.activeWorkspace;
 
   // Tab switcher state
-  spendingByProject = signal<any[]>([]);
-
-  // Tab switcher state
-  activeTab = signal<'categories' | 'projects' | 'days'>('days');
+  activeTab = signal<'categories' | 'days'>('days');
 
   get hasCategories(): boolean {
     const stats = this.spendingStats();
-    if (!stats || stats.length <= 2) return false;
-    return true;
-  }
-
-  get hasProjects(): boolean {
-    const stats = this.spendingByProject();
     if (!stats || stats.length <= 2) return false;
     return true;
   }
@@ -104,7 +95,6 @@ export class DashboardPage implements OnInit {
       this.primaryAccount.set(data.summary?.primary_account ?? null);
       this.recentTransactions.set(data.recent_transactions ?? []);
       this.spendingStats.set(data.spending_stats ?? []);
-      this.spendingByProject.set(data.spending_by_project ?? []);
       this.dailySpending.set(data.daily_spending ?? []);
       this.setDefaultTab();
       this.activeWorkspaceName.set(data.workspace?.name ?? '');
@@ -127,7 +117,6 @@ export class DashboardPage implements OnInit {
         primary_account: data.summary?.primary_account,
         recent_transactions: data.recent_transactions,
         spending_stats: data.spending_stats,
-        spending_by_project: data.spending_by_project,
         daily_spending: data.daily_spending,
         workspace_name: data.workspace?.name
       });
@@ -163,7 +152,6 @@ export class DashboardPage implements OnInit {
         this.primaryAccount.set(dashboardCache.primary_account ?? null);
         this.recentTransactions.set(recentTxs);
         this.spendingStats.set(dashboardCache.spending_stats ?? []);
-        this.spendingByProject.set(dashboardCache.spending_by_project ?? []);
         this.dailySpending.set(dashboardCache.daily_spending ?? []);
         this.setDefaultTab();
         this.activeWorkspaceName.set(dashboardCache.workspace_name ?? '');
@@ -203,8 +191,8 @@ export class DashboardPage implements OnInit {
   }
 
   // Categories Donut Chart Gradient generator
-  getDonutGradientStyle(type: 'categories' | 'projects' = 'categories'): string {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getDonutGradientStyle(): string {
+    const stats = this.spendingStats();
     if (!stats || stats.length === 0) {
       return 'conic-gradient(#f1f5f9 0% 100%)';
     }
@@ -222,8 +210,8 @@ export class DashboardPage implements OnInit {
     return `conic-gradient(${slices.join(', ')})`;
   }
 
-  getCategoryPercentage(amount: number, type: 'categories' | 'projects' = 'categories'): number {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getCategoryPercentage(amount: number): number {
+    const stats = this.spendingStats();
     const total = stats.reduce((sum, item) => sum + item.amount, 0);
     if (total === 0) return 0;
     return Math.round((amount / total) * 100);
@@ -289,8 +277,8 @@ export class DashboardPage implements OnInit {
     }
   };
 
-  getTotalSpending(type: 'categories' | 'projects' = 'categories'): number {
-    const stats = type === 'categories' ? this.spendingStats() : this.spendingByProject();
+  getTotalSpending(): number {
+    const stats = this.spendingStats();
     return stats.reduce((sum, item) => sum + (item.amount || 0), 0);
   }
 }
