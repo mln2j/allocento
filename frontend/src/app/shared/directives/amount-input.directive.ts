@@ -44,12 +44,12 @@ export class AmountInputDirective implements OnInit {
       return;
     }
 
-    // Strip everything except digits and minus
-    let clean = value.replace(/[^0-9-]/g, '');
+    // Strip everything except digits and minus (including unicode minus U+2212)
+    let clean = value.replace(/[^0-9\-\u2212]/g, '');
     
     // Handle minus
-    const isNegative = (value.match(/-/g) || []).length % 2 !== 0;
-    clean = clean.replace(/-/g, ''); // strip all minuses for parsing digits
+    const isNegative = (value.match(/[\-\u2212]/g) || []).length % 2 !== 0;
+    clean = clean.replace(/[\-\u2212]/g, ''); // strip all minuses for parsing digits
 
     if (clean === '') {
       if (this.control && this.control.control) {
@@ -80,10 +80,13 @@ export class AmountInputDirective implements OnInit {
   }
   
   @HostListener('click')
-  onClick() {
-    // Force cursor to end on click in banking mode
+  @HostListener('focus')
+  onFocus() {
+    // Select all text when focusing an existing value so typing overwrites it
     const len = this.el.nativeElement.value.length;
-    this.el.nativeElement.setSelectionRange(len, len);
+    if (len > 0) {
+      this.el.nativeElement.setSelectionRange(0, len);
+    }
   }
 
   private parseAmount(value: string): number | null {
