@@ -90,16 +90,32 @@ export class DashboardPage implements OnInit {
           headers: { 'X-Skip-Loader': 'true' }
         })
       );
+      let currentBalance = data.summary?.total_balance ?? 0;
+      let recentTxs = data.recent_transactions ?? [];
       
-      this.totalBalance.set(data.summary?.total_balance ?? 0);
+      // Dodaj offline transakcije koje još nisu sinkronizirane
+      try {
+        const offlineTxs = await this.localDb.getAll('transactions');
+        const queuedTxs = offlineTxs.filter(t => t.id < 0).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        if (queuedTxs.length > 0) {
+          recentTxs = [...queuedTxs, ...recentTxs].slice(0, 5);
+          for (const tx of queuedTxs) {
+            if (tx.type === 'income') currentBalance += Number(tx.amount);
+            else if (tx.type === 'expense') currentBalance -= Number(tx.amount);
+          }
+        }
+      } catch(e) {}
+
+      this.totalBalance.set(currentBalance);
       this.primaryAccount.set(data.summary?.primary_account ?? null);
-      this.recentTransactions.set(data.recent_transactions ?? []);
+      this.recentTransactions.set(recentTxs);
       this.spendingStats.set(data.spending_stats ?? []);
       this.dailySpending.set(data.daily_spending ?? []);
       this.setDefaultTab();
       this.activeWorkspaceName.set(data.workspace?.name ?? '');
 
-      // Spremi u IndexedDB cache za offline pristup
+      // Spremi u IndexedDB cache za offline pristup (pohrani originalne podatke bez offline modifikacija)
       await this.saveToCache(data);
     } catch (error) {
       console.warn('Greška pri učitavanju dashboarda s poslužitelja:', error);

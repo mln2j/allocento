@@ -19,6 +19,11 @@ export class SyncService {
   }
 
   private initOnlineListener(): void {
+    if (typeof window !== 'undefined' && navigator.onLine) {
+      // Trigger sync shortly after boot if we start online
+      setTimeout(() => this.syncOfflineQueue(), 2000);
+    }
+
     window.addEventListener('online', () => {
       console.log('🌍 Internet se vratio! Pokrećem pozadinsku sinkronizaciju...');
       this.syncOfflineQueue();
