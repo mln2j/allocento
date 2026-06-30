@@ -61,7 +61,7 @@ export class ReportsPage implements OnInit {
 
   // Filtered transactions
   filteredTransactions = computed(() => {
-    let txs = this.allTransactions();
+    let txs = this.allTransactions().filter(t => !t.excludeFromAnalytics);
 
     if (this.startDate()) {
       const start = new Date(this.startDate());
