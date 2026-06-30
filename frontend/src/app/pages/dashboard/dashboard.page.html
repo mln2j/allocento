@@ -219,7 +219,8 @@
             <span *ngIf="isFuture(tx)" class="ml-1 px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600">
               {{ t('transactions.statusFuture') }}
             </span>
-            <span *ngIf="tx.id < 0" class="ml-1 bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider select-none" title="Offline">
+            <span *ngIf="tx.id < 0" class="ml-1 bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider select-none inline-flex items-center gap-0.5" title="Offline">
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.5 9.5a5.97 5.97 0 00-4.043 1.832M14.5 14.5a5.97 5.97 0 004.043-1.832M12 12a1 1 0 100-2 1 1 0 000 2z"></path></svg>
               {{ t('common.offline') || 'Offline' }}
             </span>
           </div>
