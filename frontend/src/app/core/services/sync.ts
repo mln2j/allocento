@@ -4,6 +4,8 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { LocalDbService } from './local-db';
 import { API_BASE_URL } from '../api.config';
 import { AppInitializerService } from './app-initializer';
+import { ToastService } from './toast.service';
+import { TranslationService } from './translation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +17,9 @@ export class SyncService {
   constructor(
     private localDb: LocalDbService,
     private http: HttpClient,
-    private appInitializer: AppInitializerService
+    private appInitializer: AppInitializerService,
+    private toastService: ToastService,
+    private translationService: TranslationService
   ) {
     this.initOnlineListener();
   }
@@ -70,6 +74,9 @@ export class SyncService {
 
       // Ako je sve uspješno obrisano i riješeno, emitiraj
       this.syncCompleted$.next();
+      
+      const successMsg = this.translationService.translate('sync.success') || 'Podaci uspješno sinkronizirani';
+      this.toastService.success(successMsg);
 
     } catch (error) {
       console.error('❌ Greška tijekom dohvaćanja reda čekanja:', error);

@@ -503,5 +503,8 @@
     "balance": "Balance",
     "date": "Date",
     "uncategorized": "Uncategorized"
+  },
+  "sync": {
+    "success": "Data synchronized successfully"
   }
 }

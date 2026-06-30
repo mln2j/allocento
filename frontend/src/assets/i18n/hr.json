@@ -503,5 +503,8 @@
     "balance": "Stanje",
     "date": "Datum",
     "uncategorized": "Nekategorizirano"
+  },
+  "sync": {
+    "success": "Podaci uspješno sinkronizirani"
   }
 }
