@@ -505,6 +505,6 @@
     "uncategorized": "Nekategorizirano"
   },
   "sync": {
-    "success": "{count} offline transakcija sinkronizirano"
+    "success": "{count} lokalnih transakcija sinkronizirano"
   }
 }
