@@ -89,7 +89,7 @@ export class AccountsPage implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(255)]],
       type: ['bank', [Validators.required]],
       currency: ['EUR', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
-      balance: [0, [Validators.required, Validators.min(0)]]
+      balance: [0, [Validators.required]]
     });
   }
 
