@@ -61,13 +61,12 @@ export class SettingsPage implements OnInit {
   availableNavOptions = [
     { id: 'accounts', translationKey: 'nav.accounts' },
     { id: 'workspaces', translationKey: 'nav.workspace' },
-    { id: 'categories', translationKey: 'nav.categories' },
-    { id: 'reports', translationKey: 'nav.reports' }
+    { id: 'categories', translationKey: 'nav.categories' }
   ];
 
   get filteredNavOptions() {
     return this.availableNavOptions.filter(opt => 
-      opt.id === 'accounts' || opt.id === 'workspaces' || opt.id === 'reports' || this.hasFeature(opt.id)
+      opt.id === 'accounts' || opt.id === 'workspaces' || this.hasFeature(opt.id)
     );
   }
 

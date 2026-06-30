@@ -209,6 +209,25 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
+  toggleFeature(feature: string) {
+    const current = this.workspaceForm.get('enabled_features')?.value || [];
+    if (current.includes(feature)) {
+      this.workspaceForm.patchValue({
+        enabled_features: current.filter((f: string) => f !== feature)
+      });
+    } else {
+      this.workspaceForm.patchValue({
+        enabled_features: [...current, feature]
+      });
+    }
+    this.workspaceForm.markAsDirty();
+  }
+
+  hasFeatureForm(feature: string): boolean {
+    const current = this.workspaceForm.get('enabled_features')?.value || [];
+    return current.includes(feature);
+  }
+
 
   loadWorkspaces() {
     this.isLoading.set(true);
@@ -339,13 +358,19 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     if (!ws) return;
 
     this.editingWorkspaceId = ws.id;
+    let feats = ws.enabled_features;
+    if (typeof feats === 'string') {
+      try { feats = JSON.parse(feats); } catch (e) { feats = ['categories']; }
+    }
+    if (!Array.isArray(feats) || feats.length === 0) {
+      feats = ['categories'];
+    }
+
     this.workspaceForm.patchValue({
       name: ws.name,
       type: ws.type,
       currency: ws.currency || 'EUR',
-      enabled_features: ws.enabled_features && ws.enabled_features.length > 0 
-        ? ws.enabled_features 
-        : ['categories']
+      enabled_features: feats
     });
 
     if (ws.type === 'personal') {
