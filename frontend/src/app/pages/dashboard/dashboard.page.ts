@@ -151,34 +151,45 @@ export class DashboardPage implements OnInit {
 
       const cache = await this.localDb.getAll('user_profile');
       const dashboardCache = cache.find(item => item.id === `dashboard_summary_${currentWsId}`);
+      let currentBalance = 0;
+      let recentTxs: any[] = [];
+      let primaryAccount = null;
+      let spendingStats = [];
+      let dailySpending = [];
+      let workspaceName = '';
+
       if (dashboardCache) {
-        let currentBalance = dashboardCache.total_balance ?? 0;
-        let recentTxs = dashboardCache.recent_transactions ?? [];
-
-        // Dodaj offline transakcije koje još nisu sinkronizirane
-        try {
-          const offlineTxs = await this.localDb.getAll('transactions');
-          const queuedTxs = offlineTxs.filter(t => t.id < 0).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          
-          if (queuedTxs.length > 0) {
-            recentTxs = [...queuedTxs, ...recentTxs].slice(0, 5); // Zadrži samo 5 najnovijih
-            // Ažuriraj lokalni balans vizualno
-            for (const tx of queuedTxs) {
-              if (tx.type === 'income') currentBalance += Number(tx.amount);
-              else if (tx.type === 'expense') currentBalance -= Number(tx.amount);
-            }
-          }
-        } catch(e) {}
-
-        this.totalBalance.set(currentBalance);
-        this.primaryAccount.set(dashboardCache.primary_account ?? null);
-        this.recentTransactions.set(recentTxs);
-        this.spendingStats.set(dashboardCache.spending_stats ?? []);
-        this.dailySpending.set(dashboardCache.daily_spending ?? []);
-        this.setDefaultTab();
-        this.activeWorkspaceName.set(dashboardCache.workspace_name ?? '');
-        this.isLoading.set(false); // Podaci odmah dostupni
+        currentBalance = dashboardCache.total_balance ?? 0;
+        recentTxs = dashboardCache.recent_transactions ?? [];
+        primaryAccount = dashboardCache.primary_account ?? null;
+        spendingStats = dashboardCache.spending_stats ?? [];
+        dailySpending = dashboardCache.daily_spending ?? [];
+        workspaceName = dashboardCache.workspace_name ?? '';
       }
+
+      // Uvijek dodaj offline transakcije koje još nisu sinkronizirane, čak i ako nema cachea
+      try {
+        const offlineTxs = await this.localDb.getAll('transactions');
+        const queuedTxs = offlineTxs.filter(t => t.id < 0).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        if (queuedTxs.length > 0) {
+          recentTxs = [...queuedTxs, ...recentTxs].slice(0, 5); // Zadrži samo 5 najnovijih
+          // Ažuriraj lokalni balans vizualno
+          for (const tx of queuedTxs) {
+            if (tx.type === 'income') currentBalance += Number(tx.amount);
+            else if (tx.type === 'expense') currentBalance -= Number(tx.amount);
+          }
+        }
+      } catch(e) {}
+
+      this.totalBalance.set(currentBalance);
+      this.primaryAccount.set(primaryAccount);
+      this.recentTransactions.set(recentTxs);
+      this.spendingStats.set(spendingStats);
+      this.dailySpending.set(dailySpending);
+      this.setDefaultTab();
+      this.activeWorkspaceName.set(workspaceName);
+      this.isLoading.set(false); // Podaci odmah dostupni
     } catch (e) {
       console.error('Greška pri učitavanju dashboard cachea', e);
     }

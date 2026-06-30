@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, firstValueFrom } from 'rxjs';
 import { LocalDbService } from './local-db';
 import { API_BASE_URL } from '../api.config';
+import { AppInitializerService } from './app-initializer';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class SyncService {
 
   constructor(
     private localDb: LocalDbService,
-    private http: HttpClient
+    private http: HttpClient,
+    private appInitializer: AppInitializerService
   ) {
     this.initOnlineListener();
   }
@@ -40,7 +42,9 @@ export class SyncService {
   }
 
   async syncOfflineQueue(): Promise<void> {
-    if (this.isSyncing) return;
+    if (this.isSyncing || !this.appInitializer.isOnlineMode) {
+      return;
+    }
 
     try {
       const queue = await this.localDb.getAll('offline_queue');

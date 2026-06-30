@@ -188,7 +188,7 @@ class TransactionController extends Controller
                     if ($action === 'create') {
                         $accountId = $payload['account_id'] ?? null;
                         if (!$accountId || !in_array($accountId, $accountIds)) {
-                            throw new \Exception('Account not found or access denied in active workspace.');
+                            throw new \Exception('Account not found or access denied in active workspace. AccountId: ' . ($accountId ?? 'null') . ', Available: ' . implode(',', $accountIds));
                         }
 
                         $tx = $this->transactionService->createForAccount($request->user(), $accountId, $payload);
