@@ -92,14 +92,15 @@
     <div class="md:col-span-12 bg-white border border-slate-200/60 shadow-[0_10px_25px_rgba(15,23,42,0.03)] rounded-2xl flex flex-col overflow-hidden">
       
       <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/20">
-        <h3 class="font-bold font-mono text-sm text-slate-800 uppercase tracking-wider">{{ t('dashboard.spendingAnalysis') || 'Analiza potrošnje' }}</h3>
-
-        <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="flex items-center gap-4">
+          <h3 class="font-bold font-mono text-sm text-slate-800 uppercase tracking-wider">{{ t('dashboard.spendingAnalysis') || 'Analiza potrošnje' }}</h3>
           <!-- Advanced Reports Link -->
-          <button routerLink="/reports" class="text-brand-purple hover:underline text-xs font-bold font-mono flex items-center gap-1 cursor-pointer bg-transparent border-none">
+          <button routerLink="/reports" class="text-brand-purple hover:underline text-xs font-bold font-mono flex items-center gap-1 cursor-pointer bg-transparent border-none mt-0.5">
             {{ t('common.viewAll') || 'Prikaži sve' }} &rarr;
           </button>
-          
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
           <!-- Tab Switcher -->
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto flex-nowrap hide-scrollbar">
           <button
