@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -38,6 +38,21 @@ export class RecurringTemplatesPage implements OnInit {
   isSaving = false;
   templateForm!: FormGroup;
   editingTemplateId: number | null = null;
+  
+  isAccountDropdownOpen = false;
+  isCategoryDropdownOpen = false;
+  
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.isAccountDropdownOpen || this.isCategoryDropdownOpen) {
+      this.closeDropdowns();
+    }
+  }
+  
+  closeDropdowns() {
+    this.isAccountDropdownOpen = false;
+    this.isCategoryDropdownOpen = false;
+  }
   
   ngOnInit() {
     this.initForm();
@@ -212,6 +227,39 @@ export class RecurringTemplatesPage implements OnInit {
   
   goBack() {
     this.location.back();
+  }
+  
+  toggleAccountDropdown() {
+    this.isAccountDropdownOpen = !this.isAccountDropdownOpen;
+    this.isCategoryDropdownOpen = false;
+  }
+
+  selectAccount(accId: number) {
+    this.templateForm.get('account_id')?.setValue(accId);
+    this.closeDropdowns();
+  }
+
+  getSelectedAccount(): Account | undefined {
+    const accId = this.templateForm.get('account_id')?.value;
+    if (!accId) return undefined;
+    return this.accounts().find(a => a.id === Number(accId));
+  }
+
+  toggleCategoryDropdown() {
+    this.isCategoryDropdownOpen = !this.isCategoryDropdownOpen;
+    this.isAccountDropdownOpen = false;
+  }
+
+  selectCategory(catId: number | string | null) {
+    this.templateForm.get('category_id')?.setValue(catId || '');
+    this.closeDropdowns();
+  }
+
+  getSelectedCategoryName(): string {
+    const id = this.templateForm.get('category_id')?.value;
+    if (!id) return this.t('transactions.uncategorized') || 'Uncategorized';
+    const cat = this.categories().find(c => c.id === Number(id));
+    return cat ? cat.name : (this.t('transactions.uncategorized') || 'Uncategorized');
   }
   
   t(key: string): string {
