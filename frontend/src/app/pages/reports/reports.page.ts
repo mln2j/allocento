@@ -188,8 +188,9 @@ export class ReportsPage implements OnInit {
 
     txs.forEach(t => {
       const categoryObj = categories.find(c => c.id === t.categoryId || c.id === t.category?.id);
+      const isUncategorized = !categoryObj && !t.category;
       const name = categoryObj?.name || t.category?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = categoryObj?.color || t.category?.color || this.getColorForName(name); 
+      const color = categoryObj?.color || t.category?.color || (isUncategorized ? '#c21f96' : this.getColorForName(name)); 
       const current = catMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       catMap.set(name, current);
@@ -207,8 +208,9 @@ export class ReportsPage implements OnInit {
 
     txs.forEach(t => {
       const projectObj = projects.find(p => p.id === t.projectId || p.id === t.project?.id);
+      const isUncategorized = !projectObj && !t.project;
       const name = projectObj?.name || t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = projectObj?.color || t.project?.color || this.getColorForName(name); 
+      const color = projectObj?.color || t.project?.color || (isUncategorized ? '#c21f96' : this.getColorForName(name)); 
       const current = projMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       projMap.set(name, current);
