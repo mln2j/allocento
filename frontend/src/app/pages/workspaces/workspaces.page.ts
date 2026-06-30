@@ -209,24 +209,7 @@ export class WorkspacesPage implements OnInit, OnDestroy {
     });
   }
 
-  toggleFeature(feature: string) {
-    const current = this.workspaceForm.get('enabled_features')?.value || [];
-    if (current.includes(feature)) {
-      this.workspaceForm.patchValue({
-        enabled_features: current.filter((f: string) => f !== feature)
-      });
-    } else {
-      this.workspaceForm.patchValue({
-        enabled_features: [...current, feature]
-      });
-    }
-    this.workspaceForm.markAsDirty();
-  }
 
-  hasFeatureForm(feature: string): boolean {
-    const current = this.workspaceForm.get('enabled_features')?.value || [];
-    return current.includes(feature);
-  }
 
 
   loadWorkspaces() {

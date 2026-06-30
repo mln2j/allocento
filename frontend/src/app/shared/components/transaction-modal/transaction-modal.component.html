@@ -193,7 +193,7 @@
 
         <div class="flex flex-col gap-4">
           <!-- Category Selector Dropdown -->
-          <div class="relative space-y-1" *ngIf="hasFeature('categories')" [class.z-50]="isCategoryDropdownOpen">
+          <div class="relative space-y-1" [class.z-50]="isCategoryDropdownOpen">
             <label class="block text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">{{ t('transactions.categoryLabel') || 'Category' }}</label>
             <button 
               type="button"

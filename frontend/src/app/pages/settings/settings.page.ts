@@ -65,22 +65,12 @@ export class SettingsPage implements OnInit {
   ];
 
   get filteredNavOptions() {
-    return this.availableNavOptions.filter(opt => 
-      opt.id === 'accounts' || opt.id === 'workspaces' || this.hasFeature(opt.id)
-    );
+    return this.availableNavOptions;
   }
 
   selectedNavPrefs: string[] = [];
   hasNavChanges = false;
   isMainNav = false;
-
-  hasFeature(feature: string): boolean {
-    const ws = this.workspaceService.activeWorkspace();
-    if (!ws?.enabled_features || ws.enabled_features.length === 0) {
-      return true;
-    }
-    return ws.enabled_features.includes(feature);
-  }
 
   isPushEnabled = signal<boolean>(false);
 

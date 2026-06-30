@@ -139,14 +139,6 @@ export class TransactionModalComponent implements OnInit {
     }
   }
 
-  hasFeature(feature: string): boolean {
-    const ws = this.workspaceService.activeWorkspace();
-    if (!ws?.enabled_features || ws.enabled_features.length === 0) {
-      return true;
-    }
-    return ws.enabled_features.includes(feature);
-  }
-
   loadData() {
     this.accountRepo.listForCurrentUser().subscribe({
       next: (accs) => {
