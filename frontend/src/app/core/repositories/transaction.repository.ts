@@ -199,6 +199,7 @@ export class TransactionRepository {
             date: payload.date || localItem.date,
             description: payload.description !== undefined ? payload.description : localItem.description,
             category_id: payload.categoryId !== undefined ? payload.categoryId : localItem.category_id,
+            account_id: payload.accountId !== undefined ? payload.accountId : localItem.account_id,
             target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.target_account_id,
             exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.exclude_from_analytics
           };
@@ -208,12 +209,12 @@ export class TransactionRepository {
             action: 'update',
             transaction_id: transactionId,
             payload: {
-              account_id: accountId,
               type: updated.type,
               amount: updated.amount,
               date: updated.date,
               description: updated.description,
               category_id: updated.category_id,
+              account_id: updated.account_id,
               target_account_id: updated.target_account_id,
               exclude_from_analytics: updated.exclude_from_analytics
             }
@@ -238,6 +239,7 @@ export class TransactionRepository {
       date: payload.date,
       description: payload.description,
       category_id: payload.categoryId !== undefined ? payload.categoryId : undefined,
+      account_id: payload.accountId !== undefined ? payload.accountId : undefined,
       target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : undefined,
       exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : undefined,
     };

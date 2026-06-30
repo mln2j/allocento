@@ -91,6 +91,17 @@ class TransactionService
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $newAccountId = $data['account_id'] ?? $accountId;
+            $isAccountChanging = $newAccountId != $accountId;
+
+            $newAccount = null;
+            if ($isAccountChanging) {
+                $newAccount = Account::query()
+                    ->where('id', $newAccountId)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+            }
+
             // Handle counterpart if it's a transfer
             if ($transaction->target_account_id) {
                 $counterpart = Transaction::query()
@@ -111,7 +122,8 @@ class TransactionService
                     $counterpartData = array_merge($data, [
                         'type' => $counterpart->type,
                         'exclude_from_analytics' => true,
-                        'target_account_id' => $accountId,
+                        'target_account_id' => $newAccountId,
+                        'account_id' => $counterpart->account_id // ensure we don't accidentally move the counterpart
                     ]);
                     $counterpart->update($counterpartData);
                     $counterpart->refresh();
@@ -136,7 +148,12 @@ class TransactionService
                 ? $transaction->amount
                 : -$transaction->amount;
 
-            $account->balance += $newDelta;
+            if ($isAccountChanging) {
+                $newAccount->balance += $newDelta;
+                $newAccount->save();
+            } else {
+                $account->balance += $newDelta;
+            }
             $account->save();
 
             return $transaction;

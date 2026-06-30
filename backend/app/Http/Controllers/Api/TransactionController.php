@@ -115,6 +115,7 @@ class TransactionController extends Controller
         }
 
         $data = $request->validate([
+            'account_id' => ['sometimes', 'required', 'integer', 'exists:accounts,id'],
             'type' => ['sometimes', 'required', 'in:income,expense,transfer'],
             'target_account_id' => ['sometimes', 'nullable', 'integer', 'exists:accounts,id'],
             'amount' => ['sometimes', 'required', 'numeric', 'min:0.01'],
@@ -125,6 +126,13 @@ class TransactionController extends Controller
             'tags' => ['sometimes', 'nullable', 'array'],
             'exclude_from_analytics' => ['sometimes', 'nullable', 'boolean'],
         ]);
+
+        if (isset($data['account_id']) && $data['account_id'] != $accountId) {
+            $newAccount = $workspace->accounts()->where('accounts.id', $data['account_id'])->first();
+            if (!$newAccount) {
+                return response()->json(['error' => 'Target account not found or access denied in active workspace.'], 403);
+            }
+        }
 
         $transaction = $this->transactionService->updateForAccount(
             $request->user(),
@@ -207,12 +215,12 @@ class TransactionController extends Controller
                         }
 
                         // Allow moving between accounts if account_id is provided
-                        $accountId = $payload['account_id'] ?? $transaction->account_id;
-                        if (!in_array($accountId, $accountIds)) {
+                        $newAccountId = $payload['account_id'] ?? $transaction->account_id;
+                        if (!in_array($newAccountId, $accountIds)) {
                             throw new \Exception('Target account not found or access denied.');
                         }
 
-                        $this->transactionService->updateForAccount($request->user(), $accountId, $transactionId, $payload);
+                        $this->transactionService->updateForAccount($request->user(), $transaction->account_id, $transactionId, $payload);
                         $syncedCount++;
 
                     } elseif ($action === 'delete') {
