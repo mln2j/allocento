@@ -14,11 +14,12 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 import { WorkspaceRepository, Workspace } from '../../core/repositories/workspace.repository';
 import { firstValueFrom } from 'rxjs';
 import { SelectComponent } from '../../shared/select/select.component';
+import { AmountInputDirective } from '../../shared/directives/amount-input.directive';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule, SelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ModalComponent, RouterModule, SelectComponent, AmountInputDirective],
   templateUrl: './accounts.page.html',
 })
 export class AccountsPage implements OnInit {
