@@ -127,26 +127,35 @@ export class ReportsPage implements OnInit {
 
     const labelArr = Array.from(labels);
 
+    const datasets: any[] = [];
+    const hasIncome = Array.from(dayMapIncome.values()).some(v => v > 0);
+    const hasExpense = Array.from(dayMapExpense.values()).some(v => v > 0);
+
+    if (hasIncome) {
+      datasets.push({
+        data: labelArr.map(l => dayMapIncome.get(l) || 0),
+        label: this.t('projects.totalIncome') || 'Prihodi',
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+        fill: true,
+        tension: 0.4
+      });
+    }
+
+    if (hasExpense || !hasIncome) {
+      datasets.push({
+        data: labelArr.map(l => dayMapExpense.get(l) || 0),
+        label: this.t('projects.totalExpense') || 'Troškovi',
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: true,
+        tension: 0.4
+      });
+    }
+
     return {
       labels: labelArr,
-      datasets: [
-        {
-          data: labelArr.map(l => dayMapIncome.get(l) || 0),
-          label: this.t('projects.totalIncome') || 'Prihodi',
-          borderColor: '#16a34a',
-          backgroundColor: 'rgba(22, 163, 74, 0.1)',
-          fill: true,
-          tension: 0.4
-        },
-        {
-          data: labelArr.map(l => dayMapExpense.get(l) || 0),
-          label: this.t('projects.totalExpense') || 'Troškovi',
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          fill: true,
-          tension: 0.4
-        }
-      ]
+      datasets: datasets
     };
   });
 
@@ -166,10 +175,12 @@ export class ReportsPage implements OnInit {
   spendingStats = computed(() => {
     const txs = this.filteredTransactions().filter(t => t.type === 'expense');
     const catMap = new Map<string, { amount: number, color: string }>();
+    const categories = this.categories();
 
     txs.forEach(t => {
-      const name = t.category?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = t.category?.color || '#cbd5e1'; // fallback color
+      const categoryObj = categories.find(c => c.id === t.categoryId || c.id === t.category?.id);
+      const name = categoryObj?.name || t.category?.name || this.t('reports.uncategorized') || 'Ostalo';
+      const color = categoryObj?.color || t.category?.color || '#cbd5e1'; // fallback color
       const current = catMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       catMap.set(name, current);
@@ -183,10 +194,12 @@ export class ReportsPage implements OnInit {
   spendingByProject = computed(() => {
     const txs = this.filteredTransactions().filter(t => t.type === 'expense');
     const projMap = new Map<string, { amount: number, color: string }>();
+    const projects = this.projects();
 
     txs.forEach(t => {
-      const name = t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
-      const color = t.project?.color || '#94a3b8'; // fallback color
+      const projectObj = projects.find(p => p.id === t.projectId || p.id === t.project?.id);
+      const name = projectObj?.name || t.project?.name || this.t('reports.uncategorized') || 'Ostalo';
+      const color = projectObj?.color || t.project?.color || '#94a3b8'; // fallback color
       const current = projMap.get(name) || { amount: 0, color: color };
       current.amount += Number(t.amount);
       projMap.set(name, current);
