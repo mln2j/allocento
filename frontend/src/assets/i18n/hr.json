@@ -71,7 +71,7 @@
     "navPrefsDesc": "Odaberite opcije koje želite vidjeti u donjoj navigaciji (Max 4).",
     "langLabel": "Jezik",
     "langDesc": "Trenutno odabrani jezik aplikacije",
-    "pushTitle": "Push Obavijesti",
+    "pushTitle": "Obavijesti",
     "pushDesc": "Primajte obavijesti o novim prihodima i ponavljajućim transakcijama.",
     "pushEnabled": "Web Push obavijesti su uključene!",
     "pushDisabled": "Web Push obavijesti su isključene.",

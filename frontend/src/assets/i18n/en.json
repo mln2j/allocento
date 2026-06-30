@@ -212,7 +212,7 @@
     "navPrefsDesc": "Select the items you want to see in the bottom navigation bar (Max 4).",
     "langLabel": "Language",
     "langDesc": "Current application language context",
-    "pushTitle": "Push Notifications",
+    "pushTitle": "Notifications",
     "pushDesc": "Receive notifications for new incomes and recurring transactions.",
     "pushEnabled": "Web Push notifications enabled!",
     "pushDisabled": "Web Push notifications disabled.",
