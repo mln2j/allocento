@@ -226,6 +226,7 @@ class TransactionController extends Controller
                         $syncedCount++;
                     }
                 } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Sync error for localId ' . ($payload['local_id'] ?? 'unknown') . ': ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
                     $errors[] = [
                         'index' => $index,
                         'action' => $action,

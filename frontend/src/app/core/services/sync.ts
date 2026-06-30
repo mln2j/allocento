@@ -93,14 +93,17 @@ export class SyncService {
               category_id: item.category_id,
               project_id: item.project_id,
               target_account_id: item.target_account_id || item.targetAccountId || null,
-              exclude_from_analytics: item.exclude_from_analytics || item.excludeFromAnalytics || null
+              exclude_from_analytics: item.exclude_from_analytics ?? item.excludeFromAnalytics ?? false
             }
           };
         }
         return {
           action: item.action,
           transaction_id: item.transaction_id,
-          payload: item.payload
+          payload: {
+            ...item.payload,
+            exclude_from_analytics: item.payload?.exclude_from_analytics ?? false
+          }
         };
       })
     };

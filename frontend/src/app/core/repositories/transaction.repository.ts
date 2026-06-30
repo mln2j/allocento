@@ -122,7 +122,7 @@ export class TransactionRepository {
       description: payload.description || null,
       categoryId: payload.categoryId || null,
       targetAccountId: payload.targetAccountId || null,
-      excludeFromAnalytics: payload.excludeFromAnalytics || null,
+      excludeFromAnalytics: payload.excludeFromAnalytics ?? false,
       user: currentUser
     };
 
@@ -141,7 +141,7 @@ export class TransactionRepository {
             description: localTx.description,
             category_id: localTx.categoryId,
             target_account_id: localTx.targetAccountId,
-            exclude_from_analytics: localTx.excludeFromAnalytics,
+            exclude_from_analytics: localTx.excludeFromAnalytics ?? false,
             local_id: localId
           }
         };
