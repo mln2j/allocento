@@ -228,7 +228,7 @@ export class TransactionRepository {
   }
 
   update(accountId: number, transactionId: number, payload: Partial<Transaction>): Observable<Transaction> {
-    if (!this.appInitializer.isOnlineMode) {
+    if (!this.appInitializer.isOnlineMode || transactionId < 0) {
       return this.updateOffline(accountId, transactionId, payload);
     }
 
@@ -266,6 +266,23 @@ export class TransactionRepository {
     return from(
       (async () => {
         await this.localDb.delete('transactions', transactionId);
+        
+        // Ako je transakcija kreirana offline (id < 0) i sada ju brišemo prije sinkronizacije, 
+        // ne moramo niti slati na server. Samo moramo maknuti njeno kreiranje iz queue-a!
+        if (transactionId < 0) {
+          const queue = await this.localDb.getAll('offline_queue');
+          const createItem = queue.find(q => q.action === 'create' && (q.payload?.local_id === transactionId || q.transaction_id === transactionId));
+          if (createItem) {
+            await this.localDb.delete('offline_queue', createItem.localId);
+          }
+          // Takoder obrisi sve eventualne 'update' akcije za tu transakciju
+          const updateItems = queue.filter(q => q.action === 'update' && q.transaction_id === transactionId);
+          for (const item of updateItems) {
+            await this.localDb.delete('offline_queue', item.localId);
+          }
+          return; // Ne dodajemo 'delete' u queue jer na serveru ni ne postoji
+        }
+        
         const queueItem = {
           action: 'delete',
           transaction_id: transactionId
@@ -276,7 +293,7 @@ export class TransactionRepository {
   }
 
   delete(accountId: number, transactionId: number): Observable<void> {
-    if (!this.appInitializer.isOnlineMode) {
+    if (!this.appInitializer.isOnlineMode || transactionId < 0) {
       return this.deleteOffline(accountId, transactionId);
     }
 
