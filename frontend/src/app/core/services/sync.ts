@@ -117,7 +117,7 @@ export class SyncService {
           // Backend je obradio zahtjev, ali ga je eksplicitno odbio (npr. 403, 422).
           // Moramo ga obrisati iz queue-a da ne zapne u beskonačnoj petlji, i iz transactions cache-a da se više ne prikazuje kao "nesinkronizirano".
           await this.localDb.delete('offline_queue', item.localId);
-          await this.localDb.delete('transactions', item.localId);
+          await this.localDb.delete('transactions', itemTxId);
         }
       }
 
