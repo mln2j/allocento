@@ -105,15 +105,19 @@ export class SyncService {
       const response: any = await firstValueFrom(this.http.post(`${API_BASE_URL}/transactions/sync`, payload));
       console.log(`✅ Transakcije bulk sync uspješan! Ažurirano ${response.synced} zapisa.`);
       
-      // Obriši samo uspješno sinkronizirane transaction stavke iz queuea
+      // Obriši uspješno sinkronizirane ILI trajno odbačene transaction stavke iz queuea
       for (const item of queue) {
         const itemTxId = item.transaction_id || item.payload?.local_id || item.localId;
-        const hasError = response.errors && response.errors.some((err: any) => err.transaction_id === itemTxId);
+        const errorObj = response.errors && response.errors.find((err: any) => err.transaction_id === itemTxId);
         
-        if (!hasError) {
+        if (!errorObj) {
           await this.localDb.delete('offline_queue', item.localId);
         } else {
-          console.error(`❌ Greška pri sinkronizaciji stavke (localId: ${item.localId}):`, response.errors.find((err: any) => err.transaction_id === itemTxId));
+          console.error(`❌ Greška pri sinkronizaciji stavke (localId: ${item.localId}):`, errorObj);
+          // Backend je obradio zahtjev, ali ga je eksplicitno odbio (npr. 403, 422).
+          // Moramo ga obrisati iz queue-a da ne zapne u beskonačnoj petlji, i iz transactions cache-a da se više ne prikazuje kao "nesinkronizirano".
+          await this.localDb.delete('offline_queue', item.localId);
+          await this.localDb.delete('transactions', item.localId);
         }
       }
 

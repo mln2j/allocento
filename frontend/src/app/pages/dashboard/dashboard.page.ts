@@ -126,9 +126,12 @@ export class DashboardPage implements OnInit {
 
   private async saveToCache(data: any) {
     try {
-      // Spremamo dashboard stanje pod ključem 'dashboard_summary'
+      const currentWsId = this.workspaceService.activeWorkspace()?.id;
+      if (!currentWsId) return;
+
+      // Spremamo dashboard stanje pod ključem 'dashboard_summary_WSID'
       await this.localDb.put('user_profile', {
-        id: 'dashboard_summary',
+        id: `dashboard_summary_${currentWsId}`,
         total_balance: data.summary?.total_balance,
         primary_account: data.summary?.primary_account,
         recent_transactions: data.recent_transactions,
@@ -143,8 +146,11 @@ export class DashboardPage implements OnInit {
 
   private async loadFromCache() {
     try {
+      const currentWsId = this.workspaceService.activeWorkspace()?.id;
+      if (!currentWsId) return;
+
       const cache = await this.localDb.getAll('user_profile');
-      const dashboardCache = cache.find(item => item.id === 'dashboard_summary');
+      const dashboardCache = cache.find(item => item.id === `dashboard_summary_${currentWsId}`);
       if (dashboardCache) {
         let currentBalance = dashboardCache.total_balance ?? 0;
         let recentTxs = dashboardCache.recent_transactions ?? [];
