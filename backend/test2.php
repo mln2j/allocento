@@ -1,1 +1,0 @@
-<?php \ = Request::create('/test', 'POST', ['operations' => [['action' => 'create', 'payload' => ['account_id' => 27]]]]); \ = Illuminate\Support\Facades\Validator::make(\->all(), ['operations.*.payload' => 'array']); dump(\->validated());
