@@ -46,7 +46,7 @@ export class ReportsPage implements OnInit {
   // Lists for dropdowns
   projects = computed(() => {
     const txs = this.allTransactions();
-    const projMap = new Map<number, { id: number, name: string }>();
+    const projMap = new Map<number, { id: number, name: string, color?: string }>();
     txs.forEach(t => {
       if (t.project) {
         projMap.set(t.project.id, t.project);
@@ -57,7 +57,7 @@ export class ReportsPage implements OnInit {
   
   categories = computed(() => {
     const txs = this.allTransactions();
-    const catMap = new Map<number, { id: number, name: string }>();
+    const catMap = new Map<number, { id: number, name: string, color?: string }>();
     txs.forEach(t => {
       if (t.category) {
         catMap.set(t.category.id, t.category);
