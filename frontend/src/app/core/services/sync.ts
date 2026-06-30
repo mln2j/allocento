@@ -100,9 +100,16 @@ export class SyncService {
       const response: any = await firstValueFrom(this.http.post(`${API_BASE_URL}/transactions/sync`, payload));
       console.log(`✅ Transakcije bulk sync uspješan! Ažurirano ${response.synced} zapisa.`);
       
-      // Obriši samo transaction stavke iz queuea
+      // Obriši samo uspješno sinkronizirane transaction stavke iz queuea
       for (const item of queue) {
-        await this.localDb.delete('offline_queue', item.localId);
+        const itemTxId = item.transaction_id || item.payload?.local_id || item.localId;
+        const hasError = response.errors && response.errors.some((err: any) => err.transaction_id === itemTxId);
+        
+        if (!hasError) {
+          await this.localDb.delete('offline_queue', item.localId);
+        } else {
+          console.error(`❌ Greška pri sinkronizaciji stavke (localId: ${item.localId}):`, response.errors.find((err: any) => err.transaction_id === itemTxId));
+        }
       }
 
       // Id mappings:

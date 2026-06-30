@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, from, of, catchError, tap } from 'rxjs';
+import { Observable, map, from, of, catchError, tap, switchMap } from 'rxjs';
 import { ApiHttpService } from '../services/api-http.service';
 import { Transaction } from '../models/transaction.model';
 import { LocalDbService } from '../services/local-db';
@@ -39,11 +39,24 @@ export class TransactionRepository {
             await this.localDb.clearStore('transactions');
           }
           // Spremi/Keširaj sve transakcije u IndexedDB u pozadini
-          for (const tx of transactions) {
-            await this.localDb.put('transactions', this.mapTransactionToLocal(tx));
+          for (const t of transactions) {
+            await this.localDb.put('transactions', this.mapTransactionToLocal(t));
           }
         } catch (e) {
-          console.warn('Failed to cache transactions', e);
+          console.error('Greška pri spremanju transakcija lokalno', e);
+        }
+      }),
+      switchMap(async (apiTransactions) => {
+        try {
+          const localTxs = await this.localDb.getAll('transactions');
+          const queuedTxs = localTxs
+            .filter(t => t.id < 0)
+            .map(item => this.mapLocalToTransaction(item));
+          
+          const combined = [...queuedTxs, ...apiTransactions];
+          return combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        } catch (e) {
+          return apiTransactions;
         }
       }),
       catchError(() => {
