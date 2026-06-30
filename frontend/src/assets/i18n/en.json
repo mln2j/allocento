@@ -505,6 +505,6 @@
     "uncategorized": "Uncategorized"
   },
   "sync": {
-    "success": "Data synchronized successfully"
+    "success": "{count} offline transactions synchronized"
   }
 }

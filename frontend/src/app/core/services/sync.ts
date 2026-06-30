@@ -75,7 +75,7 @@ export class SyncService {
       // Ako je sve uspješno obrisano i riješeno, emitiraj
       this.syncCompleted$.next();
       
-      const successMsg = this.translationService.translate('sync.success') || 'Podaci uspješno sinkronizirani';
+      const successMsg = this.translationService.translate('sync.success').replace('{count}', queue.length.toString());
       this.toastService.success(successMsg);
 
     } catch (error) {
