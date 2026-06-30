@@ -54,7 +54,7 @@ class AuthService
             'name' => 'Personal',
             'type' => 'personal',
             'currency' => 'EUR',
-            'enabled_features' => ['categories', 'projects'],
+            'enabled_features' => ['categories'],
         ]);
         $personalWorkspace->users()->attach($user->id, ['role' => 'owner']);
 

@@ -26,7 +26,7 @@ class TransactionController extends Controller
         $accountIds = $workspace->accounts()->pluck('accounts.id');
 
         $query = Transaction::whereIn('account_id', $accountIds)
-            ->with(['account', 'category', 'project', 'createdBy'])
+            ->with(['account', 'category', 'createdBy'])
             ->orderBy('date', 'desc');
 
         // Optional tag filtering
@@ -76,7 +76,7 @@ class TransactionController extends Controller
             'date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'category_id' => ['nullable', 'exists:categories,id'],
-            'project_id' => ['nullable', 'exists:projects,id'],
+
             'tags' => ['nullable', 'array'],
             'exclude_from_analytics' => ['nullable', 'boolean'],
         ]);
@@ -121,7 +121,7 @@ class TransactionController extends Controller
             'date' => ['sometimes', 'required', 'date'],
             'description' => ['sometimes', 'nullable', 'string'],
             'category_id' => ['sometimes', 'nullable', 'exists:categories,id'],
-            'project_id' => ['sometimes', 'nullable', 'exists:projects,id'],
+
             'tags' => ['sometimes', 'nullable', 'array'],
             'exclude_from_analytics' => ['sometimes', 'nullable', 'boolean'],
         ]);

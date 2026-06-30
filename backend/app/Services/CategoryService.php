@@ -28,7 +28,7 @@ class CategoryService
 
     public function getCategoryWithTotals(int $id, int $workspaceId)
     {
-        $category = Category::with(['transactions.project', 'transactions.account'])->where(function($q) use ($workspaceId) {
+        $category = Category::with(['transactions.account'])->where(function($q) use ($workspaceId) {
             $q->where('workspace_id', $workspaceId)
               ->orWhereNull('workspace_id');
         })->where('id', $id)->first();
