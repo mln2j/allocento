@@ -173,6 +173,7 @@ class TransactionController extends Controller
                 
                 // For updates and deletes
                 $transactionId = $operation['transaction_id'] ?? null;
+                $originalTransactionId = $transactionId; // Keep for error reporting
                 
                 // If it's an update or delete, but the transactionId is negative (created offline),
                 // we should map it to the real ID that was generated during the 'create' operation in this sync batch.
@@ -225,7 +226,7 @@ class TransactionController extends Controller
                     $errors[] = [
                         'index' => $index,
                         'action' => $action,
-                        'transaction_id' => $transactionId ?? ($payload['local_id'] ?? null),
+                        'transaction_id' => $originalTransactionId ?? ($payload['local_id'] ?? null),
                         'error' => $e->getMessage()
                     ];
                 }

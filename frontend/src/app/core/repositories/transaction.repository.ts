@@ -198,9 +198,9 @@ export class TransactionRepository {
             amount: payload.amount !== undefined ? payload.amount : localItem.amount,
             date: payload.date || localItem.date,
             description: payload.description !== undefined ? payload.description : localItem.description,
-            categoryId: payload.categoryId !== undefined ? payload.categoryId : localItem.categoryId,
-            targetAccountId: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.targetAccountId,
-            excludeFromAnalytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.excludeFromAnalytics
+            category_id: payload.categoryId !== undefined ? payload.categoryId : localItem.category_id,
+            target_account_id: payload.targetAccountId !== undefined ? payload.targetAccountId : localItem.target_account_id,
+            exclude_from_analytics: payload.excludeFromAnalytics !== undefined ? payload.excludeFromAnalytics : localItem.exclude_from_analytics
           };
           await this.localDb.put('transactions', updated);
 
@@ -213,9 +213,9 @@ export class TransactionRepository {
               amount: updated.amount,
               date: updated.date,
               description: updated.description,
-              category_id: updated.categoryId,
-              target_account_id: updated.targetAccountId,
-              exclude_from_analytics: updated.excludeFromAnalytics
+              category_id: updated.category_id,
+              target_account_id: updated.target_account_id,
+              exclude_from_analytics: updated.exclude_from_analytics
             }
           };
           await this.localDb.put('offline_queue', queueItem);
