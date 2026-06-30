@@ -3,6 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Category, CategoryRepository, CategoryDetailsResponse } from '../../core/repositories/category.repository';
+import { AmountPipe } from '../../shared/pipes/amount.pipe';
 import { TranslationService } from '../../core/services/translation.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
@@ -18,7 +19,7 @@ import { AppInitializerService } from '../../core/services/app-initializer';
 @Component({
   selector: 'app-category-details',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent, BaseChartDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent, BaseChartDirective, AmountPipe],
   templateUrl: './category-details.page.html'
 })
 export class CategoryDetailsPage implements OnInit {

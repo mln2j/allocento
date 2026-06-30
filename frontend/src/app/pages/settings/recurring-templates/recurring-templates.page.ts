@@ -11,11 +11,12 @@ import { Account } from '../../../core/models/account.model';
 import { Category, CategoryRepository } from '../../../core/repositories/category.repository';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { AmountInputDirective } from '../../../shared/directives/amount-input.directive';
+import { AmountPipe } from '../../../shared/pipes/amount.pipe';
 
 @Component({
   selector: 'app-recurring-templates',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent, AmountInputDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ModalComponent, AmountInputDirective, AmountPipe],
   templateUrl: './recurring-templates.page.html'
 })
 export class RecurringTemplatesPage implements OnInit {

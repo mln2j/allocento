@@ -145,9 +145,12 @@ export class TransactionsPage implements OnInit {
     return new Date(tx.date).getTime() > Date.now();
   }
 
-  formatAmount(amount: number | string): string {
+  formatAmount(amount: number | string | null | undefined): string {
+    if (amount === null || amount === undefined || amount === '') return '0,00';
     const val = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return val.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (isNaN(val)) return '0,00';
+    const locale = this.translationService.currentLang() === 'hr' ? 'hr-HR' : 'en-US';
+    return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
   }
 
   // Helper to group transactions by date for header rendering

@@ -50,7 +50,7 @@
         </div>
         <div>
           <h3 class="font-bold text-slate-800 font-mono">{{ tpl.name }}</h3>
-          <p class="text-xs text-slate-500">{{ tpl.amount | number:'1.2-2' }} � {{ tpl.frequency }}</p>
+          <p class="text-xs text-slate-500">{{ tpl.amount | appAmount }} � {{ tpl.frequency }}</p>
         </div>
       </div>
       
@@ -132,3 +132,4 @@
     </div>
   </form>
 </app-modal>
+

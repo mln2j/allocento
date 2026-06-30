@@ -305,8 +305,12 @@ export class AccountsPage implements OnInit {
     }
   }
 
-  formatAmount(amount: number): string {
-    return amount.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  formatAmount(amount: number | string | null | undefined): string {
+    if (amount === null || amount === undefined || amount === '') return '0,00';
+    const val = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(val)) return '0,00';
+    const locale = this.translationService.currentLang() === 'hr' ? 'hr-HR' : 'en-US';
+    return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
   }
 
   parseAmount(val: any): number {

@@ -7,7 +7,8 @@ import { TranslationService } from '../../core/services/translation.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { SyncService } from '../../core/services/sync';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { Chart, ChartConfiguration, ChartOptions, registerables } from 'chart.js';
+import { AmountPipe } from '../../shared/pipes/amount.pipe';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 // Import Space Mono font base64 if provided
@@ -17,7 +18,7 @@ import { TransactionModalService } from '../../core/services/transaction-modal.s
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, AmountPipe],
   templateUrl: './reports.page.html',
   styleUrl: './reports.page.css'
 })
@@ -250,9 +251,11 @@ export class ReportsPage implements OnInit {
   }
 
   formatAmount(amount: number | string | null | undefined): string {
-    if (amount === null || amount === undefined) return '0,00';
+    if (amount === null || amount === undefined || amount === '') return '0,00';
     const val = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return val.toLocaleString('hr-HR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (isNaN(val)) return '0,00';
+    const locale = this.translation.currentLang() === 'hr' ? 'hr-HR' : 'en-US';
+    return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
   }
 
   ngOnInit() {

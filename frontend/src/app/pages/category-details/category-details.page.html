@@ -1,4 +1,4 @@
-<div class="w-full space-y-6 pb-24">
+﻿<div class="w-full space-y-6 pb-24">
   
   <!-- Back Header & Actions -->
   <div class="flex flex-col gap-4 pb-4 border-b border-slate-100 mb-8">
@@ -65,7 +65,7 @@
       <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex items-center justify-between">
         <h3 class="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider">Total</h3>
         <p class="text-2xl font-bold font-mono" [ngClass]="(details()?.total_income || 0) - (details()?.total_expense || 0) >= 0 ? 'text-green-600' : 'text-red-500'">
-          {{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) > 0 ? '+' : '' }}{{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}
+          {{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) > 0 ? '+' : '' }}{{ ((details()?.total_income || 0) - (details()?.total_expense || 0)) | appAmount }} {{ activeWorkspace()?.currency || 'EUR' }}
         </p>
       </div>
       
@@ -73,12 +73,12 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm flex flex-col justify-center">
           <p class="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider truncate">{{ t('projects.totalIncome') || 'Prihodi' }}</p>
-          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_income | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
+          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_income | appAmount }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm flex flex-col justify-center">
           <p class="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider truncate">{{ t('projects.totalExpense') || 'TroA.Akovi' }}</p>
-          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_expense | number:'1.2-2' }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
+          <p class="text-base font-bold font-mono text-slate-900 truncate">{{ details()?.total_expense | appAmount }} {{ activeWorkspace()?.currency || 'EUR' }}</p>
         </div>
       </div>
     </div>
@@ -111,7 +111,7 @@
               <span class="font-bold text-xs text-slate-700 truncate">{{ p.name }}</span>
             </div>
             <span class="font-mono text-sm font-bold text-slate-900 flex-shrink-0">
-              {{ p.amount | number:'1.2-2' }} <span class="text-[9px] font-normal text-slate-400">{{ activeWorkspace()?.currency || 'EUR' }}</span>
+              {{ p.amount | appAmount }} <span class="text-[9px] font-normal text-slate-400">{{ activeWorkspace()?.currency || 'EUR' }}</span>
             </span>
           </div>
         </div>
@@ -135,7 +135,7 @@
           <div class="flex items-start justify-between gap-4">
             <div class="font-bold text-sm text-slate-800 truncate leading-tight">{{ tx.description === 'balance_correction' ? (t('transactions.balanceCorrection') || 'Korekcija stanja') : (tx.description || t('transactions.noDescription') || 'No description') }}</div>
             <div class="font-mono text-sm flex-shrink-0" [ngClass]="tx.type === 'income' ? 'text-green-600 font-bold' : 'text-slate-900 font-medium'">
-              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
+              {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | appAmount }} <span class="text-[10px] text-slate-400 font-normal">{{ activeWorkspace()?.currency || 'EUR' }}</span>
             </div>
           </div>
           
@@ -237,3 +237,4 @@
     </div>
   </form>
 </app-modal>
+
