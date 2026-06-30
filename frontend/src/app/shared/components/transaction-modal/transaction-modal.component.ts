@@ -11,6 +11,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Account } from '../../../core/models/account.model';
 import { Transaction } from '../../../core/models/transaction.model';
 import { ModalComponent } from '../../modal/modal.component';
+import { SyncService } from '../../../core/services/sync';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -27,6 +28,7 @@ export class TransactionModalComponent implements OnInit {
   public translationService = inject(TranslationService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
+  private syncService = inject(SyncService);
 
   transactionForm!: FormGroup;
   accounts = signal<Account[]>([]);
@@ -314,6 +316,7 @@ export class TransactionModalComponent implements OnInit {
         this.toastService.success(this.isEditing ? (this.t('transactions.updateSuccess') || 'Transaction updated') : (this.t('transactions.createSuccess') || 'Transaction recorded'));
         this.modalService.notifySaved();
         this.closeModal();
+        this.syncService.syncOfflineQueue();
       },
       error: (err) => {
         this.isSaving = false;
@@ -341,21 +344,19 @@ export class TransactionModalComponent implements OnInit {
       this.transactionRepo.delete(accId, txState.id).subscribe({
         next: () => {
           this.isSaving = false;
-          this.toastService.success(this.t('transactions.deleteSuccess'));
+          this.toastService.success(this.t('transactions.deleteSuccess') || 'Transakcija obrisana');
           this.modalService.notifySaved();
           this.closeModal();
+          this.syncService.syncOfflineQueue();
         },
         error: (err) => {
           this.isSaving = false;
-          this.toastService.error(this.t('transactions.deleteFailed'));
-        }
-      });
-    });
-  }
-}
 
 
-
-
-
-
+                    t h i s . t o a s t S e r v i c e . e r r o r ( e r r . e r r o r ? . m e s s a g e   | |   t h i s . t ( " t r a n s a c t i o n s . d e l e t e F a i l e d " )   | |   " B r i s a n j e   n i j e   u s p j e l o " ) ;  
+                 }  
+             } ) ;  
+         } ) ;  
+     }  
+ }  
+ 
