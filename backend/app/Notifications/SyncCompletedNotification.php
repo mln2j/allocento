@@ -39,7 +39,7 @@ class SyncCompletedNotification extends Notification implements ShouldQueue
     {
         return (new AngularWebPushMessage)
             ->title('Sinkronizacija završena')
-            ->body("Uspješno sinkronizirano {$this->count} offline transakcija!")
+            ->body("Uspješno sinkronizirano {$this->count} lokalnih transakcija!")
             ->icon('/icons/icon-192x192.png')
             ->data(['url' => '/transactions'])
             ->badge('/icons/icon-72x72.png');
