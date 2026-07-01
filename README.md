@@ -7,21 +7,18 @@ Allocento is a Progressive Web Application (PWA) designed for personal, family, 
 ## Project Highlights
 
 - **Tech Stack**: Laravel 12 API & Angular 20 SPA.
-- **Modern UI/UX**: Beautifully curated interfaces styled with premium, responsive, and responsive aesthetics.
+- **Modern UI/UX**: Custom-built, responsive CSS styling using modern design principles (no heavy UI libraries).
 - **Workspace Architecture**: Fluidly switch between different contexts (*Personal*, *Household*, or *Company*) directly from the application header.
 - **Shared Wealth**: Shared accounts across workspaces using flexible pivot tables, role-based member invitation management, and real-time dashboard analytics.
-- **Offline-First & Sync**: Native Dexie.js local database buffering transactions offline and bulk-syncing with Laravel API.
+- **Offline-First & Sync**: Native local database buffering for offline transactions, bulk-syncing with Laravel API when connection is restored.
 
 ---
 
 ## Core Features
 
-A complete list of modules and features can be found in **[features.md](./features.md)**:
-
 - **Auth & Workspace Bootstrap**: Automatic generation of the default "Osobno" personal workspace upon user registration, favorite workspace marking, and multi-language context.
 - **Intelligent Dashboard**: Categorized spending stats, primary account highlighting, and recent activities filtered by active workspace.
-- **Workspace Transactions**: Multi-tag transaction search (e.g. `#clio2`, `#konzum`), bulk transactions sync, and dynamic category assignment.
-- **Recurring Engine**: Creation of daily, weekly, monthly, or yearly recurring templates processed via Laravel Scheduler.
+- **Workspace Transactions**: Fast transaction logging, multi-tag transaction search, and dynamic category assignment, seamlessly handling offline creation and editing.
 - **Workspace Accounts**: Flexible account sharing between multiple workspaces using secure `account_workspace` pivots.
 - **Space Management**: Create custom spaces, send role-based (`manager`, `member`) mail invitations, and assign permissions.
 
@@ -30,7 +27,7 @@ A complete list of modules and features can be found in **[features.md](./featur
 ## Project Structure
 
 - **[Backend (API)](./backend/README.md)**: Laravel 12 API with Sanctum authentication, resolving workspace states via `X-Workspace-ID` header middleware.
-- **[Frontend (Client)](./frontend/README.md)**: Angular 20 PWA with modern Angular Material.
+- **[Frontend (Client)](./frontend/README.md)**: Angular 20 PWA with a custom CSS design system.
 
 ---
 
