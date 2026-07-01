@@ -57,4 +57,6 @@ Allocento is a Progressive Web Application (PWA) designed for personal, family, 
 
 ## License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+
+You are free to use, copy, and modify the software, provided that you give appropriate credit to the original author. You may not use this software for commercial purposes (e.g. charging for its distribution or usage).
