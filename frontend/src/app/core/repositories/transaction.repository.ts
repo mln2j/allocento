@@ -46,17 +46,17 @@ export class TransactionRepository {
           console.error('Greška pri spremanju transakcija lokalno', e);
         }
       }),
-      switchMap(async (apiTransactions) => {
+      switchMap(async (apiTransactions: any[]) => {
         try {
           const offlineQueue = await this.localDb.getAll('offline_queue');
           
           // Apply offline updates and filter out offline deletes
           if (offlineQueue && offlineQueue.length > 0) {
             const deletedIds = offlineQueue.filter(q => q.action === 'delete').map(q => q.transaction_id);
-            apiTransactions = apiTransactions.filter(tx => !deletedIds.includes(tx.id));
+            apiTransactions = apiTransactions.filter((tx: any) => !deletedIds.includes(tx.id));
             
             const updates = offlineQueue.filter(q => q.action === 'update');
-            apiTransactions = apiTransactions.map(tx => {
+            apiTransactions = apiTransactions.map((tx: any) => {
               const update = updates.find(u => u.transaction_id === tx.id);
               if (update) {
                 // Apply update payload to the transaction
