@@ -48,6 +48,34 @@ export class TransactionRepository {
       }),
       switchMap(async (apiTransactions) => {
         try {
+          const offlineQueue = await this.localDb.getAll('offline_queue');
+          
+          // Apply offline updates and filter out offline deletes
+          if (offlineQueue && offlineQueue.length > 0) {
+            const deletedIds = offlineQueue.filter(q => q.action === 'delete').map(q => q.transaction_id);
+            apiTransactions = apiTransactions.filter(tx => !deletedIds.includes(tx.id));
+            
+            const updates = offlineQueue.filter(q => q.action === 'update');
+            apiTransactions = apiTransactions.map(tx => {
+              const update = updates.find(u => u.transaction_id === tx.id);
+              if (update) {
+                // Apply update payload to the transaction
+                return {
+                  ...tx,
+                  type: update.payload.type || tx.type,
+                  amount: update.payload.amount !== undefined ? update.payload.amount : tx.amount,
+                  date: update.payload.date || tx.date,
+                  description: update.payload.description !== undefined ? update.payload.description : tx.description,
+                  categoryId: update.payload.category_id !== undefined ? update.payload.category_id : tx.categoryId,
+                  accountId: update.payload.account_id !== undefined ? update.payload.account_id : tx.accountId,
+                  targetAccountId: update.payload.target_account_id !== undefined ? update.payload.target_account_id : tx.targetAccountId,
+                  excludeFromAnalytics: update.payload.exclude_from_analytics !== undefined ? update.payload.exclude_from_analytics : tx.excludeFromAnalytics
+                };
+              }
+              return tx;
+            });
+          }
+
           const localTxs = await this.localDb.getAll('transactions');
           const queuedTxs = localTxs
             .filter(t => t.id < 0)
