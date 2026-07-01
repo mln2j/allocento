@@ -485,7 +485,8 @@
     "mergeTarget": "Ciljna kategorija",
     "mergeConfirm": "Spoji",
     "mergeSuccess": "Kategorije uspješno spojene!",
-    "mergeFailed": "Spajanje kategorija nije uspjelo."
+    "mergeFailed": "Spajanje kategorija nije uspjelo.",
+    "deleteConfirm": "Jeste li sigurni da želite obrisati ovu kategoriju?"
   },
   "reports": {
     "filters": "Filteri",

@@ -485,7 +485,8 @@
     "mergeTarget": "Target category",
     "mergeConfirm": "Merge",
     "mergeSuccess": "Categories successfully merged!",
-    "mergeFailed": "Failed to merge categories."
+    "mergeFailed": "Failed to merge categories.",
+    "deleteConfirm": "Are you sure you want to delete this category?"
   },
   "reports": {
     "filters": "Filters",
@@ -505,6 +506,6 @@
     "uncategorized": "Uncategorized"
   },
   "sync": {
-    "success": "{count} offline transactions synchronized"
+    "success": "{count} local transactions synchronized"
   }
 }
