@@ -88,9 +88,6 @@ class CategoryService
             Transaction::where('category_id', $from->id)
                 ->update(['category_id' => $to->id]);
 
-            Category::where('parent_id', $from->id)
-                ->update(['parent_id' => $to->id]);
-
             $from->delete();
         });
 

@@ -56,8 +56,7 @@ export class CategoryRepository {
         id: localId,
         workspace_id: this.workspaceService.activeWorkspace()?.id || 0,
         name: data.name || '',
-        type: data.type || 'expense',
-        parent_id: data.parent_id || null
+        type: data.type || 'expense'
       };
       
       return from((async () => {

@@ -2,7 +2,6 @@ export interface Category {
   id: number;
   name: string;
   type: string;
-  parent_id?: number | null;
   workspace_id?: number | null;
 }
 

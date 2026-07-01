@@ -31,9 +31,8 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
-            'type'      => ['required', 'string', 'max:50'],
-            'parent_id' => ['nullable', 'exists:categories,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'in:income,expense'],
         ]);
 
         $workspaceId = $request->header('X-Workspace-Id');
@@ -65,9 +64,8 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $data = $request->validate([
-            'name'      => ['sometimes', 'string', 'max:255'],
-            'type'      => ['sometimes', 'string', 'max:50'],
-            'parent_id' => ['nullable', 'exists:categories,id'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'type' => ['sometimes', 'required', 'in:income,expense'],
         ]);
 
         $workspaceId = $request->header('X-Workspace-Id');
