@@ -53,8 +53,7 @@ class AuthService
         $personalWorkspace = Workspace::create([
             'name' => 'Personal',
             'type' => 'personal',
-            'currency' => 'EUR',
-            'enabled_features' => ['categories'],
+            'currency' => 'EUR'
         ]);
         $personalWorkspace->users()->attach($user->id, ['role' => 'owner']);
 

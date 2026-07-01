@@ -63,7 +63,9 @@ class EloquentWorkspaceRepository implements WorkspaceRepositoryInterface
     {
         $workspace = Workspace::find($workspaceId);
         if ($workspace) {
-            $workspace->enabled_features = $settings;
+            if (isset($settings['currency'])) {
+                $workspace->currency = $settings['currency'];
+            }
             $workspace->save();
             return $workspace;
         }

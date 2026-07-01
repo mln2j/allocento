@@ -14,14 +14,12 @@ class Workspace extends Model
     protected $fillable = [
         'name',
         'type',
-        'currency',
-        'enabled_features',
+        'currency'
     ];
 
     protected function casts(): array
     {
         return [
-            'enabled_features' => 'array',
         ];
     }
 
